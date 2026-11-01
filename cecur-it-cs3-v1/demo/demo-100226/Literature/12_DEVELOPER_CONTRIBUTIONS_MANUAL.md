@@ -14,7 +14,7 @@ The CS3 codebase is structured into modular layers separating client presentatio
 ├── server.ts                 # Full-stack entry point & Express SSE lifecycle
 ├── server/                   # Backend engines & REST APIs
 │   ├── ai/cecurAI.ts         # Dual-agent LLM dispatcher & local heuristics
-│   ├── connectors/           # External integration connectors (HexStrike, etc.)
+│   ├── connectors/           # External integration connectors (Errow, etc.)
 │   ├── data/generators.ts    # Synthetic security telemetry generators
 │   ├── db.ts                 # In-memory database with ACID referential integrity
 │   ├── engine/cecurEngine.ts # Cecur SIEM/XDR Decoders and detection rules
@@ -105,7 +105,7 @@ Add your rule to `CecurEngine.rulesCatalog`:
 
 ---
 
-## 4. Extending HexStrike Offensive Tool Profiles (`server/connectors/hexstrikeClient.ts`)
+## 4. Extending Errow Offensive Tool Profiles (`server/connectors/errowClient.ts`)
 
 To register a new reconnaissance tool:
 1. Add the tool identifier to `SAFE_TOOL_PROFILES`:
@@ -118,7 +118,7 @@ To register a new reconnaissance tool:
      'amass_enum', // Newly added safe profile
    ] as const;
    ```
-2. Implement the scanner invocation and finding parser in `runHexStrikeScan()`. Ensure target verification against `db.targetAllowlist` is preserved.
+2. Implement the scanner invocation and finding parser in `runErrowScan()`. Ensure target verification against `db.targetAllowlist` is preserved.
 
 ---
 

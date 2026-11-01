@@ -62,7 +62,7 @@ export const PRICING_TIERS: PricingTier[] = [
     badgeColor: 'border-[#0A84FF]/40 text-[#BAE3FF] bg-[#0A84FF]/15',
     description: 'Mission-critical defense featuring allowlist-gated offensive recon and dual-engine (CS3 Agent + CECUR-IT Agent) consensus.',
     features: [
-      'Includes Tier 2 + HexStrike AI Offensive Recon',
+      'Includes Tier 2 + errow Offensive Recon',
       'CS3-AI Dual Engine (CS3 Agent + CECUR-IT Agent) - 50,000 Credits/mo',
       'Full GRC Compliance Attestation Engine',
       '365-Day BigQuery Immutable Cold Retention',
@@ -170,7 +170,7 @@ export const RBAC_ACCESS_MATRIX: RBACMatrixRow[] = [
     executive: 'Denied (HTTP 403)',
   },
   {
-    panelAction: 'HexStrike AI Offensive Recon (hexstrike)',
+    panelAction: 'errow Offensive Recon (errow)',
     analyst: 'Denied (HTTP 403)',
     admin: 'Full Authority',
     auditor: 'Denied (HTTP 403)',

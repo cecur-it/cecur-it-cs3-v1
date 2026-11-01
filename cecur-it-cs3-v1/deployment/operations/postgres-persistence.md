@@ -27,8 +27,8 @@ curl -fsS http://localhost:3000/api/health | python3 -m json.tool
 | `auditLogs` | `cs3.audit_logs` | append-only ledger | hash chain, RLS, mutation triggers |
 | `sensors` | `cs3.sensors` | `id text`, `data jsonb` | `updated_at` index for dashboard reads |
 | `transactions` | `cs3.transactions` | `id text`, `data jsonb` | trigger blocks changes once `status=COMPLETED` |
-| `hexstrikeAllowlist` | `cs3.hexstrike_allowlist` | `id text`, `data jsonb` | GIN on JSONB |
-| `hexstrikeJobs` | `cs3.hexstrike_jobs` | `id text`, `data jsonb` | GIN on JSONB |
+| `errowAllowlist` | `cs3.errow_allowlist` | `id text`, `data jsonb` | GIN on JSONB |
+| `errowJobs` | `cs3.errow_jobs` | `id text`, `data jsonb` | GIN on JSONB |
 | `wazuhAlerts` | `cs3.wazuh_alerts` | `id text`, `data jsonb` | index on `(data->>'ruleLevel')::int` |
 | `activtrakSessions` | `cs3.activtrak_sessions` | `id text`, `data jsonb` | GIN on JSONB |
 

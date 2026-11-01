@@ -342,7 +342,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 { id: 'sensors', name: 'CS3 Sensors' },
                 { id: 'wazuh', name: 'Wazuh EDR' },
                 { id: 'activtrak', name: 'Insider Risk' },
-                { id: 'hexstrike', name: 'HexStrike AI' },
+                { id: 'errow', name: 'errow' },
                 { id: 'audit', name: 'Audit Trail' },
                 { id: 'executive', name: 'Executive KPIs' },
               ].map((p) => {

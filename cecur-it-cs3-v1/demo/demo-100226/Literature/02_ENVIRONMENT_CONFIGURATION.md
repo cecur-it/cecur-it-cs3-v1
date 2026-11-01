@@ -9,7 +9,7 @@ The **CS3 (CECUR-IT Cyber Security Operations Console)** backend is built on Nod
 
 ### Container & Networking Rules
 1. **Single Public Port Constraint**: The container exposes **Port 3000** exclusively. All ingress HTTP, REST API, Server-Sent Events (SSE), and static frontend assets are reverse-proxied through `0.0.0.0:3000`.
-2. **Server-Side API Security**: Secret API credentials (Gemini, DeepSeek, HexStrike, ActivTrak, Firebase Admin) **must never** be exposed to the browser or prefixed with `VITE_`.
+2. **Server-Side API Security**: Secret API credentials (Gemini, DeepSeek, Errow, ActivTrak, Firebase Admin) **must never** be exposed to the browser or prefixed with `VITE_`.
 3. **Dual Development & Production Server**: In development mode, Express directly mounts Vite middleware (`middlewareMode: true`) for instantaneous hot execution. In production mode, Express serves pre-built static assets from `/dist` with full SPA route fallback.
 
 ---
@@ -24,8 +24,8 @@ All configurable environment variables must be declared in `.env.example` to doc
 | `NODE_ENV` | Optional | `development` / `production` | Platform | Controls Vite middleware attachment vs. static `/dist` bundle serving. |
 | `GEMINI_API_KEY` | Optional | `AIzaSy...` | Server | Enables the primary **CS3 Agent** (Gemini 3.7 Flash) for threat reasoning. |
 | `DEEPSEEK_API_KEY` | Optional | `sk-...` | Server | Enables the secondary **CECUR-IT Agent** (DeepSeek Chat) as fallback. |
-| `HEXSTRIKE_BASE_URL` | Optional | `https://hexstrike.internal:8000` | Server | Target URL of active HexStrike AI reconnaissance server daemon. |
-| `HEXSTRIKE_API_KEY` | Optional | `hex_secret_token_...` | Server | Authorization bearer token for HexStrike REST API. |
+| `ERROW_BASE_URL` | Optional | `https://errow.internal:8000` | Server | Target URL of active errow reconnaissance server daemon. |
+| `ERROW_API_KEY` | Optional | `hex_secret_token_...` | Server | Authorization bearer token for Errow REST API. |
 | `ACTIVTRAK_BASE_URL` | Optional | `https://api.activtrak.com/v1` | Server | ActivTrak Insider Risk API gateway endpoint. |
 | `ACTIVTRAK_API_KEY` | Optional | `at_sec_...` | Server | API authentication key for ActivTrak cloud service. |
 | `ACTIVTRAK_ACCOUNT_ID` | Optional | `act-org-7821` | Server | Organization / Account identifier within ActivTrak tenant. |
@@ -49,8 +49,8 @@ GEMINI_API_KEY=your_gemini_api_key_here
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 
 # External Security Services (Optional - Platform runs in simulated mode if unset)
-HEXSTRIKE_BASE_URL=https://hexstrike.internal:8000
-HEXSTRIKE_API_KEY=your_hexstrike_api_key
+ERROW_BASE_URL=https://errow.internal:8000
+ERROW_API_KEY=your_errow_api_key
 ACTIVTRAK_BASE_URL=https://api.activtrak.com/v1
 ACTIVTRAK_API_KEY=your_activtrak_key
 ACTIVTRAK_ACCOUNT_ID=act-org-7821

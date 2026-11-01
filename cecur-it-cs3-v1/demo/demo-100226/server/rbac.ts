@@ -21,7 +21,7 @@ export const PANEL_PERMISSIONS: Record<string, UserRole[]> = {
   activtrak: ['analyst', 'admin', 'auditor'], // Denied to executive
   sensors: ['analyst', 'admin', 'auditor'], // Denied to executive
   fusion: ['analyst', 'admin'], // Denied to auditor, executive
-  hexstrike: ['admin'], // Strictly admin only!
+  errow: ['admin'], // Strictly admin only!
   audit: ['analyst', 'admin', 'auditor', 'executive'],
   executive: ['admin', 'auditor', 'executive'], // Denied to analyst
   pricing: ['analyst', 'admin', 'auditor', 'executive'], // Allowed to all roles

@@ -20,10 +20,17 @@ their own licenses. Nothing in this repository relicenses them.
                See demo/demo-100226/bbot-stable/LICENSE.
    Scope:      Vendored reference tree, excluded from the console image and build.
 
-3. demo/demo-100226/hexstrike-ai-master/ — HexStrike AI
-   License:    MIT License, Copyright (c) 2026 Muhammad Osama (0x4m4)
-               See demo/demo-100226/hexstrike-ai-master/LICENSE.
-   Scope:      Vendored reference tree, excluded from the console image and build.
+3. errow/ — errow and errow-agent (offensive security engine, sandboxes, knowledge packs)
+   License:    Apache License, Version 2.0
+               Copyright (c) 2024-2026 CECUR-IT and the errow contributors.
+               See errow/LICENSE.md.
+   Scope:      Engine, CLI and container definitions (errow/, errow/containers/) are
+               Apache-2.0. The offensive knowledge packs in errow/skills/ are Apache-2.0
+               WITH use restrictions (errow/LICENSE.md, Section 4): authorized security
+               testing only; the responsible-disclosure and acceptable-use notices in
+               that tree must be retained. The errow name and brand assets are reserved
+               (errow/LICENSE.md, Section 5). The tree is excluded from the console image
+               and build; it is staged separately for the airgap bundle.
 
 4. Fonts — Inter, Space Grotesk, JetBrains Mono
    Bundled locally through the @fontsource-variable/* npm packages (no Google Fonts

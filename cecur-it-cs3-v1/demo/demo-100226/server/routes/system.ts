@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { db } from '../db';
 import { requireAuth, requireAction, AuthenticatedRequest } from '../middleware/auth';
 import { getAIStatus } from '../ai/cecurAI';
-import { getHexStrikeStatus } from '../connectors/hexstrikeClient';
+import { getErrowStatus } from '../connectors/errowClient';
 import { getResolvedFirebaseConfig, isFirestoreEnabled } from '../firestoreSync';
 
 export const systemRouter = Router();
@@ -10,7 +10,7 @@ export const systemRouter = Router();
 // Environment & connector secrets health diagnostic
 systemRouter.get('/environment-status', requireAuth, (req: AuthenticatedRequest, res: Response) => {
   const aiStatus = getAIStatus();
-  const hexstrikeStatus = getHexStrikeStatus();
+  const errowStatus = getErrowStatus();
   const fbConfig = getResolvedFirebaseConfig();
 
   const isJwtCustom = Boolean(process.env.JWT_SECRET && process.env.JWT_SECRET !== 'cecur-it-soc-jwt-secret-key-production-change-me');
@@ -32,10 +32,10 @@ systemRouter.get('/environment-status', requireAuth, (req: AuthenticatedRequest,
       firestoreDatabaseId: fbConfig.firestoreDatabaseId,
       authDomain: fbConfig.authDomain,
     },
-    hexstrike: {
-      mode: hexstrikeStatus.mode,
-      configured: hexstrikeStatus.authenticated,
-      baseUrl: hexstrikeStatus.baseUrl || 'internal-simulation',
+    errow: {
+      mode: errowStatus.mode,
+      configured: errowStatus.authenticated,
+      baseUrl: errowStatus.baseUrl || 'internal-simulation',
     },
     auth: {
       jwtSecretConfigured: isJwtCustom,
@@ -79,7 +79,7 @@ systemRouter.get('/pricing', requireAuth, (req: AuthenticatedRequest, res: Respo
         scope: 'Unlimited Fleet Scope',
         aiQuota: 'Uncapped CS3-AI Dual Engine',
         features: [
-          'Includes Tier 2 + HexStrike AI Offensive Recon',
+          'Includes Tier 2 + errow Offensive Recon',
           'CS3-AI Dual Engine (CS3 Agent + CECUR-IT Agent) Uncapped',
           'Full GRC Compliance Attestation Engine',
           '365-Day BigQuery Immutable Cold Retention',

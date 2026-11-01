@@ -14,7 +14,7 @@ import { CecurPanel } from './components/panels/CecurPanel';
 import { ActivTrakPanel } from './components/panels/ActivTrakPanel';
 import { SensorsPanel } from './components/panels/SensorsPanel';
 import { FusionPanel } from './components/panels/FusionPanel';
-import { HexStrikePanel } from './components/panels/HexStrikePanel';
+import { ErrowPanel } from './components/panels/ErrowPanel';
 import { AuditPanel } from './components/panels/AuditPanel';
 import { ExecutivePanel } from './components/panels/ExecutivePanel';
 import { PricingPanel } from './components/panels/PricingPanel';
@@ -117,7 +117,7 @@ function AuthGateway() {
     },
     admin: {
       title: 'Security Administrator',
-      desc: 'Full authority, offensive HexStrike scans, target allowlist management, and DB reseeding.',
+      desc: 'Full authority, offensive Errow scans, target allowlist management, and DB reseeding.',
       badgeColor: 'border-[#00FF66]/30 text-[#00FF66] bg-[#00FF66]/10',
     },
     auditor: {
@@ -662,8 +662,8 @@ function MainLayout() {
         return <SensorsPanel sensors={liveSensors} />;
       case 'fusion':
         return <FusionPanel />;
-      case 'hexstrike':
-        return <HexStrikePanel />;
+      case 'errow':
+        return <ErrowPanel />;
       case 'audit':
         return <AuditPanel />;
       case 'executive':

@@ -82,8 +82,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       description: '3D topology & blast radius',
     },
     {
-      id: 'hexstrike',
-      name: 'HexStrike AI Recon',
+      id: 'errow',
+      name: 'errow Recon',
       icon: Crosshair,
       badge: 'ADMIN',
       badgeColor: 'bg-[#0A84FF]/20 text-[#0A84FF] border-[#0A84FF]/40',

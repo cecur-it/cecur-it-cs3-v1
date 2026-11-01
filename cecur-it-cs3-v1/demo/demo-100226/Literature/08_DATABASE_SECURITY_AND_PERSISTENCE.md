@@ -39,7 +39,7 @@ The hot tier maintains full in-memory referential integrity:
 * `cecurAgents`: Enrolled endpoint agents with OS and connection metadata.
 * `cecurAlerts`: Parsed log alerts categorized by MITRE ATT&CK tactics.
 * `targetAllowlist`: Authorized hosts for offensive reconnaissance.
-* `hexstrikeJobs`: Executing and completed vulnerability scan tasks.
+* `errowJobs`: Executing and completed vulnerability scan tasks.
 * `auditLogs`: Immutable actor operational history.
 
 ---

@@ -36,6 +36,9 @@ spec:
             - { name: OLLAMA_BASE_URL, value: "http://cs3-ollama-lb:11434/v1" }
             - { name: OLLAMA_PRIMARY_MODEL, value: "nemotron-3-nano:30b" }
             - { name: OLLAMA_FALLBACK_MODEL, value: "gemma4:26b" }
+            - { name: ERROW_MODE, value: embedded }
+            - { name: ERROW_SANDBOX_RUNTIME, value: docker }
+            - { name: ERROW_API_KEY, valueFrom: { secretKeyRef: { name: cs3-credentials, key: ERROW_API_KEY, optional: true } } }
             - { name: CECUR_INDEXER_URL, value: "https://wazuh-indexer.cs3-siem.svc:9200" }
             - { name: JWT_SECRET, valueFrom: { secretKeyRef: { name: cs3-credentials, key: JWT_SECRET } } }
             - { name: DATABASE_URL, valueFrom: { secretKeyRef: { name: cs3-credentials, key: DATABASE_URL } } }

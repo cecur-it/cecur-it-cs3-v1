@@ -2,23 +2,23 @@ import { Router, Response } from 'express';
 import { db } from '../db';
 import { requireAuth, requirePanel, requireAction, AuthenticatedRequest } from '../middleware/auth';
 import {
-  getHexStrikeStatus,
-  runHexStrikeScan,
+  getErrowStatus,
+  runErrowScan,
   SAFE_TOOL_PROFILES,
   SafeTool,
-} from '../connectors/hexstrikeClient';
+} from '../connectors/errowClient';
 import { TargetAllowlistEntry } from '../../src/types';
 
-export const hexstrikeRouter = Router();
+export const errowRouter = Router();
 
 // Panel status (Admin only)
-hexstrikeRouter.get('/status', requireAuth, requirePanel('hexstrike'), (req: AuthenticatedRequest, res: Response) => {
-  const status = getHexStrikeStatus();
+errowRouter.get('/status', requireAuth, requirePanel('errow'), (req: AuthenticatedRequest, res: Response) => {
+  const status = getErrowStatus();
   res.json(status);
 });
 
 // Target Allowlist
-hexstrikeRouter.get('/allowlist', requireAuth, requirePanel('hexstrike'), (req: AuthenticatedRequest, res: Response) => {
+errowRouter.get('/allowlist', requireAuth, requirePanel('errow'), (req: AuthenticatedRequest, res: Response) => {
   res.json({
     count: db.targetAllowlist.length,
     targets: db.targetAllowlist,
@@ -26,10 +26,10 @@ hexstrikeRouter.get('/allowlist', requireAuth, requirePanel('hexstrike'), (req: 
 });
 
 // Add new target to allowlist (Admin only + strict validation)
-hexstrikeRouter.post(
+errowRouter.post(
   '/allowlist',
   requireAuth,
-  requirePanel('hexstrike'),
+  requirePanel('errow'),
   requireAction('manage_allowlist'),
   (req: AuthenticatedRequest, res: Response) => {
     const { hostname, ipRange, ownerDepartment, notes } = req.body;
@@ -65,11 +65,11 @@ hexstrikeRouter.post(
       actorUsername: req.user?.username || 'unknown',
       actorRole: req.user?.role || 'admin',
       action: 'ADD_TARGET_ALLOWLIST',
-      panel: 'hexstrike',
+      panel: 'errow',
       targetResource: newTarget.hostname,
       ipAddress: clientIp,
       status: 'SUCCESS',
-      details: `Added new authorized target '${newTarget.hostname}' (${newTarget.ipRange}) to HexStrike safe allowlist.`,
+      details: `Added new authorized target '${newTarget.hostname}' (${newTarget.ipRange}) to Errow safe allowlist.`,
     });
 
     res.json({ success: true, target: newTarget });
@@ -77,10 +77,10 @@ hexstrikeRouter.post(
 );
 
 // Revoke/remove target from allowlist
-hexstrikeRouter.delete(
+errowRouter.delete(
   '/allowlist/:id',
   requireAuth,
-  requirePanel('hexstrike'),
+  requirePanel('errow'),
   requireAction('manage_allowlist'),
   (req: AuthenticatedRequest, res: Response) => {
     const index = db.targetAllowlist.findIndex((t) => t.id === req.params.id);
@@ -97,11 +97,11 @@ hexstrikeRouter.delete(
       actorUsername: req.user?.username || 'unknown',
       actorRole: req.user?.role || 'admin',
       action: 'REVOKE_TARGET_ALLOWLIST',
-      panel: 'hexstrike',
+      panel: 'errow',
       targetResource: removed.hostname,
       ipAddress: clientIp,
       status: 'SUCCESS',
-      details: `Revoked authorization and removed target '${removed.hostname}' from HexStrike allowlist.`,
+      details: `Revoked authorization and removed target '${removed.hostname}' from Errow allowlist.`,
     });
 
     res.json({ success: true, message: `Target ${removed.hostname} removed.` });
@@ -109,10 +109,10 @@ hexstrikeRouter.delete(
 );
 
 // Trigger scan (Admin only, strictly gated to allowlisted target & SAFE_TOOL_PROFILES)
-hexstrikeRouter.post(
+errowRouter.post(
   '/run-scan',
   requireAuth,
-  requirePanel('hexstrike'),
+  requirePanel('errow'),
   requireAction('run_scan'),
   async (req: AuthenticatedRequest, res: Response) => {
     const { targetId, targetHost, tool } = req.body;
@@ -124,7 +124,7 @@ hexstrikeRouter.post(
         actorUsername: req.user?.username || 'unknown',
         actorRole: req.user?.role || 'admin',
         action: 'SCAN_TOOL_REJECTED',
-        panel: 'hexstrike',
+        panel: 'errow',
         targetResource: `${targetHost || targetId} [${tool}]`,
         ipAddress: clientIp,
         status: 'DENY_403',
@@ -139,7 +139,7 @@ hexstrikeRouter.post(
     }
 
     try {
-      const job = await runHexStrikeScan(
+      const job = await runErrowScan(
         targetHost,
         targetId,
         tool as SafeTool,
@@ -151,7 +151,7 @@ hexstrikeRouter.post(
         actorUsername: req.user?.username || 'unknown',
         actorRole: req.user?.role || 'admin',
         action: 'EXECUTE_SAFE_SCAN',
-        panel: 'hexstrike',
+        panel: 'errow',
         targetResource: `${job.targetHost} [${job.tool}]`,
         ipAddress: clientIp,
         status: 'SUCCESS',
@@ -165,7 +165,7 @@ hexstrikeRouter.post(
         actorUsername: req.user?.username || 'unknown',
         actorRole: req.user?.role || 'admin',
         action: 'SCAN_FAILED',
-        panel: 'hexstrike',
+        panel: 'errow',
         targetResource: `${targetHost || targetId} [${tool}]`,
         ipAddress: clientIp,
         status: 'ERROR',
@@ -178,9 +178,9 @@ hexstrikeRouter.post(
 );
 
 // Scan Jobs history
-hexstrikeRouter.get('/jobs', requireAuth, requirePanel('hexstrike'), (req: AuthenticatedRequest, res: Response) => {
+errowRouter.get('/jobs', requireAuth, requirePanel('errow'), (req: AuthenticatedRequest, res: Response) => {
   res.json({
-    total: db.hexstrikeJobs.length,
-    jobs: db.hexstrikeJobs,
+    total: db.errowJobs.length,
+    jobs: db.errowJobs,
   });
 });

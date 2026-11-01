@@ -15,7 +15,7 @@ CECUR-IT eliminates this paradigm by unifying all security dimensions into a sin
 2. Physical and Industrial Control Systems (ICS/SCADA) telemetry from the CS3 Distributed Sensor Grid.
 3. High-fidelity User and Entity Behavior Analytics (UEBA) and workforce risk monitoring powered by ActivTrak.
 4. Real-time, multidimensional Asset Fusion Blast Radius Graph modeling attack trajectories across IT, OT, and cloud topologies.
-5. Autonomous external attack surface reconnaissance and offensive validation via HexStrike AI and the BBOT multi-module scanning suite.
+5. Autonomous external attack surface reconnaissance and offensive validation via errow and the BBOT multi-module scanning suite.
 6. Dual-Engine LLM Agentic Copilot integration utilizing Gemini 2.5 Flash for sub-150ms real-time event classification and Gemini 2.5 Pro for deep forensic root-cause analysis and automated multi-platform SOAR remediation.
 7. Sovereign data persistence, granular role-based access control (RBAC/RBAM), and predictable consumption economics with an AI gas-metered fueling architecture backed by Firebase Firestore.
 
@@ -33,7 +33,7 @@ Critical infrastructure operates under zero-acceptable-downtime constraints. Unl
  │ • Siloed SIEM (Splunk / QRadar)  │                            │ • Physical & OT Telemetry (CS3)  │
  │ • Fragmented Commercial EDR      │                            │ • Native SIEM / Host Alerting    │
  │ • Disjointed Insider Analytics   │ ───► Unified Ingestion ───►│ • ActivTrak Insider Risk Telemetry│
- │ • Disconnected Pen-Test Tools    │                            │ • HexStrike AI & BBOT Recon      │
+ │ • Disconnected Pen-Test Tools    │                            │ • errow & BBOT Recon      │
  │ • Static 2D Asset Inventories    │                            │ • Dynamic Asset Fusion 3D Graph  │
  └──────────────────────────────────┘                            └──────────────────────────────────┘
 ```
@@ -48,7 +48,7 @@ Critical infrastructure operates under zero-acceptable-downtime constraints. Unl
 | **Autonomous Offensive Recon / EASM** | CyCognitive, Hadrian, Bishop Fox, BBOT standalone | Deep asset discovery, vulnerability exposure validation, zero-day surface mapping. | Disconnected from defensive SOC queues; offensive findings require manual ticket creation and lack automated blue-team SOAR remediation synthesis. |
 
 ### Strategic Leverages & Unfair Advantages
-1. **Unified Cross-Domain Context**: CECUR-IT correlates a physical substation sensor alert (CS3), an active user USB exfiltration event (ActivTrak), an endpoint authentication failure (SIEM), and an exposed external API asset (HexStrike/BBOT) into a single unified incident graph.
+1. **Unified Cross-Domain Context**: CECUR-IT correlates a physical substation sensor alert (CS3), an active user USB exfiltration event (ActivTrak), an endpoint authentication failure (SIEM), and an exposed external API asset (Errow/BBOT) into a single unified incident graph.
 2. **Deterministic Dual-Engine AI Architecture**: Unlike superficial chat wrappers, CECUR-IT uses Gemini 2.5 Flash for sub-150ms event triage while reserving Gemini 2.5 Pro for deep forensic reasoning and multi-platform remediation code generation. If external connectivity is severed, a deterministic rule-based fallback maintains 100% operational uptime in air-gapped facilities.
 3. **Transparent Consumption Economics**: Organizations avoid surprise log-volume overage penalties through fixed tiering and clear AI "gas fees" credit metering.
 
@@ -99,10 +99,10 @@ A high-performance interactive topology canvas delivering real-time blast radius
 - **Blast Radius Simulation**: Visual projection of potential downstream impact if an active node is fully compromised.
 - **Direct Graph Isolation**: Ability to select any compromised node within the canvas and trigger immediate network isolation.
 
-### 7. HexStrike AI & BBOT Offensive Reconnaissance (`HexStrikePanel.tsx` / `server/routes/hexstrike.ts` & `server/connectors/hexstrikeClient.ts`)
+### 7. errow & BBOT Offensive Reconnaissance (`ErrowPanel.tsx` / `server/routes/errow.ts` & `server/connectors/errowClient.ts`)
 Continuous external attack surface management (EASM) and autonomous adversary emulation:
 - **BBOT Integration**: Comprehensive multi-module OSINT scanning suite executing DNS brute forcing, certificate transparency mining via crt.sh, subdomain enumeration, HTTP banner grabbing, Nuclei template execution, WAF fingerprinting (wafw00f), public cloud bucket enumeration (AWS S3, Azure Blob, GCP Storage), and secret discovery (TruffleHog).
-- **HexStrike AI Agent Execution**: Model Context Protocol (MCP) server orchestrating automated tool calling, exploit vector verification, and safe proof-of-concept testing within strict defensive guardrails.
+- **errow Agent Execution**: Model Context Protocol (MCP) server orchestrating automated tool calling, exploit vector verification, and safe proof-of-concept testing within strict defensive guardrails.
 - **Defensive Translation**: Automatically converts discovered external vulnerabilities into custom SIEM detection rules and perimeter blocking configurations.
 
 ### 8. Operational Audit Trail & GRC Governance (`AuditPanel.tsx` & `ExecutivePanel.tsx`)
@@ -115,7 +115,7 @@ Immutable compliance logging and C-suite reporting:
 A transparent, multi-tier commercial framework featuring AI credit fueling and Firestore transaction synchronization:
 - **Tier 1: Defense Essentials ($2,800 / month)**: Up to 250 endpoints; core SIEM log collection, CS3 physical sensor taps, read-only incident queue, 30-day hot data retention, baseline/metered AI.
 - **Tier 2: Advanced Enterprise XDR ($6,500 / month - Recommended)**: Up to 1,000 endpoints; Tier 1 capabilities plus ActivTrak insider risk intelligence, Asset Fusion blast radius graph, automated SOAR playbooks, 10,000 monthly AI fuel credits, 90-day hot retention.
-- **Tier 3: Critical Infrastructure Defense ($18,500 / month)**: Custom multi-tenant fleet; Tier 2 capabilities plus HexStrike AI autonomous offensive recon, air-gapped ICS/SCADA grid support, 50,000 monthly AI fuel credits, 365-day cold archive, 24/7 dedicated threat engineering.
+- **Tier 3: Critical Infrastructure Defense ($18,500 / month)**: Custom multi-tenant fleet; Tier 2 capabilities plus errow autonomous offensive recon, air-gapped ICS/SCADA grid support, 50,000 monthly AI fuel credits, 365-day cold archive, 24/7 dedicated threat engineering.
 - **AI Fuel Credit Add-Ons**: Starter Pack (5,000 credits @ $250), Tactical Pack (20,000 credits @ $850), Sovereign Fleet Pack (100,000 credits @ $3,500).
 - **Payment & Persistence**: Multi-gateway payment handling (Credit Card, Procurement PO, ACH Wire) with live persistence to the Firebase Firestore `transactions` collection.
 
@@ -340,14 +340,14 @@ CECUR-IT implements strict Role-Based Access Control and Role-Based Access Manag
 | **ActivTrak Insider Risk (`activtrak`)** | Full Access | Full Access | Read-Only | Denied (HTTP 403) |
 | **CS3 Distributed Sensors (`sensors`)** | Calibrate / View | Full Admin / Reboot | Read-Only | Denied (HTTP 403) |
 | **Asset Fusion 3D Graph (`fusion`)** | Full Access | Full Access | Denied (HTTP 403) | Denied (HTTP 403) |
-| **HexStrike AI Offensive Recon (`hexstrike`)**| Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
+| **errow Offensive Recon (`errow`)**| Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
 | **Operational Audit Trail (`audit`)** | View Logs | Full Export | Full Export | View Logs |
 | **Executive CISO Dashboards (`executive`)** | Denied (HTTP 403) | Full Access | Full Access | Full Access |
 | **Database Reseed & Reset (`reseed_db`)** | Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
 
 ### Security Persona Scope Definitions
 1. **Analyst (`analyst`)**: Focuses on operational incident triage, sensor calibration, and threat hunting across SIEM, ActivTrak, Sensor Grid, and Asset Fusion. Restricted from triggering offensive penetration tests or viewing executive financial KPIs.
-2. **Administrator (`admin`)**: Complete system authority across all operational panels, offensive recon execution (HexStrike/BBOT), sensor node reboots, and system configuration.
+2. **Administrator (`admin`)**: Complete system authority across all operational panels, offensive recon execution (Errow/BBOT), sensor node reboots, and system configuration.
 3. **Auditor (`auditor`)**: Read-only observation privileges across all security telemetry. Possesses full export rights for compliance reporting and audit verification. Blocked from active remediation or offensive recon.
 4. **Executive (`executive`)**: High-level CISO and board governance visibility. Full access to executive posture metrics, ROI analytics, and audit summaries. Restricted from raw operational sensor configurations and offensive testing triggers.
 
@@ -372,7 +372,7 @@ CECUR-IT implements strict Role-Based Access Control and Role-Based Access Manag
  ├──────────────────────────────┤ ├──────────────────────────────┤ ├──────────────────────────────┤
  │ • Up to 250 Endpoints        │ │ • Up to 1,000 Endpoints      │ │ • Up to 5,000 Endpoints / Custom Fleet   │
  │ • Core SIEM + CS3 Sensor Taps│ │ • Includes Tier 1 Features   │ │ • Includes Tier 2 Features   │
- │ • Read-Only Incident Queue   │ │ • ActivTrak Insider Risk     │ │ • HexStrike AI Offensive Rec │
+ │ • Read-Only Incident Queue   │ │ • ActivTrak Insider Risk     │ │ • errow Offensive Rec │
  │ • 30-Day Hot Data Retention  │ │ • Asset Fusion 3D Graph      │ │ • BBOT Full OSINT Suite      │
  │ • Baseline / Metered AI      │ │ • Automated SOAR Playbooks   │ │ • Air-Gapped ICS/SCADA Grid  │
  │                              │ │ • 10,000 AI Fuel Credits/mo  │ │ • 50,000 AI Fuel Credits/mo  │
@@ -385,7 +385,7 @@ To prevent unbounded LLM inference overhead and ensure transparent resource acco
 - **Baseline Metering**: Standard incident parsing and rule tagging consume nominal gas units.
 - **Deep Forensic Synthesis**: Complex multi-stage attack path analysis consumes 25-50 gas credits per incident.
 - **Automated Remediation Code Generation**: Full multi-platform script synthesis consumes 15-30 gas credits.
-- **Autonomous HexStrike Recon Task**: Comprehensive external attack path emulation consumes 100-250 gas credits.
+- **Autonomous Errow Recon Task**: Comprehensive external attack path emulation consumes 100-250 gas credits.
 - **Refill Fuel Packs**: Starter Fuel Pack (5,000 credits @ $250), Tactical Fuel Pack (20,000 credits @ $850), Sovereign Fleet Pack (100,000 credits @ $3,500).
 
 --------------------------------------------------------------------------------
@@ -414,13 +414,13 @@ To prevent unbounded LLM inference overhead and ensure transparent resource acco
 │   ├── bbot/modules/                          # BBOT scanner modules (subdomains, DNS, Nuclei, WAF, S3 buckets)
 │   └── bbot/presets/                          # Standard reconnaissance presets
 │
-├── hexstrike-ai-master/                       # HexStrike AI offensive intelligence suite
-│   ├── hexstrike_mcp.py                       # Model Context Protocol (MCP) tool server
-│   └── hexstrike_server.py                    # HexStrike API execution service
+├── errow/                       # errow offensive intelligence suite
+│   ├── errow_mcp.py                       # Model Context Protocol (MCP) tool server
+│   └── errow_server.py                    # Errow API execution service
 │
 ├── server/                                    # Backend services, routes, and engines
 │   ├── ai/cecurAI.ts                          # Dual-engine LLM reasoning and SOAR remediation generator
-│   ├── connectors/hexstrikeClient.ts          # HexStrike and BBOT execution bridge
+│   ├── connectors/errowClient.ts          # Errow and BBOT execution bridge
 │   ├── engine/cecurEngine.ts                  # Core open-source SIEM/XDR event correlation engine
 │   ├── middleware/auth.ts                     # Authentication and session validation middleware
 │   ├── routes/                                # Modular Express API routes
@@ -430,7 +430,7 @@ To prevent unbounded LLM inference overhead and ensure transparent resource acco
 │   │   ├── cecur.ts                           # SIEM log ingestion, rules, and telemetry endpoints
 │   │   ├── executive.ts                       # Executive CISO KPIs and GRC compliance endpoints
 │   │   ├── fusion.ts                          # 3D Asset Fusion graph and blast radius endpoints
-│   │   ├── hexstrike.ts                       # HexStrike and BBOT offensive recon endpoints
+│   │   ├── errow.ts                       # Errow and BBOT offensive recon endpoints
 │   │   ├── incidents.ts                       # Correlated incident queue and SOAR endpoints
 │   │   ├── overview.ts                        # Command Center overview metrics endpoints
 │   │   ├── sensors.ts                         # CS3 physical and SCADA sensor grid endpoints
@@ -449,7 +449,7 @@ To prevent unbounded LLM inference overhead and ensure transparent resource acco
     │   │   ├── CecurPanel.tsx                 # Cecur SIEM / XDR log stream and compliance view
     │   │   ├── ExecutivePanel.tsx             # CISO posture metrics and GRC analytics view
     │   │   ├── FusionPanel.tsx                # Interactive 3D Asset Fusion blast radius graph view
-    │   │   ├── HexStrikePanel.tsx             # HexStrike AI & BBOT offensive reconnaissance view
+    │   │   ├── ErrowPanel.tsx             # errow & BBOT offensive reconnaissance view
     │   │   ├── IncidentsPanel.tsx             # Correlated incident queue and SOAR remediation view
     │   │   ├── OverviewPanel.tsx              # Tactical command center overview view
     │   │   ├── PricingPanel.tsx               # Enterprise subscription tiers and AI gas fuel view

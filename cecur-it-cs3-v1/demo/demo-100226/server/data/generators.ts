@@ -12,7 +12,7 @@ import {
   ActivTrakSession,
   Incident,
   TargetAllowlistEntry,
-  HexStrikeJob,
+  ErrowTask,
   AuditLogEntry,
 } from '../../src/types';
 
@@ -846,7 +846,7 @@ export function generateInitialCecurCompliance(): CecurComplianceStandard[] {
           scheduledCompletion: '2026-09-30',
           status: 'VALIDATING',
           owner: 'Marcus Sterling (GRC)',
-          milestones: ['Update client route config', 'Block local gateway bypass', 'Verify via HexStrike'],
+          milestones: ['Update client route config', 'Block local gateway bypass', 'Verify via Errow'],
         },
         {
           id: 'POAM-171-003',
@@ -949,7 +949,7 @@ export function generateInitialCecurCompliance(): CecurComplianceStandard[] {
 }
 
 // -------------------------------------------------------------
-// EXISTING SOC MODULES (ActivTrak, Incidents, HexStrike, Audit)
+// EXISTING SOC MODULES (ActivTrak, Incidents, Errow, Audit)
 // -------------------------------------------------------------
 
 export function generateInitialActivTrakSessions(): ActivTrakSession[] {
@@ -1194,7 +1194,7 @@ export function generateInitialTargetAllowlist(): TargetAllowlistEntry[] {
   ];
 }
 
-export function generateInitialHexStrikeJobs(): HexStrikeJob[] {
+export function generateInitialErrowTasks(): ErrowTask[] {
   return [
     {
       id: 'job-hex-8812',
@@ -1321,8 +1321,8 @@ export function generateInitialAuditLogs(): AuditLogEntry[] {
       actorId: 'usr-admin-01',
       actorUsername: 'admin',
       actorRole: 'admin',
-      action: 'TRIGGER_HEXSTRIKE_SCAN',
-      panel: 'hexstrike',
+      action: 'TRIGGER_ERROW_SCAN',
+      panel: 'errow',
       targetResource: 'dmz-web-ingress-prod-01.cecur-it.internal [nuclei_scan]',
       ipAddress: '10.100.1.15',
       status: 'SUCCESS',

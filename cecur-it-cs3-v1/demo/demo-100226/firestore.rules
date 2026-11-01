@@ -79,12 +79,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // HexStrike Target Allowlist & Scan Jobs (offensive tooling: admin only)
-    match /hexstrikeAllowlist/{targetId} {
+    // Errow Target Allowlist & Scan Jobs (offensive tooling: admin only)
+    match /errowAllowlist/{targetId} {
       allow read, write: if isAdmin();
     }
 
-    match /hexstrikeJobs/{jobId} {
+    match /errowJobs/{jobId} {
       allow read, write: if isAdmin();
     }
 

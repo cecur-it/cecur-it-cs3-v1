@@ -9,4 +9,5 @@ configMapGenerator:
       - sql/002_schema.sql
       - sql/003_audit_protection.sql
       - sql/004_notify.sql
+      - sql/005_migrate_hexstrike_to_errow.sql
 # sql/ is a copy of deployment/docker/postgres/init (refresh: deployment/scripts/sync-sql.sh)

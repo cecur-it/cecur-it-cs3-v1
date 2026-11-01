@@ -14,7 +14,7 @@ import {
   ActivTrakSession,
   Incident,
   TargetAllowlistEntry,
-  HexStrikeJob,
+  ErrowTask,
   AuditLogEntry,
 } from '../src/types';
 import {
@@ -30,7 +30,7 @@ import {
   generateInitialActivTrakSessions,
   generateInitialIncidents,
   generateInitialTargetAllowlist,
-  generateInitialHexStrikeJobs,
+  generateInitialErrowTasks,
   generateInitialAuditLogs,
 } from './data/generators';
 
@@ -47,7 +47,7 @@ export class SOCDatabase {
   public activtrakSessions: ActivTrakSession[] = [];
   public incidents: Incident[] = [];
   public targetAllowlist: TargetAllowlistEntry[] = [];
-  public hexstrikeJobs: HexStrikeJob[] = [];
+  public errowJobs: ErrowTask[] = [];
   public auditLogs: AuditLogEntry[] = [];
   public initializedAt: string = '';
   /** Hooks invoked for every audit entry (e.g. PostgreSQL append-only mirror). */
@@ -95,7 +95,7 @@ export class SOCDatabase {
     this.activtrakSessions = generateInitialActivTrakSessions();
     this.incidents = generateInitialIncidents();
     this.targetAllowlist = generateInitialTargetAllowlist();
-    this.hexstrikeJobs = generateInitialHexStrikeJobs();
+    this.errowJobs = generateInitialErrowTasks();
     this.auditLogs = generateInitialAuditLogs();
     this.initializedAt = new Date().toISOString();
     console.log('[SOCDatabase] Cecur SIEM/XDR Database initialized and seeded successfully.');
@@ -112,7 +112,7 @@ export class SOCDatabase {
         nistControls = ['AC-3', 'AC-6', '03.01.07'];
       } else if (entry.panel === 'incidents') {
         nistControls = ['IR-4', 'IR-5', '03.06.01'];
-      } else if (entry.panel === 'hexstrike') {
+      } else if (entry.panel === 'errow') {
         nistControls = ['CA-8', 'RA-5', '03.11.02'];
       } else if (entry.panel === 'audit') {
         nistControls = ['AU-2', 'AU-3', 'AU-9', '03.03.01', '03.03.03'];

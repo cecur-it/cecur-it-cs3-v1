@@ -38,7 +38,7 @@ The **CS3 (CECUR-IT Cyber Security Operations Console)** is an enterprise-grade,
 |  +--------------------+  +----------------------+  +---------------------------+  |
 |  |  ActivTrak Insider |  |   CS3 Sensor Grid    |  |   Asset Fusion Graph 3D   |  |
 |  +--------------------+  +----------------------+  +---------------------------+  |
-|  |  HexStrike AI Recon|  |   Audit Trail (GRC)  |  |   Executive CISO Portal   |  |
+|  |  errow Recon|  |   Audit Trail (GRC)  |  |   Executive CISO Portal   |  |
 |  +--------------------+  +----------------------+  +---------------------------+  |
 +-----------------------------------------+-----------------------------------------+
                                           |
@@ -52,7 +52,7 @@ The **CS3 (CECUR-IT Cyber Security Operations Console)** is an enterprise-grade,
 |   |   CecurEngine       |  |   Agentic LLM Router |  |   Sensor Grid Daemon    |  |
 |   | (Decoders & Rules)  |  | (Gemini 3.7/DeepSeek)|  | (Calibration & Health)  |  |
 |   +---------------------+  +----------------------+  +-------------------------+  |
-|   |  Asset Fusion Graph |  |  HexStrike Connector |  |  ActivTrak Bridge       |  |
+|   |  Asset Fusion Graph |  |  Errow Connector |  |  ActivTrak Bridge       |  |
 |   | (Blast Radius Sim)  |  | (Scoped Safe Recon)  |  | (Insider Risk Engine)   |  |
 |   +---------------------+  +----------------------+  +-------------------------+  |
 +-----------------------------------------+-----------------------------------------+

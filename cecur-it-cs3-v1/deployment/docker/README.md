@@ -15,7 +15,7 @@ curl -fsS http://localhost:3000/api/health
 | `docker-compose.yml` | Base stack. Profiles: `siem`, `haproxy`, `pull-models`. |
 | `docker-compose.gpu.yml` | NVIDIA GPU pinning (one GPU per Ollama node). |
 | `docker-compose.supabase.yml` | Supabase self-hosted Postgres image profile. |
-| `postgres/init/` | `001_roles.sh`, `002_schema.sql`, `003_audit_protection.sql`, `004_notify.sql`. Executed on first start. |
+| `postgres/init/` | `001_roles.sh`, `002_schema.sql`, `003_audit_protection.sql`, `004_notify.sql`, `005_migrate_hexstrike_to_errow.sql` (idempotent rename for standing DBs). Executed on first start. |
 | `postgres/tests/` | `audit_tamper_test.sql` — proves AU-9 protections. |
 | `ollama-lb/` | `nginx.conf` (passive checks) and `haproxy.cfg` (active checks, queue backpressure). |
 

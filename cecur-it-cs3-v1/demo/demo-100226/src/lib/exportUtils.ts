@@ -8,7 +8,7 @@ export type HandlingClassification = 'TLP:AMBER' | 'TLP:RED' | 'TLP:GREEN' | 'RE
 
 export interface ExportPayload {
   title: string;
-  category: 'AUDIT' | 'INCIDENT' | 'EXECUTIVE' | 'HEXSTRIKE' | 'CECUR' | 'ACTIVTRAK' | 'THREAT_FUSION';
+  category: 'AUDIT' | 'INCIDENT' | 'EXECUTIVE' | 'ERROW' | 'CECUR' | 'ACTIVTRAK' | 'THREAT_FUSION';
   defaultClassification?: HandlingClassification;
   briefText: (classification: HandlingClassification, reportId: string) => string;
   csvData?: () => { headers: string[]; rows: (string | number)[][] };
@@ -498,17 +498,17 @@ STRICTLY CONFIDENTIAL — PREPARED BY CECUR-IT SOC EXECUTIVE ADVISORY
 }
 
 /**
- * Builders for HexStrike Recon & Findings Export
+ * Builders for Errow Recon & Findings Export
  */
-export function buildHexStrikeExportPayload(jobs: any[], targets: any[]): ExportPayload {
+export function buildErrowExportPayload(jobs: any[], targets: any[]): ExportPayload {
   return {
-    title: 'HexStrike AI Offensive Reconnaissance & Vulnerability Findings',
-    category: 'HEXSTRIKE',
+    title: 'errow Offensive Reconnaissance & Vulnerability Findings',
+    category: 'ERROW',
     defaultClassification: 'TLP:AMBER',
     briefText: (classification, reportId) => {
       const allFindings = jobs.flatMap((j) => j.findings || []);
       return `# ==============================================================================
-# CECUR-IT SOC — HEXSTRIKE OFFENSIVE RECONNAISSANCE AUDIT FINDINGS
+# CECUR-IT SOC — ERROW OFFENSIVE RECONNAISSANCE AUDIT FINDINGS
 # CLASSIFICATION: ${classification}
 # REPORT ID: ${reportId}
 # GENERATED: ${new Date().toUTCString()}
@@ -561,7 +561,7 @@ CONFIDENTIAL RECON REPORT — CECUR-IT OFFENSIVE SECURITY
       return { headers, rows };
     },
     jsonData: () => ({
-      reportId: `HEXSTRIKE-EXP-${Date.now()}`,
+      reportId: `ERROW-EXP-${Date.now()}`,
       exportedAt: new Date().toISOString(),
       targets,
       jobs,

@@ -40,6 +40,7 @@ function parseArgs(argv) {
     models: null,
     includeOllamaBinary: true,
     includeConsoleImage: true,
+    includeErrowImage: true,
   };
   for (let i = 0; i < argv.length; i += 1) {
     switch (argv[i]) {
@@ -63,6 +64,12 @@ function parseArgs(argv) {
         break;
       case '--no-include-console-image':
         args.includeConsoleImage = false;
+        break;
+      case '--include-errow-image':
+        args.includeErrowImage = true;
+        break;
+      case '--no-include-errow-image':
+        args.includeErrowImage = false;
         break;
       default:
         break;
@@ -132,7 +139,7 @@ function main() {
 
   const args = parseArgs(process.argv.slice(2));
   if (!args.out) {
-    process.stderr.write('Usage: node scripts/build-airgap-bundle.mjs --out cs3-model-bundle-<version>.tar [--release-tag vX.Y.Z] [--models id1,id2] [--no-include-ollama-binary] [--no-include-console-image]\n');
+    process.stderr.write('Usage: node scripts/build-airgap-bundle.mjs --out cs3-model-bundle-<version>.tar [--release-tag vX.Y.Z] [--models id1,id2] [--no-include-ollama-binary] [--no-include-console-image] [--no-include-errow-image]\n');
     process.exit(1);
   }
 
@@ -198,6 +205,17 @@ function main() {
     execFileSync('docker', ['save', '-o', path.join(imagesDir, 'cs3-soc-console-airgap.tar'), imageTag], { stdio: 'inherit' });
   }
 
+  if (args.includeErrowImage) {
+    // The errow-agent sandbox image (Kali base, see errow/containers/Dockerfile) is built here, on the
+    // connected staging host, so the enclave never fetches wheels, apt packages or images at runtime.
+    const imageTag = 'errow-agent:airgap';
+    const imagesDir = path.join(stagingDir, 'images');
+    fs.mkdirSync(imagesDir, { recursive: true });
+    process.stdout.write(`[build-airgap-bundle] Building and saving errow image ${imageTag} ...\n`);
+    execFileSync('docker', ['build', '-t', imageTag, '-f', path.join(REPO_ROOT, 'errow', 'containers', 'Dockerfile'), path.join(REPO_ROOT, 'errow')], { stdio: 'inherit' });
+    execFileSync('docker', ['save', '-o', path.join(imagesDir, 'errow-agent-airgap.tar'), imageTag], { stdio: 'inherit' });
+  }
+
   const manifest = {
     releaseTag,
     builtAt: new Date().toISOString(),
@@ -213,6 +231,7 @@ function main() {
     }),
     includesOllamaBinary: args.includeOllamaBinary,
     includesConsoleImage: args.includeConsoleImage,
+    includesErrowImage: args.includeErrowImage,
   };
   fs.writeFileSync(path.join(stagingDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
 

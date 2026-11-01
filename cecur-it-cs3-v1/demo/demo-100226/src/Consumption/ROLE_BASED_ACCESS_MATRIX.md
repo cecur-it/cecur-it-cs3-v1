@@ -16,7 +16,7 @@ This document defines the backend permission boundaries, persona access scopes, 
 | **ActivTrak Insider Risk (`activtrak`)** | Full Access | Full Access | Read-Only | Denied (HTTP 403) |
 | **CS3 Sensor Grid (`sensors`)** | Calibrate / View | Full Admin / Reboot | Read-Only | Denied (HTTP 403) |
 | **Asset Fusion 3D Graph (`fusion`)** | Allowed | Allowed | Denied (HTTP 403) | Denied (HTTP 403) |
-| **HexStrike AI Offensive Recon (`hexstrike`)** | Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
+| **errow Offensive Recon (`errow`)** | Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
 | **Operational Audit Trail (`audit`)** | View Logs | Full Export | Full Export | View Logs |
 | **Executive CISO KPIs (`executive`)** | Denied (HTTP 403) | Full Access | Full Access | Full Access |
 | **DB Reseed / System Reset (`reseed_db`)** | Denied | Allowed | Denied | Denied |
