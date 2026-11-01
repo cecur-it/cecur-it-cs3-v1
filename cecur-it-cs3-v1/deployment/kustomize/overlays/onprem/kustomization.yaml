@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: [../../base]
+components: [../../components/postgres, ../../components/ollama]
+patches:
+  - target: { kind: Ingress, name: cs3-console }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: soc.corp.example
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: soc.corp.example
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-secret
+        value: cs3/cs3-agent-ca
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-verify-client
+        value: optional
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-verify-depth
+        value: "2"

@@ -1,0 +1,6 @@
+cs3_home: /opt/cs3
+cs3_container_runtime: docker
+cs3_backup_dir: /srv/cs3/backups/ollama
+cs3_stage_dir: /srv/cs3/model-bundles
+cs3_ollama_primary_model: nemotron-3-nano:30b
+cs3_ollama_fallback_model: gemma4:26b

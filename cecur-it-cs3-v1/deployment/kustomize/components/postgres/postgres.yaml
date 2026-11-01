@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata: { name: cs3-postgres }
+spec:
+  clusterIP: None
+  selector: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: postgres }
+  ports: [{ name: postgres, port: 5432, targetPort: postgres }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: cs3-postgres }
+spec:
+  serviceName: cs3-postgres
+  replicas: 1
+  selector:
+    matchLabels: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: postgres }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: postgres }
+    spec:
+      serviceAccountName: cs3
+      automountServiceAccountToken: false
+      securityContext: { fsGroup: 70 }
+      containers:
+        - name: postgres
+          image: postgres
+          args: [postgres, -c, wal_level=replica, -c, max_connections=300, -c, shared_buffers=1GB, -c, password_encryption=scram-sha-256, -c, archive_mode=on, -c, "archive_command=test ! -f /wal-archive/%f && cp %p /wal-archive/%f"]
+          env:
+            - { name: POSTGRES_DB, value: cs3 }
+            - { name: POSTGRES_USER, value: postgres }
+            - { name: POSTGRES_INITDB_ARGS, value: "--data-checksums" }
+            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
+            - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: cs3-credentials, key: POSTGRES_PASSWORD } } }
+            - { name: CS3_APP_PASSWORD, valueFrom: { secretKeyRef: { name: cs3-credentials, key: CS3_APP_PASSWORD } } }
+            - { name: CS3_MIGRATOR_PASSWORD, valueFrom: { secretKeyRef: { name: cs3-credentials, key: CS3_MIGRATOR_PASSWORD } } }
+            - { name: CS3_ARCHIVER_PASSWORD, valueFrom: { secretKeyRef: { name: cs3-credentials, key: CS3_ARCHIVER_PASSWORD } } }
+          ports: [{ name: postgres, containerPort: 5432 }]
+          readinessProbe: { exec: { command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"] }, periodSeconds: 10 }
+          resources:
+            requests: { cpu: "1", memory: 2Gi }
+            limits: { cpu: "4", memory: 8Gi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: wal-archive, mountPath: /wal-archive }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        - name: init
+          configMap: { name: cs3-pg-init, defaultMode: 0555 }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 100Gi } } }
+    - metadata: { name: wal-archive }
+      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 50Gi } } }

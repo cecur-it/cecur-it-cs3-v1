@@ -1,0 +1,48 @@
+- name: Refuse hosted-model keys on onprem/airgap profiles
+  ansible.builtin.assert:
+    that:
+      - cs3_hosted_models_enabled | bool or ((vault_gemini_api_key | default('')) == '' and (vault_deepseek_api_key | default('')) == '')
+    fail_msg: "Hosted model API keys are set but profile '{{ cs3_profile }}' forbids hosted models."
+
+- name: Require secrets to be provided (from ansible-vault)
+  ansible.builtin.assert:
+    that:
+      - vault_jwt_secret is defined and vault_jwt_secret != 'CHANGE_ME'
+      - vault_postgres_password is defined and vault_postgres_password != 'CHANGE_ME'
+      - vault_cs3_app_password is defined and vault_cs3_app_password != 'CHANGE_ME'
+      - vault_cs3_migrator_password is defined and vault_cs3_migrator_password != 'CHANGE_ME'
+      - vault_cs3_archiver_password is defined and vault_cs3_archiver_password != 'CHANGE_ME'
+    fail_msg: Define the vault_* secrets (see inventory/example/group_vars/all/vault.example.yml).
+  no_log: true
+
+- name: Copy compose project (compose files, Ollama LB config, Postgres init)
+  ansible.builtin.copy:
+    src: "{{ cs3_compose_src }}"
+    dest: "{{ cs3_home }}/"
+    mode: preserve
+    directory_mode: "0750"
+
+- name: Render .env (secrets, mode 0600)
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ cs3_home }}/.env"
+    mode: "0600"
+  no_log: true
+  register: cs3_env
+
+- name: Compose up
+  ansible.builtin.command:
+    chdir: "{{ cs3_home }}"
+    argv: "{{ [cs3_container_runtime, 'compose'] + (['-f'] | product(cs3_compose_files) | map('list') | flatten) + (['--profile'] | product(cs3_compose_profiles) | map('list') | flatten) + ['up', '-d', '--remove-orphans'] }}"
+  register: cs3_up
+  changed_when: "'Started' in cs3_up.stderr or 'Created' in cs3_up.stderr or cs3_env.changed"
+
+- name: Wait for console health
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ cs3_console_port }}/api/health"
+    status_code: 200
+  register: cs3_health
+  retries: 30
+  delay: 5
+  until: cs3_health.status == 200
+  when: "'cs3_console' in group_names"

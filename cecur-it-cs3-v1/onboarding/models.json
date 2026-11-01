@@ -1,0 +1,63 @@
+{
+  "releaseTag": "v1.0.0",
+  "updated": "2026-09-18",
+  "description": "Single source of truth for CS3 approved on-prem/air-gapped model tags. sha256 values are pinned per release by .github/workflows/model-bundle.yml and must match the digest of the exact quantized weight blob shipped in that release's air-gap bundle.",
+  "tiers": {
+    "entry": {
+      "label": "Entry / edge workstation",
+      "models": ["gemma4:26b"]
+    },
+    "frontier": {
+      "label": "Frontier / reasoning tier",
+      "models": ["gemma4:31b"]
+    },
+    "agentic": {
+      "label": "Agentic tool-use tier",
+      "models": ["nemotron-3-nano:30b"]
+    }
+  },
+  "models": [
+    {
+      "id": "gemma4:26b",
+      "family": "gemma-4",
+      "variant": "MoE",
+      "activeParams": "4B",
+      "totalParams": "26B",
+      "minVramGb": 16,
+      "minSystemRamGb": 32,
+      "functionCalling": true,
+      "multimodal": true,
+      "thinkingModeConfigurable": false,
+      "tier": "entry",
+      "sha256": "<pinned-per-release>"
+    },
+    {
+      "id": "gemma4:31b",
+      "family": "gemma-4",
+      "variant": "Dense",
+      "activeParams": "31B",
+      "totalParams": "31B",
+      "minVramGb": 24,
+      "minSystemRamGb": 64,
+      "functionCalling": true,
+      "multimodal": true,
+      "thinkingModeConfigurable": false,
+      "tier": "frontier",
+      "sha256": "<pinned-per-release>"
+    },
+    {
+      "id": "nemotron-3-nano:30b",
+      "family": "nemotron-3-nano",
+      "variant": "hybrid-MoE",
+      "activeParams": "3.5B",
+      "totalParams": "30B",
+      "minVramGb": 24,
+      "minSystemRamGb": 64,
+      "functionCalling": true,
+      "multimodal": false,
+      "thinkingModeConfigurable": true,
+      "tier": "agentic",
+      "sha256": "<pinned-per-release>"
+    }
+  ]
+}

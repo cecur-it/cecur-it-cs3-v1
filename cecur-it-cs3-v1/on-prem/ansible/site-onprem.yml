@@ -1,0 +1,34 @@
+# on-prem/ansible/site-onprem.yml
+#
+# Thin wrapper: runs the existing deployment/ansible/playbooks/site.yml with the onprem vars
+# file pre-selected, plus an optional VyOS edge bootstrap play beforehand. Does not duplicate
+# provisioning logic -- see deployment/ansible/playbooks/{provision,deploy-forwarders}.yml for the
+# actual tasks.
+#
+# Usage (from the repository root):
+#   ANSIBLE_CONFIG=deployment/ansible/ansible.cfg ansible-playbook -i <inventory> on-prem/ansible/site-onprem.yml \
+#     -e @deployment/ansible/vars/onprem.yml \
+#     --ask-vault-pass
+#
+#   # With forwarder rollout once hosts are enrolled:
+#   ANSIBLE_CONFIG=deployment/ansible/ansible.cfg ansible-playbook -i <inventory> on-prem/ansible/site-onprem.yml \
+#     -e @deployment/ansible/vars/onprem.yml \
+#     -e cs3_enrollment_file=./cs3-enrollment.json
+#
+#   # To also apply the VyOS edge firewall policy first, run it separately
+#   # (Ansible's community.vyos collection is not a repo dependency; the
+#   # idempotent shell path is on-prem/vyos/bootstrap-vyos-edge.sh):
+#   on-prem/vyos/bootstrap-vyos-edge.sh --vars on-prem/vyos/vyos-vars.yml
+
+- name: Preflight reminder (informational; the real gate is on-prem/bin/preflight-check.sh)
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Remind operator to run preflight-check.sh after provisioning
+      ansible.builtin.debug:
+        msg: >-
+          This play provisions the onprem profile via deployment/ansible/playbooks/site.yml.
+          After it completes, run on-prem/bin/preflight-check.sh against the console host
+          before enrolling any real endpoints.
+
+- ansible.builtin.import_playbook: ../../deployment/ansible/playbooks/site.yml

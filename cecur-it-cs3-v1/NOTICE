@@ -1,0 +1,39 @@
+CECUR-IT CS3 Platform — Third-Party Notices and Licensing Boundaries
+
+The original code in this repository is licensed under the MIT License (see LICENSE).
+The MIT License does NOT apply to the third-party materials listed below, which keep
+their own licenses. Nothing in this repository relicenses them.
+
+1. demo/demo-100226/spec-v4.14.7.yaml — Wazuh API REST specification
+   Source:     https://github.com/wazuh/wazuh (tag v4.14.7)
+   Copyright:  (C) 2015, Wazuh Inc.
+   License:    GNU General Public License, version 2 (GPL-2.0)
+               https://github.com/wazuh/wazuh/blob/v4.14.7/LICENSE
+   Scope:      This file is a reference copy of the specification only. It is kept as a
+               separate, unmodified data file; it is not compiled into, linked with, or
+               imported by the console (server/ or src/) and is excluded from the
+               container build context (demo/demo-100226/.dockerignore).
+               Redistribution of this file must retain the GPL-2.0 notice above.
+
+2. demo/demo-100226/bbot-stable/ — BBOT (Black Lantern Security)
+   License:    GNU Affero General Public License, version 3 (AGPL-3.0)
+               See demo/demo-100226/bbot-stable/LICENSE.
+   Scope:      Vendored reference tree, excluded from the console image and build.
+
+3. demo/demo-100226/hexstrike-ai-master/ — HexStrike AI
+   License:    MIT License, Copyright (c) 2026 Muhammad Osama (0x4m4)
+               See demo/demo-100226/hexstrike-ai-master/LICENSE.
+   Scope:      Vendored reference tree, excluded from the console image and build.
+
+4. Fonts — Inter, Space Grotesk, JetBrains Mono
+   Bundled locally through the @fontsource-variable/* npm packages (no Google Fonts
+   requests at runtime). License: SIL Open Font License 1.1 (OFL-1.1).
+
+5. NIST SP 800-53 Rev. 5 and SP 800-171 Rev. 3
+   The PDF copies were removed from this repository. Obtain the publications from
+   https://csrc.nist.gov/publications. They are U.S. Government works and are
+   referenced, not redistributed, here.
+
+Dependencies installed through npm (demo/demo-100226/package-lock.json) retain their
+own licenses; use `npm ls --all` or an SBOM (see .github/workflows/release.yml) for the
+full list.

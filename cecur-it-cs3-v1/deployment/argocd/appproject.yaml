@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cs3
+  namespace: argocd
+spec:
+  description: CS3 SOC platform (restricted blast radius)
+  sourceRepos:
+    - https://github.com/DaScient/cecur-it-cs3.git      # airgap: your internal Git mirror
+  destinations:
+    - { server: https://kubernetes.default.svc, namespace: cs3 }
+    - { server: "*", namespace: cs3 }
+  clusterResourceWhitelist:
+    - { group: "", kind: Namespace }
+  namespaceResourceBlacklist:
+    - { group: "", kind: ResourceQuota }
+  orphanedResources: { warn: true }
+  syncWindows:
+    - kind: allow
+      schedule: "0 2 * * 6"       # production syncs only in the Saturday 02:00 maintenance window
+      duration: 4h
+      applications: ["cs3-prod-*"]
+      manualSync: true

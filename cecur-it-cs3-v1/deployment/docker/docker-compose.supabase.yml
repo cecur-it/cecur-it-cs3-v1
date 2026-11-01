@@ -1,0 +1,20 @@
+# Optional Supabase self-hosted persistence profile.
+#   docker compose -f docker-compose.yml -f docker-compose.supabase.yml up -d
+#
+# Swaps the stock postgres image for supabase/postgres (same major version, ships
+# pgsodium, pg_cron, pgaudit, pg_net, wal2json …) so the CS3 JSONB schema can live
+# next to a full Supabase stack. The CS3 console still talks to Postgres directly
+# via DATABASE_URL (not through PostgREST), so Supabase API gateway services are
+# OPTIONAL. For Studio / GoTrue / PostgREST / Kong, run the upstream
+# supabase/docker stack and point it at this database; see
+# deployment/operations/postgres-persistence.md.
+services:
+  postgres:
+    image: supabase/postgres:15.8.1.060
+    # supabase/postgres initialises with its own roles; keep CS3 roles/schemas isolated.
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - wal-archive:/wal-archive
+      - ./postgres/init:/docker-entrypoint-initdb.d/migrations-cs3:ro

@@ -1,0 +1,39 @@
+# One Application per site/cluster (multi-site: HQ + DR + remote enclaves).
+# Add a site by adding a list element; each picks its profile values file.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cs3-sites
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - { site: hq,      profile: onprem, cluster: https://kubernetes.default.svc, host: soc.hq.corp.example }
+          - { site: dr,      profile: onprem, cluster: https://dr-cluster.corp.example:6443, host: soc.dr.corp.example }
+          - { site: enclave, profile: airgap, cluster: https://enclave-cluster.airgap.internal:6443, host: soc.airgap.internal }
+  template:
+    metadata:
+      name: "cs3-prod-{{ .site }}"
+      labels: { cs3.cecur-it.io/site: "{{ .site }}", cs3.cecur-it.io/profile: "{{ .profile }}" }
+    spec:
+      project: cs3
+      source:
+        repoURL: https://github.com/DaScient/cecur-it-cs3.git
+        targetRevision: main
+        path: deployment/helm/cs3
+        helm:
+          valueFiles: ["values-{{ .profile }}.yaml"]
+          values: |
+            secrets:
+              existingSecret: cs3-credentials
+            ingress:
+              host: {{ .host }}
+            console:
+              appUrl: https://{{ .host }}
+      destination: { server: "{{ .cluster }}", namespace: cs3 }
+      syncPolicy:
+        automated: { prune: false, selfHeal: true }
+        syncOptions: [CreateNamespace=true, ServerSideApply=true]

@@ -1,0 +1,140 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "SOC User profiles, roles, and credential records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID", "maxLength": 128 },
+        "username": { "type": "string", "description": "Unique username", "maxLength": 64 },
+        "email": { "type": "string", "description": "Account email address", "maxLength": 128 },
+        "passwordHash": { "type": "string", "description": "Secure bcrypt password hash", "maxLength": 256 },
+        "role": { "type": "string", "description": "Assigned SOC role", "enum": ["analyst", "admin", "auditor", "executive"] },
+        "displayName": { "type": "string", "description": "Full display name", "maxLength": 128 },
+        "title": { "type": "string", "description": "Job title", "maxLength": 128 },
+        "department": { "type": "string", "description": "Department name", "maxLength": 128 },
+        "avatar": { "type": "string", "description": "Profile avatar URL", "maxLength": 512 },
+        "isDemoAccount": { "type": "boolean", "description": "Whether this is a demonstrative baseline account" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "lastLogin": { "type": "string", "description": "ISO timestamp of last login" }
+      },
+      "required": ["id", "username", "email", "role", "displayName"]
+    },
+    "Credential": {
+      "title": "Credential",
+      "description": "Demonstrative credential registry for evaluation and automated testing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Credential identifier", "maxLength": 128 },
+        "username": { "type": "string", "description": "Login username", "maxLength": 64 },
+        "role": { "type": "string", "description": "Assigned role", "enum": ["analyst", "admin", "auditor", "executive"] },
+        "clearance": { "type": "string", "description": "Security clearance label", "maxLength": 128 },
+        "description": { "type": "string", "description": "Purpose and authorized scopes description", "maxLength": 512 },
+        "isDemo": { "type": "boolean", "description": "Is demonstrative credential" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of record creation" }
+      },
+      "required": ["id", "username", "role", "clearance"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "Correlated SIEM/SOAR incident cases and response playbooks",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Incident ID", "maxLength": 64 },
+        "title": { "type": "string", "description": "Incident title", "maxLength": 256 },
+        "severity": { "type": "string", "description": "Severity level", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+        "status": { "type": "string", "description": "Case status", "enum": ["INVESTIGATING", "CONTAINED", "RESOLVED", "CLOSED"] },
+        "category": { "type": "string", "description": "Category of threat", "maxLength": 128 },
+        "assignedTo": { "type": "string", "description": "Assignee name", "maxLength": 128 },
+        "mitreTactic": { "type": "string", "description": "MITRE ATT&CK tactic", "maxLength": 256 },
+        "mitreTechnique": { "type": "string", "description": "MITRE ATT&CK technique", "maxLength": 256 },
+        "rootCause": { "type": "string", "description": "Root cause summary", "maxLength": 1024 },
+        "aiSummary": { "type": "string", "description": "AI analysis summary", "maxLength": 2048 }
+      },
+      "required": ["id", "title", "severity", "status", "category"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable operational security and access audit logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Audit log ID", "maxLength": 64 },
+        "timestamp": { "type": "string", "description": "ISO timestamp" },
+        "actorId": { "type": "string", "description": "User ID of actor", "maxLength": 128 },
+        "actorUsername": { "type": "string", "description": "Username of actor", "maxLength": 64 },
+        "actorRole": { "type": "string", "description": "Role of actor", "maxLength": 32 },
+        "action": { "type": "string", "description": "Action executed", "maxLength": 128 },
+        "panel": { "type": "string", "description": "Associated SOC panel", "maxLength": 64 },
+        "status": { "type": "string", "description": "Outcome status", "enum": ["SUCCESS", "DENY_403", "ALLOW", "ERROR"] },
+        "details": { "type": "string", "description": "Detailed log description", "maxLength": 2048 }
+      },
+      "required": ["id", "timestamp", "actorId", "actorUsername", "actorRole", "action", "status"]
+    },
+    "SensorNode": {
+      "title": "SensorNode",
+      "description": "CS3 hardware probe or cloud tap state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Sensor ID", "maxLength": 64 },
+        "name": { "type": "string", "description": "Sensor name", "maxLength": 128 },
+        "location": { "type": "string", "description": "Physical or cloud location", "maxLength": 256 },
+        "ipAddress": { "type": "string", "description": "Sensor IP address", "maxLength": 64 },
+        "status": { "type": "string", "description": "Sensor status", "enum": ["ONLINE", "DEGRADED", "OFFLINE"] },
+        "packetRate": { "type": "number", "description": "Packets per second rate" },
+        "cpuUsage": { "type": "number", "description": "CPU percentage" },
+        "memoryUsage": { "type": "number", "description": "Memory percentage" }
+      },
+      "required": ["id", "name", "location", "ipAddress", "status"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Pricing subscription, AI fuel credits purchase, and enterprise order records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Transaction reference ID", "maxLength": 128 },
+        "type": { "type": "string", "description": "Checkout type", "enum": ["subscription", "ai_credits", "enterprise_quote"] },
+        "tierId": { "type": "string", "description": "Target subscription tier ID", "maxLength": 64 },
+        "tierName": { "type": "string", "description": "Target subscription tier name", "maxLength": 128 },
+        "amountUSD": { "type": "number", "description": "Total payment amount in USD" },
+        "billingCycle": { "type": "string", "description": "Billing cadence", "enum": ["MONTHLY", "ANNUAL_PREPAID"] },
+        "aiCreditsPurchased": { "type": "number", "description": "Number of AI fuel credits included or purchased" },
+        "paymentMethod": { "type": "string", "description": "Selected payment method", "maxLength": 64 },
+        "billingOrg": { "type": "string", "description": "Billing organization name", "maxLength": 256 },
+        "operatorEmail": { "type": "string", "description": "Email of purchasing operator", "maxLength": 128 },
+        "operatorUsername": { "type": "string", "description": "Username of purchasing operator", "maxLength": 64 },
+        "operatorRole": { "type": "string", "description": "Role of purchasing operator", "maxLength": 32 },
+        "firebaseProjectId": { "type": "string", "description": "Firebase Project ID", "maxLength": 128 },
+        "firestoreDatabaseId": { "type": "string", "description": "Firestore Database ID", "maxLength": 128 },
+        "status": { "type": "string", "description": "Transaction status", "enum": ["COMPLETED", "PENDING", "REFUNDED"] },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" }
+      },
+      "required": ["id", "type", "tierId", "amountUSD", "operatorEmail", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Registered and demonstrative SOC operator profiles"
+    },
+    "/credentials/{credentialId}": {
+      "schema": "Credential",
+      "description": "Demonstrative credentials registry for evaluation"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "SIEM and SOAR incident tracking"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Immutable security and access audit logs"
+    },
+    "/sensors/{sensorId}": {
+      "schema": "SensorNode",
+      "description": "CS3 distributed sensors telemetry state"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Pricing, AI fuel credits refill, and subscription orders"
+    }
+  }
+}

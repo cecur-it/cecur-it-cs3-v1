@@ -1,0 +1,56 @@
+#!/usr/sbin/nft -f
+flush ruleset
+
+define EXT_IF = "eth0"
+define MGMT_IF = "eth1"
+define APP_ADDR = 10.30.20.10
+
+table inet filter {
+  set admin_nets {
+    type ipv4_addr
+    flags interval
+    elements = { 10.60.0.0/24 }
+  }
+
+  set lb_probe_nets {
+    type ipv4_addr
+    flags interval
+    elements = { 10.30.10.0/24 }
+  }
+
+  chain input {
+    type filter hook input priority filter; policy drop;
+    iifname "lo" accept
+    ct state { established, related } accept
+    ct state invalid drop
+
+    ip protocol icmp accept
+    ip6 nexthdr ipv6-icmp accept
+
+    iifname $EXT_IF tcp dport { 80, 443 } accept comment "Public HTTPS and optional redirect"
+    iifname $MGMT_IF ip saddr @admin_nets tcp dport 22 accept comment "SSH from admin network"
+    iifname $EXT_IF ip saddr @lb_probe_nets tcp dport 443 accept comment "LB health probes"
+  }
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    ct state { established, related } accept
+    ct state invalid drop
+  }
+
+  chain output {
+    type filter hook output priority filter; policy drop;
+    oifname "lo" accept
+    ct state { established, related } accept
+
+    udp dport 53 accept comment "DNS"
+    tcp dport 53 accept comment "DNS"
+    udp dport 123 accept comment "NTP"
+
+    tcp dport 443 accept comment "IdP, registries, hosted model APIs"
+    ip daddr $APP_ADDR tcp dport 3000 accept comment "Optional local reverse proxy hop"
+    tcp dport 5432 accept comment "RDS or Postgres service"
+    tcp dport 9200 accept comment "Managed or self-hosted OpenSearch"
+    tcp dport 22 accept comment "Break-glass SSH initiated from host"
+  }
+}

@@ -1,0 +1,31 @@
+# Helm-based Application. Select the profile with valueFiles (values-cloud|onprem|airgap.yaml).
+# Secrets are never rendered by Argo: use secrets.existingSecret (External Secrets / SOPS / Sealed Secrets).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cs3-prod-onprem
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: cs3
+  source:
+    repoURL: https://github.com/DaScient/cecur-it-cs3.git
+    targetRevision: main
+    path: deployment/helm/cs3
+    helm:
+      valueFiles: [values-onprem.yaml]
+      values: |
+        secrets:
+          existingSecret: cs3-credentials
+        console:
+          image:
+            digest: ""   # pin: sha256:<digest of verified release image>
+  destination: { server: https://kubernetes.default.svc, namespace: cs3 }
+  syncPolicy:
+    automated: { prune: false, selfHeal: true }
+    syncOptions: [CreateNamespace=true, ServerSideApply=true, PruneLast=true]
+    retry: { limit: 3, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers: [/spec/replicas]     # owned by the HPA

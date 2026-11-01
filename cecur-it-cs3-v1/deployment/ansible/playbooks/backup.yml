@@ -1,0 +1,96 @@
+# Nightly backup of the CS3 data plane (matches operations/backup-restore.md).
+#   ansible-playbook playbooks/backup.yml -e @vars/onprem.yml --ask-vault-pass
+# - PostgreSQL: pg_basebackup (+ continuous WAL already archived to the cs3_wal-archive volume)
+# - Audit ledger: cs3.verify_audit_chain() must return NULL (otherwise the backup is flagged untrustworthy)
+# - OpenSearch: optional snapshot when cs3_os_snapshot_repo is set (repository registered per the opensearch guide)
+- name: Back up CS3
+  hosts: cs3_console
+  become: true
+  gather_facts: true
+  vars:
+    cs3_home: /opt/cs3
+    cs3_container_runtime: docker
+    cs3_pg_backup_dir: /srv/cs3/backups/postgres
+    cs3_backup_retention_days: 14
+    stamp: "{{ ansible_date_time.iso8601_basic_short }}"
+    compose: "{{ cs3_container_runtime }} compose"
+    pg_backup_tmp: "/tmp/cs3-base-{{ stamp }}"
+  tasks:
+    - name: Backup directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0700"
+      loop: ["{{ cs3_pg_backup_dir }}/base", "{{ cs3_pg_backup_dir }}/base/{{ stamp }}", "{{ cs3_pg_backup_dir }}/wal"]
+
+    - name: Audit ledger integrity BEFORE backup (NULL = intact)
+      ansible.builtin.command:
+        argv: "{{ (compose | split(' ')) + ['exec', '-T', 'postgres', 'psql', '-U', 'postgres', '-d', 'cs3', '-Atc', 'select coalesce(cs3.verify_audit_chain()::text, $$intact$$)'] }}"
+        chdir: "{{ cs3_home }}"
+      register: audit_chain
+      changed_when: false
+      failed_when: audit_chain.stdout | trim != 'intact'
+
+    - name: Base backup
+      block:
+        - name: Get PostgreSQL container ID
+          ansible.builtin.command:
+            argv: "{{ (compose | split(' ')) + ['ps', '-q', 'postgres'] }}"
+            chdir: "{{ cs3_home }}"
+          register: postgres_container
+          changed_when: false
+
+        - name: Create base backup over the local PostgreSQL socket
+          ansible.builtin.command:
+            argv: "{{ (compose | split(' ')) + ['exec', '-T', 'postgres', 'pg_basebackup', '-h', '/var/run/postgresql', '-U', 'postgres', '-D', pg_backup_tmp, '-Fp', '-X', 'none'] }}"
+            chdir: "{{ cs3_home }}"
+          changed_when: true
+
+        - name: Copy base backup to the host
+          ansible.builtin.command:
+            argv: "{{ [cs3_container_runtime, 'cp', (postgres_container.stdout | trim) ~ ':' ~ pg_backup_tmp ~ '/.', cs3_pg_backup_dir ~ '/base/' ~ stamp] }}"
+          changed_when: true
+      always:
+        - name: Remove temporary base backup
+          ansible.builtin.command:
+            argv: "{{ (compose | split(' ')) + ['exec', '-T', 'postgres', 'rm', '-rf', '--', pg_backup_tmp] }}"
+            chdir: "{{ cs3_home }}"
+          changed_when: false
+
+    - name: Snapshot the WAL archive
+      ansible.builtin.command:
+        argv: "{{ [cs3_container_runtime, 'run', '--rm', '-v', 'cs3_wal-archive:/src:ro', '-v', cs3_pg_backup_dir ~ '/wal:/backup', 'busybox', 'sh', '-c', 'cd /src && tar -cf /backup/wal-' ~ stamp ~ '.tar .'] }}"
+      changed_when: true
+
+    - name: Checksums for the new artifacts
+      ansible.builtin.shell: |
+        set -o pipefail
+        cd {{ cs3_pg_backup_dir }}
+        (cd base/{{ stamp }} && find . -type f -print0 | sort -z | xargs -0 sha256sum) > base/{{ stamp }}.sha256
+        sha256sum wal/wal-{{ stamp }}.tar > wal/wal-{{ stamp }}.tar.sha256
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Prune backups older than retention
+      ansible.builtin.shell: |
+        find {{ cs3_pg_backup_dir }}/base -mindepth 1 -maxdepth 1 -mtime +{{ cs3_backup_retention_days }} -exec rm -rf {} +
+        find {{ cs3_pg_backup_dir }}/wal -type f -mtime +{{ cs3_backup_retention_days }} -delete
+      changed_when: false
+
+    - name: OpenSearch snapshot
+      when: cs3_os_snapshot_repo is defined
+      ansible.builtin.uri:
+        url: "{{ cs3_os_url | default('https://127.0.0.1:9200') }}/_snapshot/{{ cs3_os_snapshot_repo }}/cs3-{{ stamp }}?wait_for_completion=true"
+        method: PUT
+        user: admin
+        password: "{{ vault_opensearch_admin_password }}"
+        force_basic_auth: true
+        ca_path: "{{ cs3_os_ca | default(omit) }}"
+        body_format: json
+        body:
+          indices: "wazuh-alerts-*,cs3-*"
+          ignore_unavailable: true
+          include_global_state: false
+        timeout: 3600
+      no_log: true

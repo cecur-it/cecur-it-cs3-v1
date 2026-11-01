@@ -1,0 +1,66 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: default-deny }
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-dns }
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to: [{ namespaceSelector: {}, podSelector: { matchLabels: { k8s-app: kube-dns } } }]
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: console }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/component: console } }
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{ namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: ingress-nginx } } }]
+      ports: [{ port: 3000 }]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/component: postgres } } }]
+      ports: [{ port: 5432 }]
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/component: ollama-lb } } }]
+      ports: [{ port: 11434 }]
+    - to: [{ ipBlock: { cidr: 10.0.0.0/8 } }, { ipBlock: { cidr: 172.16.0.0/12 } }, { ipBlock: { cidr: 192.168.0.0/16 } }]
+      ports: [{ port: 9200 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: postgres }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/component: postgres } }
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/component: console } } }]
+      ports: [{ port: 5432 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: ollama }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/component: ollama } }
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/component: ollama-lb } } }]
+      ports: [{ port: 11434 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: ollama-lb }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/component: ollama-lb } }
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{ podSelector: { matchLabels: { app.kubernetes.io/component: console } } }]
+      ports: [{ port: 11434 }]
+  egress:
+    - to: [{ podSelector: { matchLabels: { app.kubernetes.io/component: ollama } } }]
+      ports: [{ port: 11434 }]

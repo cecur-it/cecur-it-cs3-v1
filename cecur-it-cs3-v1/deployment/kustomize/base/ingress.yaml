@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cs3-console
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-body-size: 4m
+spec:
+  ingressClassName: nginx
+  tls: [{ hosts: [soc.example.internal], secretName: cs3-console-tls }]
+  rules:
+    - host: soc.example.internal
+      http:
+        paths:
+          - { path: /, pathType: Prefix, backend: { service: { name: cs3-console, port: { name: http } } } }

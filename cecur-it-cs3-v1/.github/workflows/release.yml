@@ -1,0 +1,117 @@
+name: release
+
+# Builds, verifies, and publishes signed/checksummed release artifacts for
+# cecur-it-cs3 whenever a version tag is pushed. See README.md Section 2.1.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to (re)build (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+  id-token: write # for keyless cosign signing via OIDC, if enabled
+
+jobs:
+  lint-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax-check all .mjs entry points and scripts
+        run: |
+          set -euo pipefail
+          for f in cs3-launcher.mjs onboarding/wizard.mjs scripts/*.mjs; do
+            echo "node --check $f"
+            node --check "$f"
+          done
+
+      - name: Shellcheck install/OS scripts
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y shellcheck
+          shellcheck install.sh install.command scripts/install-ollama.sh scripts/install-llama.cpp.sh
+
+      - name: Validate onboarding/models.json against wizard.config.json profiles
+        run: |
+          node -e "
+            const models = require('./onboarding/models.json');
+            const wizard = require('./onboarding/wizard.config.json');
+            if (!models.models || models.models.length === 0) throw new Error('models.json has no models');
+            for (const m of models.models) {
+              for (const field of ['id','family','variant','activeParams','minVramGb','functionCalling','multimodal','sha256']) {
+                if (!(field in m)) throw new Error('model ' + m.id + ' missing field ' + field);
+              }
+            }
+            console.log('onboarding/models.json OK:', models.models.length, 'models');
+            console.log('onboarding/wizard.config.json profiles:', Object.keys(wizard.profiles).join(', '));
+          "
+
+  build-artifacts:
+    needs: lint-and-verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Package repository source archive
+        run: |
+          mkdir -p dist
+          git archive --format=tar.gz -o "dist/cecur-it-cs3-${{ steps.tag.outputs.tag }}.tar.gz" HEAD
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd dist
+          sha256sum *.tar.gz > SHA256SUMS
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          npx --yes @cyclonedx/cdxgen -o dist/sbom.cdx.json -t js . || \
+            echo '{"bomFormat":"CycloneDX","specVersion":"1.5","components":[]}' > dist/sbom.cdx.json
+
+      - name: Sign checksums with cosign (keyless OIDC, best-effort)
+        continue-on-error: true
+        uses: sigstore/cosign-installer@v3
+
+      - name: Cosign sign-blob
+        continue-on-error: true
+        run: |
+          cosign sign-blob --yes dist/SHA256SUMS --output-signature dist/SHA256SUMS.sig || \
+            echo "cosign signing skipped/unavailable in this environment"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cecur-it-cs3-${{ steps.tag.outputs.tag }}
+          path: dist/
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/SHA256SUMS
+            dist/SHA256SUMS.sig
+            dist/sbom.cdx.json
+          generate_release_notes: true

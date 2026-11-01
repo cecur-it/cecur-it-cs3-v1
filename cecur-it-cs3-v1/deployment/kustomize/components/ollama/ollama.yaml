@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata: { name: cs3-ollama }
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: ollama }
+  ports: [{ name: http, port: 11434, targetPort: http }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: cs3-ollama }
+spec:
+  serviceName: cs3-ollama
+  replicas: 2
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: ollama }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: ollama }
+    spec:
+      serviceAccountName: cs3
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector: { matchLabels: { app.kubernetes.io/name: cs3, app.kubernetes.io/component: ollama } }
+      containers:
+        - name: ollama
+          image: ollama/ollama
+          env:
+            - { name: OLLAMA_HOST, value: "0.0.0.0:11434" }
+            - { name: OLLAMA_NUM_PARALLEL, value: "4" }
+            - { name: OLLAMA_MAX_LOADED_MODELS, value: "2" }
+            - { name: OLLAMA_KEEP_ALIVE, value: 30m }
+          ports: [{ name: http, containerPort: 11434 }]
+          readinessProbe: { httpGet: { path: /api/tags, port: http }, periodSeconds: 10, failureThreshold: 6 }
+          resources:
+            requests: { cpu: "4", memory: 16Gi }
+            limits: { memory: 48Gi, nvidia.com/gpu: 1 }
+          volumeMounts: [{ name: models, mountPath: /root/.ollama }]
+  volumeClaimTemplates:
+    - metadata: { name: models }
+      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 200Gi } } }

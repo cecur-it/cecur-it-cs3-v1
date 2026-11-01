@@ -1,0 +1,6 @@
+{
+  "name": "CECUR-IT Unified SOC Console",
+  "description": "Full-stack Unified Security Operations Center (SOC) console with server-enforced RBAC, live telemetry feeds, incident correlation, asset fusion graph, and security analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

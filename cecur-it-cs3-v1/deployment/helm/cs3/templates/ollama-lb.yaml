@@ -1,0 +1,58 @@
+{{- if and .Values.ollama.enabled (gt (int .Values.ollamaLb.replicas) 0) }}
+{{- $name := printf "%s-ollama" (include "cs3.fullname" .) }}
+{{- $lb := printf "%s-ollama-lb" (include "cs3.fullname" .) }}
+{{- $lbsel := dict "root" . "component" "ollama-lb" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $lb }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+{{ include "cs3.ollamaLbConf" . | indent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $lb }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  selector: {{- include "cs3.selector" $lbsel | nindent 4 }}
+  ports:
+    - { name: http, port: 11434, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $lb }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ollamaLb.replicas }}
+  selector:
+    matchLabels: {{- include "cs3.selector" $lbsel | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "cs3.selector" $lbsel | nindent 8 }}
+      annotations:
+        checksum/config: {{ include "cs3.ollamaLbConf" . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "cs3.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: nginx
+          image: {{ include "cs3.image" (dict "root" . "img" .Values.ollamaLb.image) }}
+          imagePullPolicy: {{ .Values.ollamaLb.image.pullPolicy }}
+          ports:
+            - { name: http, containerPort: 11434 }
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+          resources: {{- toYaml .Values.ollamaLb.resources | nindent 12 }}
+          volumeMounts:
+            - { name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf, readOnly: true }
+      volumes:
+        - name: conf
+          configMap: { name: {{ $lb }} }
+{{- end }}

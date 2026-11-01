@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Cloud: managed PostgreSQL (DATABASE_URL in cs3-credentials) and hosted LLM keys; no in-cluster
+# postgres/ollama components.
+resources:
+  - ../../base
+  - networkpolicy-egress.yaml
+patches:
+  - target: { kind: Deployment, name: cs3-console }
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - { name: NODE_ENV, value: production }
+          - { name: PORT, value: "3000" }
+          - { name: APP_URL, value: "https://soc.example.com" }
+          - { name: CS3_PROFILE, value: cloud }
+          - { name: CS3_PERSISTENCE, value: postgres }
+          - { name: CS3_INGEST_REQUIRE_KEY, value: "true" }
+          - { name: CECUR_INDEXER_URL, value: "https://opensearch.example.com:9200" }
+          - { name: JWT_SECRET, valueFrom: { secretKeyRef: { name: cs3-credentials, key: JWT_SECRET } } }
+          - { name: DATABASE_URL, valueFrom: { secretKeyRef: { name: cs3-credentials, key: DATABASE_URL } } }
+          - { name: GEMINI_API_KEY, valueFrom: { secretKeyRef: { name: cs3-credentials, key: GEMINI_API_KEY, optional: true } } }
+          - { name: DEEPSEEK_API_KEY, valueFrom: { secretKeyRef: { name: cs3-credentials, key: DEEPSEEK_API_KEY, optional: true } } }
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target: { kind: Ingress, name: cs3-console }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: soc.example.com
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: soc.example.com

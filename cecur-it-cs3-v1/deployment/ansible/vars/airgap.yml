@@ -1,0 +1,14 @@
+# Air-gapped enclave: no registry pulls, no hosted models, images/models arrive via verified bundles.
+cs3_profile: airgap
+cs3_container_runtime: docker
+cs3_offline: true
+cs3_hosted_models_enabled: false
+cs3_ingest_require_key: true
+cs3_console_image: cs3-soc-console:airgap     # loaded from the bundle (docker load)
+cs3_compose_profiles: [siem]                  # no pull-models: models come from the bundle
+cs3_compose_files: [docker-compose.yml]
+cs3_image_archives: []                        # e.g. ["/srv/cs3/bundles/images/cs3-soc-console-airgap.tar"]
+cs3_firewall_ruleset: nftables-airgap.nft
+cs3_ollama_num_parallel: 4
+cs3_ollama_max_loaded_models: 2
+cs3_forwarder_batch: "5%"

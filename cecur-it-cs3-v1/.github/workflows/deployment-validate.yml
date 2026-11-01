@@ -1,0 +1,126 @@
+name: deployment-validate
+
+# Static validation of everything under deployment/ (no cluster, no cloud credentials needed).
+on:
+  pull_request:
+    paths:
+      - "deployment/**"
+      - "demo/demo-100226/server/**"
+      - "on-prem/**"
+      - ".github/workflows/deployment-validate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "deployment/**"
+      - "on-prem/**"
+
+permissions:
+  contents: read
+
+jobs:
+  kubernetes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: SQL copies are in sync (Helm and Kustomize copies)
+        run: bash deployment/scripts/sync-sql.sh --check
+      - name: helm lint (all profiles)
+        run: |
+          for p in cloud onprem airgap; do
+            helm lint deployment/helm/cs3 -f deployment/helm/cs3/values-$p.yaml
+            helm template cs3 deployment/helm/cs3 -f deployment/helm/cs3/values-$p.yaml >/dev/null
+          done
+      - name: kustomize build (all overlays)
+        run: |
+          for p in cloud onprem airgap; do
+            kubectl kustomize deployment/kustomize/overlays/$p >/dev/null
+          done
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker compose config
+        working-directory: deployment/docker
+        run: |
+          cp .env.example .env
+          for v in JWT_SECRET POSTGRES_PASSWORD CS3_APP_PASSWORD CS3_MIGRATOR_PASSWORD CS3_ARCHIVER_PASSWORD OPENSEARCH_INITIAL_ADMIN_PASSWORD; do
+            sed -i "s/^$v=.*/$v=ci-placeholder-$(openssl rand -hex 8)/" .env
+          done
+          docker compose config -q
+          docker compose --profile siem --profile haproxy config -q
+          docker compose -f docker-compose.yml -f docker-compose.gpu.yml config -q
+          docker compose -f docker-compose.yml -f ../../on-prem/compose/docker-compose.onprem.yml --profile siem config -q
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck deployment/agents/*.sh deployment/scripts/*.sh on-prem/bin/*.sh on-prem/vyos/*.sh
+      - name: PowerShell parser
+        shell: pwsh
+        run: |
+          foreach ($f in Get-ChildItem deployment/agents -Filter *.ps1) {
+            $errs = $null; $tokens = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errs)
+            if ($errs.Count) { $errs | ForEach-Object { Write-Error "$($f.Name): $($_.Message)" }; exit 1 }
+          }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: node --check
+        run: |
+          node --check deployment/agents/cs3-enroll.mjs
+          node --check deployment/operations/testing/eps-loadgen.mjs
+      - name: JSON / YAML sanity
+        run: |
+          python3 -c "import json; json.load(open('deployment/operations/ism/cs3-logs-lifecycle.json'))"
+          pip install --quiet pyyaml
+          python3 - <<'PY'
+          import glob, yaml
+          for f in glob.glob('deployment/argocd/*.yaml'):
+              list(yaml.safe_load_all(open(f)))
+          PY
+
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ansible + collections
+        run: |
+          pip install --quiet ansible-core
+          ansible-galaxy collection install -r deployment/ansible/requirements.yml
+      - name: Syntax check playbooks
+        working-directory: deployment/ansible
+        run: |
+          for p in playbooks/*.yml; do
+            ansible-playbook --syntax-check -i inventory/example/hosts.yml -e @vars/onprem.yml -e model_bundle=/tmp/x -e cs3_enrollment_file=/tmp/x "$p"
+          done
+          ansible-playbook --syntax-check -i inventory/example/hosts.yml -e @vars/onprem.yml -e model_bundle=/tmp/x -e cs3_enrollment_file=/tmp/x ../../on-prem/ansible/site-onprem.yml
+
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu fmt -check -recursive deployment/terraform
+      - name: tofu validate
+        run: |
+          for d in aws modules/network modules/security_groups modules/backup_bucket modules/helm_release; do
+            (cd "deployment/terraform/$d" && tofu init -backend=false -input=false && tofu validate)
+          done
+
+  console:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo/demo-100226
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsc --noEmit

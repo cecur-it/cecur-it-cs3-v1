@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ---- Helper functions -------------------------------------------------
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return request.auth.token.role;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && userRole() == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isAnalystOrAdmin() {
+      return isAuthenticated() && userRole() in ['admin', 'analyst'];
+    }
+
+    function isReader() {
+      return isAuthenticated() && userRole() in ['admin', 'analyst', 'auditor', 'executive'];
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Callers may never change their own role.
+    function roleUnchanged() {
+      return !('role' in request.resource.data.diff(resource.data).affectedKeys());
+    }
+
+    // ---- Default deny catch-all -------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users profile & account documents
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isOwner(userId) && roleUnchanged());
+      allow delete: if isAdmin();
+    }
+
+    // Demonstrative credentials collection (administrators only)
+    match /credentials/{credentialId} {
+      allow read, write: if isAdmin();
+    }
+
+    // SIEM / SOAR Incidents
+    match /incidents/{incidentId} {
+      allow read: if isReader();
+      allow write: if isAnalystOrAdmin();
+    }
+
+    // Operational Audit Trail (append-only)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin() || hasRole('auditor');
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // CS3 Sensor Nodes
+    match /sensors/{sensorId} {
+      allow read: if isReader();
+      allow write: if isAdmin();
+    }
+
+    // Pricing & AI Fuel Refill Transactions
+    match /transactions/{transactionId} {
+      allow read: if isAdmin() || hasRole('executive');
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // HexStrike Target Allowlist & Scan Jobs (offensive tooling: admin only)
+    match /hexstrikeAllowlist/{targetId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /hexstrikeJobs/{jobId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Wazuh Host Alerts
+    match /wazuhAlerts/{alertId} {
+      allow read: if isReader();
+      allow write: if isAnalystOrAdmin();
+    }
+
+    // ActivTrak Insider Risk Telemetry
+    match /activtrakSessions/{sessionId} {
+      allow read: if isAnalystOrAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

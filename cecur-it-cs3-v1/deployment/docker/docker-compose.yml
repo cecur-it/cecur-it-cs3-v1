@@ -1,0 +1,193 @@
+# CS3 multi-container stack for local / single-host on-prem use.
+# Works with Docker Engine (docker compose) and Podman (podman compose / podman-compose).
+#
+#   cp .env.example .env && $EDITOR .env
+#   docker compose up -d                       # console + postgres + 2x ollama + NGINX LB
+#   docker compose --profile siem up -d        # + OpenSearch single node
+#   docker compose --profile haproxy up -d     # use HAProxy instead of NGINX as the Ollama LB
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d   # NVIDIA GPUs
+#   docker compose -f docker-compose.yml -f docker-compose.supabase.yml up -d  # Supabase self-hosted profile
+#
+# Podman: rootless works; use `podman compose up -d` and see docker/README.md.
+
+name: cs3
+
+x-ollama: &ollama
+  image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+  restart: unless-stopped
+  environment: &ollama-env
+    OLLAMA_HOST: 0.0.0.0:11434
+    OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+    OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-2}
+    OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-30m}
+  healthcheck:
+    test: ["CMD", "ollama", "list"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
+  networks: [inference]
+
+services:
+  # postgres:16-alpine runs as uid 70; make the WAL archive volume writable for it.
+  wal-perms:
+    image: busybox:1.37
+    restart: "no"
+    command: ["chown", "-R", "70:70", "/wal-archive"]
+    volumes:
+      - wal-archive:/wal-archive
+    networks: [data]
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      wal-perms: { condition: service_completed_successfully }
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cs3}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      CS3_APP_PASSWORD: ${CS3_APP_PASSWORD:?set CS3_APP_PASSWORD}
+      CS3_MIGRATOR_PASSWORD: ${CS3_MIGRATOR_PASSWORD:?set CS3_MIGRATOR_PASSWORD}
+      CS3_ARCHIVER_PASSWORD: ${CS3_ARCHIVER_PASSWORD:?set CS3_ARCHIVER_PASSWORD}
+      POSTGRES_INITDB_ARGS: --data-checksums
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=test ! -f /wal-archive/%f && cp %p /wal-archive/%f
+      - -c
+      - max_connections=300
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - password_encryption=scram-sha-256
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - wal-archive:/wal-archive
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cs3}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [data]
+
+  console:
+    image: ${CS3_CONSOLE_IMAGE:-ghcr.io/dascient/cs3-soc-console:latest}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      ollama-lb: { condition: service_started }
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      CS3_PROFILE: ${CS3_PROFILE:-onprem}
+      CS3_DEMO_MODE: ${CS3_DEMO_MODE:-false}
+      CS3_PERSISTENCE: postgres
+      DATABASE_URL: postgres://cs3_app:${CS3_APP_PASSWORD}@postgres:5432/${POSTGRES_DB:-cs3}
+      CS3_INGEST_REQUIRE_KEY: ${CS3_INGEST_REQUIRE_KEY:-true}
+      OLLAMA_BASE_URL: http://ollama-lb:11434/v1
+      OLLAMA_PRIMARY_MODEL: ${OLLAMA_PRIMARY_MODEL:-nemotron-3-nano:30b}
+      OLLAMA_FALLBACK_MODEL: ${OLLAMA_FALLBACK_MODEL:-gemma4:26b}
+      CECUR_INDEXER_URL: ${CECUR_INDEXER_URL:-https://indexer:9200}
+      CS3_INDEXER_ENABLED: ${CS3_INDEXER_ENABLED:-false}
+      CECUR_INDEXER_USERNAME: ${CECUR_INDEXER_USERNAME:-admin}
+      # Set to the same value as OPENSEARCH_INITIAL_ADMIN_PASSWORD when CS3_INDEXER_ENABLED=true.
+      CECUR_INDEXER_PASSWORD: ${CECUR_INDEXER_PASSWORD:-}
+      CECUR_INDEXER_TLS_INSECURE: ${CECUR_INDEXER_TLS_INSECURE:-false}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    ports:
+      - "${CS3_CONSOLE_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks: [frontend, data, inference, siem]
+
+  ollama-1:
+    <<: *ollama
+    volumes: [ollama-1:/root/.ollama]
+  ollama-2:
+    <<: *ollama
+    volumes: [ollama-2:/root/.ollama]
+
+  # One-shot model pre-loader. Skipped on airgap: import the verified bundle instead
+  # (deployment/operations/model-update-rollback.md).
+  ollama-init:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+    profiles: ["pull-models"]
+    depends_on:
+      ollama-1: { condition: service_healthy }
+      ollama-2: { condition: service_healthy }
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        for h in ollama-1 ollama-2; do
+          for m in "$$OLLAMA_PRIMARY_MODEL" "$$OLLAMA_FALLBACK_MODEL"; do
+            OLLAMA_HOST=$$h:11434 ollama pull "$$m"
+          done
+        done
+    environment:
+      OLLAMA_PRIMARY_MODEL: ${OLLAMA_PRIMARY_MODEL:-nemotron-3-nano:30b}
+      OLLAMA_FALLBACK_MODEL: ${OLLAMA_FALLBACK_MODEL:-gemma4:26b}
+    networks: [inference]
+
+  ollama-lb:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [ollama-1, ollama-2]
+    volumes:
+      - ./ollama-lb/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks: [inference]
+
+  ollama-lb-haproxy:
+    image: haproxy:3.0-alpine
+    profiles: ["haproxy"]
+    restart: unless-stopped
+    depends_on: [ollama-1, ollama-2]
+    volumes:
+      - ./ollama-lb/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      inference:
+        aliases: [ollama-lb]
+
+  indexer:
+    image: opensearchproject/opensearch:2.17.1
+    profiles: ["siem"]
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      OPENSEARCH_JAVA_OPTS: ${OPENSEARCH_JAVA_OPTS:--Xms2g -Xmx2g}
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD:-}   # required (strong) when the siem profile is enabled
+      bootstrap.memory_lock: "true"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 65536, hard: 65536 }
+    volumes: [indexer:/usr/share/opensearch/data]
+    networks: [siem]
+
+volumes:
+  pgdata:
+  wal-archive:
+  ollama-1:
+  ollama-2:
+  indexer:
+
+networks:
+  frontend:
+  data:
+    internal: true
+  inference:
+    internal: true
+  siem:
+    internal: true

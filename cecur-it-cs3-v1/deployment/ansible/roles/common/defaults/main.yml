@@ -1,0 +1,5 @@
+cs3_home: /opt/cs3
+cs3_manage_firewall: false          # opt-in: the shipped rulesets contain site-specific interface/address defines
+cs3_firewall_apply: false           # validate+install only unless true (avoid SSH lock-out)
+cs3_firewall_src: "{{ playbook_dir }}/../../operations/firewall/{{ cs3_firewall_ruleset | default('nftables-onprem.nft') }}"
+cs3_ntp_package: chrony

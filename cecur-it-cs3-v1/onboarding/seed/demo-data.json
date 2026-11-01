@@ -1,0 +1,42 @@
+{
+  "description": "Non-sensitive demo/seed data for a freshly installed CS3 console, used to smoke-test dashboards before real telemetry arrives. Contains no real host, identity, or customer data.",
+  "tenants": [
+    {
+      "id": "demo-tenant-01",
+      "name": "CS3 Demo SOC",
+      "region": "us-east"
+    }
+  ],
+  "sampleIncidents": [
+    {
+      "id": "INC-DEMO-0001",
+      "title": "Suspicious PowerShell encoded command",
+      "severity": "medium",
+      "status": "open",
+      "source": "endpoint-agent-demo",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "aiIncidentAnalysis": {
+        "summary": "Encoded PowerShell command matched a known obfuscation pattern; no lateral movement observed in this demo record.",
+        "recommendedPlaybook": "triage-powershell-obfuscation",
+        "confidence": 0.72
+      }
+    },
+    {
+      "id": "INC-DEMO-0002",
+      "title": "Repeated failed logins followed by success",
+      "severity": "low",
+      "status": "closed",
+      "source": "identity-provider-demo",
+      "createdAt": "2026-01-02T00:00:00Z",
+      "aiIncidentAnalysis": {
+        "summary": "Pattern consistent with a legitimate user mistyping credentials; demo record only.",
+        "recommendedPlaybook": "monitor-only",
+        "confidence": 0.55
+      }
+    }
+  ],
+  "sampleAssets": [
+    { "id": "ast-demo-001", "hostname": "demo-workstation-01", "type": "workstation" },
+    { "id": "ast-demo-002", "hostname": "demo-gpu-host-01", "type": "gpu-server" }
+  ]
+}

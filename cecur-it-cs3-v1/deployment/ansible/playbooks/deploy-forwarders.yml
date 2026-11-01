@@ -1,0 +1,134 @@
+# Roll out the CS3 forwarder to endpoints, in waves, using one-time tokens from cs3-enroll.mjs.
+#   node agents/cs3-enroll.mjs bulk --file hosts.csv --url https://soc.example.internal --out cs3-enrollment.json
+#   ansible-playbook playbooks/deploy-forwarders.yml -e @vars/onprem.yml \
+#       -e cs3_enrollment_file=$PWD/cs3-enrollment.json -e cs3_fluentbit_zip=/srv/pkg/fluent-bit-win64.zip
+# Then shred cs3-enrollment.json. The inventory hostname must equal the enrolled hostname
+# (override per host with cs3_enroll_hostname).
+- name: Load enrollment tokens on the controller
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Read enrollment file
+      ansible.builtin.set_fact:
+        cs3_enrollment: "{{ lookup('ansible.builtin.file', cs3_enrollment_file) | from_json }}"
+      no_log: true
+    - name: Index by hostname
+      ansible.builtin.set_fact:
+        cs3_enroll_by_host: "{{ dict(cs3_enrollment.agents | map(attribute='hostname') | map('lower') | zip(cs3_enrollment.agents)) }}"
+      no_log: true
+
+- name: Linux forwarders
+  hosts: cs3_linux_endpoints
+  become: true
+  serial: "{{ cs3_forwarder_batch | default('10%') }}"
+  max_fail_percentage: 5
+  vars:
+    cs3_src_dir: /opt/cecur-forwarder-src
+    cs3_fb_pkg_remote: "/tmp/{{ cs3_fluentbit_pkg | default('') | basename }}"
+    cs3_host_enroll: "{{ hostvars['localhost'].cs3_enroll_by_host[(cs3_enroll_hostname | default(inventory_hostname)) | lower] | default({}) }}"
+  tasks:
+    - name: Already installed?
+      ansible.builtin.stat:
+        path: /etc/cecur/forwarder.env
+      register: fwd_env
+
+    - name: Stage installer files
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../agents/"
+        dest: "{{ cs3_src_dir }}/"
+        mode: preserve
+        directory_mode: "0750"
+
+    - name: Stage Fluent Bit package (air-gap)
+      ansible.builtin.copy:
+        src: "{{ cs3_fluentbit_pkg }}"
+        dest: "{{ cs3_fb_pkg_remote }}"
+        mode: "0600"
+      when: cs3_fluentbit_pkg is defined
+
+    - name: Install and enroll
+      ansible.builtin.command:
+        argv: >-
+          {{ [cs3_src_dir ~ '/install-forwarder.sh', '--console-url', cs3_console_url, '--agent-id', cs3_host_enroll.agentId, '--ca-file', cs3_ca_bundle_src]
+             + (['--pin-sha256', cs3_pin_sha256] if cs3_pin_sha256 is defined else [])
+             + (['--fluent-bit-pkg', cs3_fb_pkg_remote] if cs3_fluentbit_pkg is defined else [])
+             + (['--fluent-bit-sha256', cs3_fluentbit_sha256] if cs3_fluentbit_sha256 is defined else []) }}
+      environment:
+        CS3_ENROLL_TOKEN: "{{ cs3_host_enroll.enrollmentToken }}"
+      no_log: true
+      when: cs3_host_enroll.enrollmentToken is defined
+      register: fwd_install
+      changed_when: true
+
+    - name: Re-apply config/units for already-enrolled hosts (no token needed)
+      ansible.builtin.command:
+        argv: [ "{{ cs3_src_dir }}/install-forwarder.sh", "--console-url", "{{ cs3_console_url }}" ]
+      when: cs3_host_enroll.enrollmentToken is not defined and fwd_env.stat.exists
+      changed_when: true
+
+    - name: Skip report
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} has no enrollment entry and no existing credentials; enroll it first."
+      when: cs3_host_enroll.enrollmentToken is not defined and not fwd_env.stat.exists
+
+    - name: Remove staged Fluent Bit package
+      ansible.builtin.file:
+        path: "{{ cs3_fb_pkg_remote }}"
+        state: absent
+      when: cs3_fluentbit_pkg is defined
+
+    - name: Verify service is active
+      ansible.builtin.command: systemctl is-active cecur-forwarder.service
+      changed_when: false
+      when: cs3_host_enroll.enrollmentToken is defined or fwd_env.stat.exists
+
+- name: Windows forwarders
+  hosts: cs3_windows_endpoints
+  serial: "{{ cs3_forwarder_batch | default('10%') }}"
+  max_fail_percentage: 5
+  vars:
+    cs3_win_src: C:\Windows\Temp\cecur-forwarder-src
+    cs3_host_enroll: "{{ hostvars['localhost'].cs3_enroll_by_host[(cs3_enroll_hostname | default(inventory_hostname)) | lower] | default({}) }}"
+  tasks:
+    - name: Fluent Bit ZIP is required on Windows
+      ansible.builtin.assert:
+        that: cs3_fluentbit_zip is defined
+        fail_msg: Set -e cs3_fluentbit_zip=/path/to/fluent-bit-win64.zip (and cs3_fluentbit_sha256).
+      run_once: true
+
+    - name: Stage installer files
+      ansible.windows.win_copy:
+        src: "{{ playbook_dir }}/../../agents/"
+        dest: "{{ cs3_win_src }}"
+
+    - name: Stage CA bundle and Fluent Bit ZIP
+      ansible.windows.win_copy:
+        src: "{{ item.src }}"
+        dest: "{{ cs3_win_src }}\\{{ item.name }}"
+      loop:
+        - { src: "{{ cs3_ca_bundle_src }}", name: ca.pem }
+        - { src: "{{ cs3_fluentbit_zip }}", name: fluent-bit.zip }
+
+    - name: Install and enroll
+      ansible.windows.win_powershell:
+        script: |
+          param($Url, $AgentId, $Pin, $Sha)
+          $p = @{ ConsoleUrl = $Url; AgentId = $AgentId; CaFile = '{{ cs3_win_src }}\ca.pem'; FluentBitZip = '{{ cs3_win_src }}\fluent-bit.zip' }
+          if ($Pin) { $p.PinSha256 = $Pin }
+          if ($Sha) { $p.FluentBitSha256 = $Sha }
+          & '{{ cs3_win_src }}\Install-CecurForwarder.ps1' @p
+        parameters:
+          Url: "{{ cs3_console_url }}"
+          AgentId: "{{ cs3_host_enroll.agentId }}"
+          Pin: "{{ cs3_pin_sha256 | default('') }}"
+          Sha: "{{ cs3_fluentbit_sha256 | default('') }}"
+      environment:
+        CS3_ENROLL_TOKEN: "{{ cs3_host_enroll.enrollmentToken }}"
+      no_log: true
+      when: cs3_host_enroll.enrollmentToken is defined
+
+    - name: Cleanup staged files (contains no secrets, but keep hosts tidy)
+      ansible.windows.win_file:
+        path: "{{ cs3_win_src }}"
+        state: absent

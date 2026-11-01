@@ -1,0 +1,17 @@
+# NVIDIA GPU override.   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# Podman: install nvidia-container-toolkit, generate a CDI spec
+# (`nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml`) and use `devices: [nvidia.com/gpu=N]`
+# instead of the `deploy` block below.
+services:
+  ollama-1:
+    environment: { NVIDIA_VISIBLE_DEVICES: "0" }
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, device_ids: ["0"], capabilities: [gpu] }]
+  ollama-2:
+    environment: { NVIDIA_VISIBLE_DEVICES: "1" }
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, device_ids: ["1"], capabilities: [gpu] }]

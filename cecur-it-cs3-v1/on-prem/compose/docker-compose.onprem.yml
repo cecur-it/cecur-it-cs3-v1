@@ -1,0 +1,26 @@
+# on-prem/compose/docker-compose.onprem.yml
+#
+# Thin overlay on deployment/docker/docker-compose.yml: pins the on-prem profile and forces
+# every real-telemetry invariant on by default. Does not duplicate any service definition —
+# it only overrides environment defaults.
+#
+# Usage (run from the repository root):
+#   cd deployment/docker
+#   cp .env.example .env            # fill in secrets
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f ../../on-prem/compose/docker-compose.onprem.yml \
+#     --profile siem up -d
+#
+# This file intentionally does NOT set CECUR_INDEXER_PASSWORD / JWT_SECRET / POSTGRES_PASSWORD /
+# etc. -- those remain secrets supplied via deployment/docker/.env, never hardcoded here.
+
+services:
+  console:
+    environment:
+      CS3_PROFILE: onprem
+      CS3_DEMO_MODE: "false"
+      CS3_INGEST_REQUIRE_KEY: "true"
+      CS3_INDEXER_ENABLED: "true"
+      GEMINI_API_KEY: ""
+      DEEPSEEK_API_KEY: ""

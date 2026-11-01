@@ -1,0 +1,3 @@
+cs3_container_runtime: docker
+cs3_offline: false
+cs3_image_archives: []

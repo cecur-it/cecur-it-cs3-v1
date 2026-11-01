@@ -1,0 +1,27 @@
+- name: Install Docker Engine + compose plugin from the configured (internal) repository
+  ansible.builtin.package:
+    name: "{{ ['docker.io', 'docker-compose-v2'] if ansible_facts.os_family == 'Debian' else ['docker-ce', 'docker-compose-plugin'] }}"
+    state: present
+  when: cs3_container_runtime == 'docker' and not cs3_offline
+
+- name: Install Podman + compose provider
+  ansible.builtin.package:
+    name: [podman, podman-compose]
+    state: present
+  when: cs3_container_runtime == 'podman' and not cs3_offline
+
+- name: Enable the Docker daemon
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+  when: cs3_container_runtime == 'docker'
+
+- name: Verify a container runtime is present (offline installs must pre-stage it)
+  ansible.builtin.command: "{{ cs3_container_runtime }} --version"
+  changed_when: false
+
+- name: Load air-gapped image archives
+  ansible.builtin.command: "{{ cs3_container_runtime }} load -i {{ item }}"
+  loop: "{{ cs3_image_archives }}"
+  changed_when: true

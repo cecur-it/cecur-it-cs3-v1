@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - postgres.yaml
+configMapGenerator:
+  - name: cs3-pg-init
+    files:
+      - sql/001_roles.sh
+      - sql/002_schema.sql
+      - sql/003_audit_protection.sql
+      - sql/004_notify.sql
+# sql/ is a copy of deployment/docker/postgres/init (refresh: deployment/scripts/sync-sql.sh)

@@ -1,0 +1,500 @@
+# CECUR-IT — Unified SOC Console & Critical Infrastructure Cyber Defense Platform
+================================================================================
+Comprehensive Architectural Specification, Operational Blueprint & Deployment Manual
+Version 4.14.7-Enterprise | Document Classification: Secure Defense Specification
+================================================================================
+
+## 1. Executive Summary & Strategic Vision
+
+The CECUR-IT Unified SOC Console is an enterprise-grade, defense-in-depth cyber defense platform engineered specifically for critical infrastructure operators, defense industrial base entities, public utilities, SATCOM earth stations, aviation networks, and high-assurance enterprise environments. 
+
+Modern critical infrastructure cannot afford security telemetry fragmentation. Traditional security operations rely on disjointed, siloed products: a standalone Security Information and Event Management (SIEM) tool for event collection, isolated Endpoint Detection and Response (EDR) agents, uncoordinated physical and operational technology (OT) monitoring devices, separate insider threat platforms, and disconnected offensive penetration testing toolkits. This architectural disunity generates acute visibility gaps, inflates mean time to detect (MTTD) and mean time to respond (MTTR), and leaves organizations blind to coordinated cyber-physical and hybrid attack vectors.
+
+CECUR-IT eliminates this paradigm by unifying all security dimensions into a single pane of glass:
+1. Native Open-Source SIEM & XDR log stream ingestion and correlation compliant with the OpenAPI v4.14.7 standard.
+2. Physical and Industrial Control Systems (ICS/SCADA) telemetry from the CS3 Distributed Sensor Grid.
+3. High-fidelity User and Entity Behavior Analytics (UEBA) and workforce risk monitoring powered by ActivTrak.
+4. Real-time, multidimensional Asset Fusion Blast Radius Graph modeling attack trajectories across IT, OT, and cloud topologies.
+5. Autonomous external attack surface reconnaissance and offensive validation via HexStrike AI and the BBOT multi-module scanning suite.
+6. Dual-Engine LLM Agentic Copilot integration utilizing Gemini 2.5 Flash for sub-150ms real-time event classification and Gemini 2.5 Pro for deep forensic root-cause analysis and automated multi-platform SOAR remediation.
+7. Sovereign data persistence, granular role-based access control (RBAC/RBAM), and predictable consumption economics with an AI gas-metered fueling architecture backed by Firebase Firestore.
+
+--------------------------------------------------------------------------------
+
+## 2. Market Analysis & Competitive Positioning
+
+### The Threat Landscape for Critical Infrastructure
+Critical infrastructure operates under zero-acceptable-downtime constraints. Unlike standard commercial enterprise networks where security breaches primarily risk confidential data leakage, breaches in energy grids, municipal water distribution, civil aviation, and maritime logistics can result in severe physical damage, ecological disaster, equipment destruction, and risk to human life. Modern threat actors—ranging from advanced persistent threat (APT) groups to insider saboteurs and ransomware syndicates—actively exploit the convergence points between corporate IT networks and industrial OT/SCADA systems.
+
+```
+                             CRITICAL INFRASTRUCTURE POSTURE EVOLUTION
+       Legacy Fragmented Model                                         CECUR-IT Unified Model
+ ┌──────────────────────────────────┐                            ┌──────────────────────────────────┐
+ │ • Siloed SIEM (Splunk / QRadar)  │                            │ • Physical & OT Telemetry (CS3)  │
+ │ • Fragmented Commercial EDR      │                            │ • Native SIEM / Host Alerting    │
+ │ • Disjointed Insider Analytics   │ ───► Unified Ingestion ───►│ • ActivTrak Insider Risk Telemetry│
+ │ • Disconnected Pen-Test Tools    │                            │ • HexStrike AI & BBOT Recon      │
+ │ • Static 2D Asset Inventories    │                            │ • Dynamic Asset Fusion 3D Graph  │
+ └──────────────────────────────────┘                            └──────────────────────────────────┘
+```
+
+### In-Depth Competitor Comparison
+
+| Platform Category | Leading Industry Solutions | Market Strengths | Critical Gaps Addressed by CECUR-IT |
+| :--- | :--- | :--- | :--- |
+| **Traditional SIEM / XDR** | Splunk Enterprise Security, Microsoft Sentinel, IBM QRadar | High-scale log ingestion, mature enterprise query languages (SPL, KQL), broad third-party marketplace. | Prohibitive ingestion volume licensing ($/GB); lack of native physical OT/SCADA sensor telemetry; disconnected insider context; complex maintenance overhead. |
+| **Open-Source SIEM & Host Security** | Wazuh, Security Onion, Elastic Security | High transparency, community-driven rulesets, open API integration. | Absence of integrated autonomous offensive recon; fragmented cross-domain visualization; manual playbook execution; lack of native dual-engine LLM reasoning. |
+| **User Behavior & Insider Risk** | ActivTrak, DTEX InTERCEPT, ObserveIT | Granular application tracking, productivity analysis, keystroke/screen anomaly detection. | Siloed from perimeter network taps and OT PLC alerts; unable to correlate user risk directly with live lateral movement or external vulnerability exposures. |
+| **Autonomous Offensive Recon / EASM** | CyCognitive, Hadrian, Bishop Fox, BBOT standalone | Deep asset discovery, vulnerability exposure validation, zero-day surface mapping. | Disconnected from defensive SOC queues; offensive findings require manual ticket creation and lack automated blue-team SOAR remediation synthesis. |
+
+### Strategic Leverages & Unfair Advantages
+1. **Unified Cross-Domain Context**: CECUR-IT correlates a physical substation sensor alert (CS3), an active user USB exfiltration event (ActivTrak), an endpoint authentication failure (SIEM), and an exposed external API asset (HexStrike/BBOT) into a single unified incident graph.
+2. **Deterministic Dual-Engine AI Architecture**: Unlike superficial chat wrappers, CECUR-IT uses Gemini 2.5 Flash for sub-150ms event triage while reserving Gemini 2.5 Pro for deep forensic reasoning and multi-platform remediation code generation. If external connectivity is severed, a deterministic rule-based fallback maintains 100% operational uptime in air-gapped facilities.
+3. **Transparent Consumption Economics**: Organizations avoid surprise log-volume overage penalties through fixed tiering and clear AI "gas fees" credit metering.
+
+--------------------------------------------------------------------------------
+
+## 3. Full-Stack Software Architecture & Core Console Modules
+
+The CECUR-IT platform is constructed with a modular, high-performance architecture separating high-speed Node.js/Express backend services and Vite/React frontend presentation layers. Below is an exhaustive breakdown of the primary operational modules:
+
+### 1. Command Center & Tactical Overview (`OverviewPanel.tsx` / `server/routes/overview.ts`)
+The Tactical Overview acts as the operational heartbeat for SOC operators and Incident Commanders. It aggregates high-velocity metrics across all domains:
+- **Global Posture & DEFCON Indicator**: Real-time calculated threat level based on active high/critical alerts, sensor dropouts, and anomalous user activity.
+- **Dynamic Throughput Metrics**: Real-time visualization of log ingestion velocity (events per second), active CS3 sensor tap heartbeats, and correlation rule matching rates.
+- **Incident Severity Distribution**: High-contrast breakdowns of critical, high, medium, and low incidents across endpoint, cloud, network, and OT fleets.
+- **Live Alert Stream**: Real-time chronological ticker streaming incoming telemetry with instantaneous status filtering.
+
+### 2. Correlated Incident Queue & SOAR (`IncidentsPanel.tsx` / `server/routes/incidents.ts`)
+The Incident Queue provides deep triage and automated Security Orchestration, Automation, and Response (SOAR):
+- **Cross-Domain Correlation Engine**: Groups disparate raw events into unified incident entities tagged with MITRE ATT&CK Tactics (e.g., Initial Access, Persistence, Privilege Escalation, Lateral Movement, Exfiltration).
+- **One-Click Automated Containment Playbooks**: Direct execution of isolation workflows including host network quarantine, perimeter IP blacklisting, Active Directory / Okta credential revocation, and OT PLC VLAN isolation.
+- **AI Triage Integration**: Instant invocation of the CecurAI assistant to generate root-cause hypotheses and step-by-step mitigation plans.
+
+### 3. Cecur Open-Source SIEM & XDR Platform (`CecurPanel.tsx` & `server/engine/cecurEngine.ts`)
+A complete, open-source SIEM/XDR engine compliant with the OpenAPI v4.14.7 schema (`spec-v4.14.7.yaml`):
+- **Log Collection & Parsing**: High-performance ingestion of Syslog, Windows Event Logs, Sysmon, Auditd, Zeek, and Suricata JSON payloads.
+- **Active Rule Matching**: Evaluation against over 4,500 integrated detection rules with dynamic threat scoring.
+- **Continuous Compliance Auditing**: Automatic mapping of security posture against NIST SP 800-53 Rev 5, ISO/IEC 27001, CMMC Level 3, PCI DSS v4.0, HIPAA, and IEC 62443 (Industrial Cybersecurity).
+- **File Integrity Monitoring (FIM) & Vulnerability Scanning**: Continuous checksum auditing for critical OS binaries, registry keys, and known CVE exposures.
+
+### 4. ActivTrak Insider Risk & Behavioral Intelligence (`ActivTrakPanel.tsx` / `server/routes/activtrak.ts`)
+Dedicated workforce behavior telemetry and insider threat mitigation:
+- **Risk Telemetry & Scoring**: Continuous calculation of user risk scores categorized into Low, Medium, High, and Critical bands.
+- **Anomalous Activity Detection**: Identification of unauthorized cloud uploads, USB storage insertions, off-hours database dumps, and abnormal file deletion patterns.
+- **Screen & Application Telemetry with OCR**: Optical character recognition scanning for sensitive data leaks (e.g., unmasked credit card numbers, private API tokens, master cryptographic keys).
+- **Instantaneous Containment**: Immediate session termination, account locking, and forensic snapshot capture directly from the panel.
+
+### 5. CS3 Distributed Sensor Grid (`SensorsPanel.tsx` / `server/routes/sensors.ts`)
+Monitoring and telemetry decoding for physical security devices and industrial operational technology:
+- **Protocol Decoding**: Native parsing for Modbus TCP, DNP3, BACnet, OPC-UA, and proprietary SCADA telemetry frames.
+- **Physical Health Metrics**: Live tracking of sensor heartbeat, jitter, packet loss, optical link power, and GPS PPS (Pulse Per Second) time synchronization.
+- **Environmental & Tamper Protection**: Automated alerting on enclosure door switches, chassis breach alarms, temperature spikes, and input voltage fluctuations.
+- **Remote Diagnostics & Calibration**: Safe execution of sensor recalibration, firmware verification, and soft-reboot sequences.
+
+### 6. Interactive Asset Fusion Blast Radius Graph (`FusionPanel.tsx` / `server/routes/fusion.ts` & `server/fusion.ts`)
+A high-performance interactive topology canvas delivering real-time blast radius calculations:
+- **Multidimensional Entity Mapping**: Unifies endpoints, OT PLCs, cloud containers, switches, and user identities into a living graph.
+- **Shortest Attack Path Calculation**: Graph-traversal algorithms highlighting compromised nodes and potential lateral movement vectors.
+- **Blast Radius Simulation**: Visual projection of potential downstream impact if an active node is fully compromised.
+- **Direct Graph Isolation**: Ability to select any compromised node within the canvas and trigger immediate network isolation.
+
+### 7. HexStrike AI & BBOT Offensive Reconnaissance (`HexStrikePanel.tsx` / `server/routes/hexstrike.ts` & `server/connectors/hexstrikeClient.ts`)
+Continuous external attack surface management (EASM) and autonomous adversary emulation:
+- **BBOT Integration**: Comprehensive multi-module OSINT scanning suite executing DNS brute forcing, certificate transparency mining via crt.sh, subdomain enumeration, HTTP banner grabbing, Nuclei template execution, WAF fingerprinting (wafw00f), public cloud bucket enumeration (AWS S3, Azure Blob, GCP Storage), and secret discovery (TruffleHog).
+- **HexStrike AI Agent Execution**: Model Context Protocol (MCP) server orchestrating automated tool calling, exploit vector verification, and safe proof-of-concept testing within strict defensive guardrails.
+- **Defensive Translation**: Automatically converts discovered external vulnerabilities into custom SIEM detection rules and perimeter blocking configurations.
+
+### 8. Operational Audit Trail & GRC Governance (`AuditPanel.tsx` & `ExecutivePanel.tsx`)
+Immutable compliance logging and C-suite reporting:
+- **RFC 5424 Immutable Logging**: Cryptographically signed HMAC-SHA256 audit events tracking every operator login, playbook execution, permission change, and export action.
+- **Executive CISO Dashboards**: High-level KPI visualization covering Mean Time to Detect (MTTD), Mean Time to Respond (MTTR), regulatory compliance index, and financial risk quantification.
+- **Multi-Format Export Engine**: One-click generation of audit-ready compliance packages in PDF, CSV, and JSON formats.
+
+### 9. Enterprise Pricing, Consumption & AI Gas Fees (`PricingPanel.tsx` / `src/constants/pricing.ts` & `Consumption/`)
+A transparent, multi-tier commercial framework featuring AI credit fueling and Firestore transaction synchronization:
+- **Tier 1: Defense Essentials ($2,800 / month)**: Up to 250 endpoints; core SIEM log collection, CS3 physical sensor taps, read-only incident queue, 30-day hot data retention, baseline/metered AI.
+- **Tier 2: Advanced Enterprise XDR ($6,500 / month - Recommended)**: Up to 1,000 endpoints; Tier 1 capabilities plus ActivTrak insider risk intelligence, Asset Fusion blast radius graph, automated SOAR playbooks, 10,000 monthly AI fuel credits, 90-day hot retention.
+- **Tier 3: Critical Infrastructure Defense ($18,500 / month)**: Custom multi-tenant fleet; Tier 2 capabilities plus HexStrike AI autonomous offensive recon, air-gapped ICS/SCADA grid support, 50,000 monthly AI fuel credits, 365-day cold archive, 24/7 dedicated threat engineering.
+- **AI Fuel Credit Add-Ons**: Starter Pack (5,000 credits @ $250), Tactical Pack (20,000 credits @ $850), Sovereign Fleet Pack (100,000 credits @ $3,500).
+- **Payment & Persistence**: Multi-gateway payment handling (Credit Card, Procurement PO, ACH Wire) with live persistence to the Firebase Firestore `transactions` collection.
+
+--------------------------------------------------------------------------------
+
+## 4. Cross-Platform Forwarder Installation & Deployment
+
+CECUR-IT employs an ultra-lightweight event forwarder architecture designed for enterprise fleets, container clusters, and air-gapped industrial control stations. Forwarders stream JSON-formatted telemetry to the ingestion endpoint over TLS 1.3 with mutual authentication (mTLS).
+
+### Resource Footprint Matrix
+
+| Target Platform | Package / Binary Type | Memory Footprint | CPU Footprint | Ingestion Protocol | Local Buffer Limit |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Windows 11 & Server** | Fluent Bit Service / MSI | < 30 MB RAM | < 0.5% CPU | TLS 1.3 / HTTPS POST | 500 MB Spill-to-Disk |
+| **Linux (Debian / RHEL)** | Native systemd Daemon | < 25 MB RAM | < 0.2% CPU | TLS 1.3 / HTTPS POST | 500 MB Spill-to-Disk |
+| **Kubernetes Pods** | DaemonSet / Sidecar Container | Cgroup Capped (< 50 MB) | < 0.1 vCPU | gRPC / HTTPS Stream | Memory Ring Buffer |
+| **Air-Gapped ICS / SCADA** | Hardware CS3 Tap Relay | Isolated Hardware | Hardware-based | RS-485 / Serial / Diode | Hardware Flash Storage |
+
+### Automated Windows Fleet Deployment (`Deploy-CecurForwarder.ps1`)
+
+```powershell
+# Deploy-CecurForwarder.ps1 - Automated Windows Fleet Installation Script
+Param(
+  [Parameter(Mandatory=$true)][string]$IngestEndpoint = "https://soc.cecur-it.internal/api/cecur/logs/ingest",
+  [Parameter(Mandatory=$true)][string]$ApiKey
+)
+
+Write-Host "[+] Initializing CECUR-IT Cross-Platform Event Forwarder Installation..." -ForegroundColor Cyan
+
+$InstallDir = "C:\Program Files\CecurIT"
+$ServicePath = "$InstallDir\CecurForwarder.exe"
+$ConfigFile = "$InstallDirorwarder.conf"
+
+If (!(Test-Path $InstallDir)) {
+    New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
+}
+
+If (Test-Path $ServicePath) {
+    Write-Host "[i] Forwarder binary detected. Validating service configuration..." -ForegroundColor Yellow
+} Else {
+    Write-Host "[+] Downloading hardened forwarder binary from $IngestEndpoint/binary..." -ForegroundColor Cyan
+    Invoke-RestMethod -Uri "$IngestEndpoint/binary/windows-amd64" -OutFile $ServicePath -Headers @{ "X-API-Key" = $ApiKey }
+    
+    # Generate local configuration
+    @"
+[SERVICE]
+    Flush         1
+    Log_Level     info
+    Daemon        off
+
+[INPUT]
+    Name          winevtlog
+    Channels      Security,System,Application,Microsoft-Windows-Sysmon/Operational
+    Interval_Sec  1
+
+[OUTPUT]
+    Name          http
+    Match         *
+    Host          soc.cecur-it.internal
+    Port          443
+    URI           /api/cecur/logs/ingest
+    Header        X-API-Key $ApiKey
+    Format        json
+    tls           on
+    tls.verify    on
+"@ | Set-Content -Path $ConfigFile -Encoding UTF8
+
+    New-Service -Name "CecurForwarder" -BinaryPathName "`"$ServicePath`" --config `"$ConfigFile`"" -StartupType Automatic
+    Start-Service -Name "CecurForwarder"
+    Write-Host "[+] CecurForwarder Service successfully installed and started." -ForegroundColor Green
+}
+```
+
+### Automated Linux Fleet Deployment (`deploy_forwarder.yml`)
+
+```yaml
+---
+- name: Deploy CECUR-IT Hardened Event Forwarder to Linux Fleet
+  hosts: all
+  become: yes
+  vars:
+    ingest_endpoint: "https://soc.cecur-it.internal/api/cecur/logs/ingest"
+    api_key: "{{ vault_cecur_api_key }}"
+
+  tasks:
+    - name: Ensure configuration directory exists
+      file:
+        path: /etc/cecur
+        state: directory
+        owner: root
+        group: root
+        mode: '0750'
+
+    - name: Download CecurForwarder Binary
+      get_url:
+        url: "{{ ingest_endpoint }}/binary/linux-amd64"
+        dest: /usr/local/bin/cecur-forwarder
+        mode: '0755'
+        headers:
+          X-API-Key: "{{ api_key }}"
+
+    - name: Configure Event Forwarder Service
+      copy:
+        dest: /etc/cecur/forwarder.conf
+        content: |
+          [SERVICE]
+              Flush         1
+              Log_Level     info
+              Daemon        off
+
+          [INPUT]
+              Name          systemd
+              Tag           host.*
+              Read_From_Tail On
+
+          [INPUT]
+              Name          tail
+              Path          /var/log/audit/audit.log,/var/log/auth.log,/var/log/secure
+              Tag           audit.*
+
+          [OUTPUT]
+              Name          http
+              Match         *
+              Host          soc.cecur-it.internal
+              Port          443
+              URI           /api/cecur/logs/ingest
+              Header        X-API-Key {{ api_key }}
+              Format        json
+              tls           on
+              tls.verify    on
+        mode: '0600'
+
+    - name: Create Systemd Service Unit
+      copy:
+        dest: /etc/systemd/system/cecur-forwarder.service
+        content: |
+          [Unit]
+          Description=CECUR-IT Unified Event Forwarder
+          After=network.target
+          Documentation=https://docs.cecur-it.internal/forwarder
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/cecur-forwarder --config=/etc/cecur/forwarder.conf
+          Restart=always
+          RestartSec=5s
+          LimitNOFILE=65536
+          MemoryMax=100M
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+
+    - name: Reload Systemd Daemon and Enable Service
+      systemd:
+        daemon_reload: yes
+        name: cecur-forwarder
+        enabled: yes
+        state: started
+```
+
+--------------------------------------------------------------------------------
+
+## 5. Agentic AI Architecture & Automated SOAR Engine
+
+CECUR-IT integrates an agentic AI architecture designed for operational security workflows:
+
+```
+                            DUAL-ENGINE AGENTIC AI ARCHITECTURE
+ ┌────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                   INCOMING INCIDENT                                   │
+ └───────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+                                             ▼
+                 ┌───────────────────────────────────────────────────────┐
+                 │                CECUR-IT AGENT ROUTER                  │
+                 └───────────────────────────┬───────────────────────────┘
+                                             │
+                      ┌──────────────────────┴──────────────────────┐
+                      ▼                                             ▼
+       ┌─────────────────────────────┐               ┌─────────────────────────────┐
+       │   FAST CLASSIFICATION TIER   │               │   DEEP REASONING FORENSICS  │
+       │     (Gemini 2.5 Flash)      │               │      (Gemini 2.5 Pro)       │
+       │ • Sub-150ms Incident Triage │               │ • Multi-Stage Attack Paths  │
+       │ • Rule Matching & Tagging   │               │ • Cross-Domain Correlation  │
+       │ • IOC Enrichment & Scoring  │               │ • Multi-Platform Script Gen │
+       └─────────────────────────────┘               └─────────────────────────────┘
+                      │                                             │
+                      └──────────────────────┬──────────────────────┘
+                                             ▼
+       ┌───────────────────────────────────────────────────────────────────────────┐
+       │             AIR-GAPPED DETERMINISTIC FALLBACK ENGINE                      │
+       │     (Zero-connectivity rule-based expert system for sovereign SCADA)      │
+       └───────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. Dual-Engine LLM Agentic Architecture (`cecurAI.ts` & `gemini.ts`)
+- **Fast Tier (Gemini 2.5 Flash)**: Optimized for ultra-low latency event classification. Processes thousands of high-velocity telemetry events per second, generating structured summaries, threat confidence scores, and MITRE tactic tags in under 150 milliseconds.
+- **Deep Reasoning Tier (Gemini 2.5 Pro / Thinking Model)**: Invoked during complex, multi-stage incidents. Synthesizes cross-domain data from physical sensors, network taps, user behavior logs, and vulnerability scanners to reconstruct full attacker kill chains.
+- **Air-Gapped Deterministic Fallback**: In the event of network disruption or in air-gapped environments, the system transitions to an onboard heuristic expert system, ensuring continuous triage functionality without external dependencies.
+
+### 2. Multi-Platform Automated Remediation Generator
+The AI engine synthesizes ready-to-execute, copy-paste-safe remediation scripts customized to the specific operating system and architecture of the target asset:
+- **PowerShell**: Windows host isolation, firewall rules, service termination, registry restoration.
+- **Bash / Linux**: Iptables firewall blocking, process tree killing, SSH session revocation, systemd service quarantining.
+- **Python / APIs**: Automated cloud security group adjustments, Okta user suspension, AWS IAM policy revoking.
+- **Sigma / Suricata Rules**: Custom detection signatures generated on-the-fly to intercept similar future attack patterns.
+
+--------------------------------------------------------------------------------
+
+## 6. Tiered RBAC/RBAM, Governance & Economic Framework
+
+CECUR-IT implements strict Role-Based Access Control and Role-Based Access Management (RBAC/RBAM) enforced at both the API routing layer (`server/rbac.ts`) and the database security level (`firestore.rules`).
+
+### Server Clearance Matrix
+
+| Console Panel / System Action | Analyst (Tier 2/3) | Admin (Infra/Red) | Auditor (GRC) | Executive (CISO) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Command Center (`overview`)** | Full Access | Full Access | Full Access | Full Access |
+| **Incident Queue & SOAR (`incidents`)** | Full Read/Write | Full Read/Write | Read-Only | Read-Only |
+| **Cecur SIEM/XDR Core (`cecur`)** | Full Access | Full Access | Read-Only | Denied (HTTP 403) |
+| **ActivTrak Insider Risk (`activtrak`)** | Full Access | Full Access | Read-Only | Denied (HTTP 403) |
+| **CS3 Distributed Sensors (`sensors`)** | Calibrate / View | Full Admin / Reboot | Read-Only | Denied (HTTP 403) |
+| **Asset Fusion 3D Graph (`fusion`)** | Full Access | Full Access | Denied (HTTP 403) | Denied (HTTP 403) |
+| **HexStrike AI Offensive Recon (`hexstrike`)**| Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
+| **Operational Audit Trail (`audit`)** | View Logs | Full Export | Full Export | View Logs |
+| **Executive CISO Dashboards (`executive`)** | Denied (HTTP 403) | Full Access | Full Access | Full Access |
+| **Database Reseed & Reset (`reseed_db`)** | Denied (HTTP 403) | Full Authority | Denied (HTTP 403) | Denied (HTTP 403) |
+
+### Security Persona Scope Definitions
+1. **Analyst (`analyst`)**: Focuses on operational incident triage, sensor calibration, and threat hunting across SIEM, ActivTrak, Sensor Grid, and Asset Fusion. Restricted from triggering offensive penetration tests or viewing executive financial KPIs.
+2. **Administrator (`admin`)**: Complete system authority across all operational panels, offensive recon execution (HexStrike/BBOT), sensor node reboots, and system configuration.
+3. **Auditor (`auditor`)**: Read-only observation privileges across all security telemetry. Possesses full export rights for compliance reporting and audit verification. Blocked from active remediation or offensive recon.
+4. **Executive (`executive`)**: High-level CISO and board governance visibility. Full access to executive posture metrics, ROI analytics, and audit summaries. Restricted from raw operational sensor configurations and offensive testing triggers.
+
+### Provider Infrastructure Overhead & Unit Cost Economics
+
+| Component | Ingestion / Processing Scale | Provider Unit Cost (Est.) | Architecture Optimization Strategy |
+| :--- | :--- | :--- | :--- |
+| **CS3 Cloud Firestore Ingestion** | 50M document operations/mo | ~$30.00 / tenant | Micro-batching event writes (500-doc commits) and local sliding-window in-memory deduplication. |
+| **Gemini AI Copilot Inference** | 5M input / 500k output tokens | ~$7.50 / tenant | Dynamic model routing: Gemini 2.5 Flash for high-volume triage; Gemini 2.5 Pro for deep forensics. |
+| **Real-time Pub/Sub & Telemetry Stream** | 100 GB streaming events/mo | ~$40.00 / tenant | Binary payload compression and gRPC multiplexed streaming connections. |
+| **Multi-Region Compute Engine** | 4 vCPU, 16 GB RAM Container Fleet | ~$65.00 / tenant | Node.js asynchronous event-loop clustering and optimized memory footprints. |
+| **Long-Term Cold Compliance Archive** | 1 TB Coldline Storage | ~$4.00 / tenant | Automated tiering to Google Cloud Coldline / AWS Glacier with lifecycle retention rules. |
+| **Total Provider Unit Cost** | Per Multi-Tenant Node | **~$146.50 / tenant / mo** | High-margin architecture supporting robust gross margins (>90%) across all pricing tiers. |
+
+### Enterprise Subscription Tiers & "Gas Fees" Strategy
+
+```
+                                  ENTERPRISE SUBSCRIPTION TIERS
+ ┌──────────────────────────────┐ ┌──────────────────────────────┐ ┌──────────────────────────────┐
+ │      DEFENSE ESSENTIALS      │ │    ADVANCED ENTERPRISE XDR   │ │ CRITICAL INFRASTRUCTURE DEF. │
+ │       $2,800 / month         │ │       $6,500 / month         │ │       $18,500 / month        │
+ ├──────────────────────────────┤ ├──────────────────────────────┤ ├──────────────────────────────┤
+ │ • Up to 250 Endpoints        │ │ • Up to 1,000 Endpoints      │ │ • Up to 5,000 Endpoints / Custom Fleet   │
+ │ • Core SIEM + CS3 Sensor Taps│ │ • Includes Tier 1 Features   │ │ • Includes Tier 2 Features   │
+ │ • Read-Only Incident Queue   │ │ • ActivTrak Insider Risk     │ │ • HexStrike AI Offensive Rec │
+ │ • 30-Day Hot Data Retention  │ │ • Asset Fusion 3D Graph      │ │ • BBOT Full OSINT Suite      │
+ │ • Baseline / Metered AI      │ │ • Automated SOAR Playbooks   │ │ • Air-Gapped ICS/SCADA Grid  │
+ │                              │ │ • 10,000 AI Fuel Credits/mo  │ │ • 50,000 AI Fuel Credits/mo  │
+ │                              │ │ • 90-Day Hot Data Retention  │ │ • 365-Day Cold Compliance    │
+ └──────────────────────────────┘ └──────────────────────────────┘ └──────────────────────────────┘
+```
+
+#### AI Gas-Metered Consumption Model
+To prevent unbounded LLM inference overhead and ensure transparent resource accounting:
+- **Baseline Metering**: Standard incident parsing and rule tagging consume nominal gas units.
+- **Deep Forensic Synthesis**: Complex multi-stage attack path analysis consumes 25-50 gas credits per incident.
+- **Automated Remediation Code Generation**: Full multi-platform script synthesis consumes 15-30 gas credits.
+- **Autonomous HexStrike Recon Task**: Comprehensive external attack path emulation consumes 100-250 gas credits.
+- **Refill Fuel Packs**: Starter Fuel Pack (5,000 credits @ $250), Tactical Fuel Pack (20,000 credits @ $850), Sovereign Fleet Pack (100,000 credits @ $3,500).
+
+--------------------------------------------------------------------------------
+
+## 7. Implementation Blueprint & Comprehensive Code Reference
+
+```
+/ (Workspace Root)
+├── .env.example                               # Environment variable templates and API key declarations
+├── metadata.json                              # Application metadata, permissions, and major capabilities
+├── package.json                               # Core dependencies, build scripts, and engine configurations
+├── server.ts                                  # Express API backend with Vite development middleware
+├── spec-v4.14.7.yaml                          # OpenAPI v4.14.7 schema specification for Cecur SIEM
+├── firestore.rules                            # Hardened security rules for multi-tenant Firestore collections
+├── firebase-blueprint.json                    # Firestore schema models and index definitions
+├── CECUR-IT — Unified SOC Console.txt         # Master system documentation in full prose
+│
+├── Consumption/                               # Detailed backend consumption specifications
+│   ├── CROSS_PLATFORM_FORWARDERS.md           # Forwarder installation scripts and memory/CPU limits
+│   ├── README.md                              # Backend consumption index
+│   ├── ROLE_BASED_ACCESS_MATRIX.md            # Clearance matrix, persona scopes, and endpoint enforcement
+│   ├── TRANSACTION_PERSISTENCE_SYNC.md        # Firestore payment persistence schema and receipt workflow
+│   └── UNIT_COST_INFRASTRUCTURE.md            # Provider unit cost breakdown and margin analysis
+│
+├── bbot-stable/                               # BBOT OSINT & reconnaissance framework
+│   ├── bbot/modules/                          # BBOT scanner modules (subdomains, DNS, Nuclei, WAF, S3 buckets)
+│   └── bbot/presets/                          # Standard reconnaissance presets
+│
+├── hexstrike-ai-master/                       # HexStrike AI offensive intelligence suite
+│   ├── hexstrike_mcp.py                       # Model Context Protocol (MCP) tool server
+│   └── hexstrike_server.py                    # HexStrike API execution service
+│
+├── server/                                    # Backend services, routes, and engines
+│   ├── ai/cecurAI.ts                          # Dual-engine LLM reasoning and SOAR remediation generator
+│   ├── connectors/hexstrikeClient.ts          # HexStrike and BBOT execution bridge
+│   ├── engine/cecurEngine.ts                  # Core open-source SIEM/XDR event correlation engine
+│   ├── middleware/auth.ts                     # Authentication and session validation middleware
+│   ├── routes/                                # Modular Express API routes
+│   │   ├── activtrak.ts                       # ActivTrak insider risk intelligence endpoints
+│   │   ├── audit.ts                           # Immutable RFC 5424 audit trail endpoints
+│   │   ├── auth.ts                            # User authentication and session endpoints
+│   │   ├── cecur.ts                           # SIEM log ingestion, rules, and telemetry endpoints
+│   │   ├── executive.ts                       # Executive CISO KPIs and GRC compliance endpoints
+│   │   ├── fusion.ts                          # 3D Asset Fusion graph and blast radius endpoints
+│   │   ├── hexstrike.ts                       # HexStrike and BBOT offensive recon endpoints
+│   │   ├── incidents.ts                       # Correlated incident queue and SOAR endpoints
+│   │   ├── overview.ts                        # Command Center overview metrics endpoints
+│   │   ├── sensors.ts                         # CS3 physical and SCADA sensor grid endpoints
+│   │   └── system.ts                          # Health checks, DB reseed, and forwarder binary downloads
+│   ├── db.ts                                  # In-memory and cached database models
+│   ├── firestoreSync.ts                       # Firebase Firestore live transaction persistence
+│   ├── fusion.ts                              # Asset Fusion blast radius calculation algorithms
+│   ├── gemini.ts                              # Google Gen AI SDK integration client
+│   └── rbac.ts                                # Server-side role-based access control matrix enforcement
+│
+└── src/                                       # Frontend React + TypeScript application
+    ├── components/                            # UI components and operational modals
+    │   ├── panels/                            # Core console operational views
+    │   │   ├── ActivTrakPanel.tsx             # ActivTrak insider risk and OCR monitoring view
+    │   │   ├── AuditPanel.tsx                 # Immutable audit logging and export view
+    │   │   ├── CecurPanel.tsx                 # Cecur SIEM / XDR log stream and compliance view
+    │   │   ├── ExecutivePanel.tsx             # CISO posture metrics and GRC analytics view
+    │   │   ├── FusionPanel.tsx                # Interactive 3D Asset Fusion blast radius graph view
+    │   │   ├── HexStrikePanel.tsx             # HexStrike AI & BBOT offensive reconnaissance view
+    │   │   ├── IncidentsPanel.tsx             # Correlated incident queue and SOAR remediation view
+    │   │   ├── OverviewPanel.tsx              # Tactical command center overview view
+    │   │   ├── PricingPanel.tsx               # Enterprise subscription tiers and AI gas fuel view
+    │   │   └── SensorsPanel.tsx               # CS3 physical and SCADA sensor grid view
+    │   ├── CapabilityArchitecture.tsx         # Architectural capabilities showcase
+    │   ├── EngagementSection.tsx              # Defense industrial base engagement workflows
+    │   ├── Footer.tsx                         # Standardized console footer and status
+    │   ├── ForbiddenCard.tsx                  # HTTP 403 clearance boundary UI
+    │   ├── HatsFrameworkTable.tsx             # Security hats framework operational matrix
+    │   ├── Header.tsx                         # Tactical header with DEFCON status and user session
+    │   ├── LeadershipSection.tsx              # Executive leadership and engineering oversight
+    │   ├── LivePosturePanel.tsx               # Real-time DEFCON posture widget
+    │   ├── LoginModal.tsx                     # Multi-factor authentication dialog
+    │   ├── Modals.tsx                         # General operational modals container
+    │   ├── PersonnelDirectoryModal.tsx        # Enterprise personnel directory modal
+    │   ├── PricingPaymentModal.tsx            # Multi-gateway enterprise payment checkout modal
+    │   ├── ProgramsAndClients.tsx             # Enterprise programs and defense client reference
+    │   ├── SectorDefense.tsx                  # Sector-specific defense posture configurations
+    │   ├── Sidebar.tsx                        # Tactical navigation sidebar with RBAC filtering
+    │   └── UserProfileModal.tsx               # Operator user profile and security clearance modal
+    ├── constants/pricing.ts                   # Enterprise tier configurations and credit limits
+    ├── context/AuthContext.tsx                # React authentication and RBAC context provider
+    ├── lib/api.ts                             # Client-side API fetching utilities
+    ├── lib/firebase.ts                        # Client-side Firebase SDK configuration
+    ├── App.tsx                                # Main application coordinator
+    ├── index.css                              # Tailwind CSS entry point
+    ├── main.tsx                               # Application DOM mounting entry point
+    └── types.ts                               # Shared TypeScript interfaces and data models
+```
+
+--------------------------------------------------------------------------------
+
+## 8. Summary Checklist for Production Deployment
+
+To ensure maximum operational stability, sovereign security compliance, and resilience across production deployments:
+
+1. **Environment Configuration**: Verify all required environment variables (`GEMINI_API_KEY`, `FIREBASE_API_KEY`, `FIREBASE_DATABASE_ID`, `SOC_INGESTION_SECRET`) are configured in container settings.
+2. **Ingestion Hardening**: Ensure perimeter reverse proxies enforce TLS 1.3 and mTLS on `/api/cecur/logs/ingest`.
+3. **Database Security**: Confirm Firebase Firestore security rules in `firestore.rules` are deployed and strictly prevent unauthorized read/write modifications to `transactions` and audit collections.
+4. **Agent Fleet Forwarders**: Deploy `Deploy-CecurForwarder.ps1` and `deploy_forwarder.yml` across Windows, Linux, and Kubernetes workloads with appropriate API keys and local disk buffer caps.
+5. **Sensor Grid Calibration**: Validate that CS3 hardware taps in OT/SCADA sub-stations are transmitting heartbeat frames and GPS time-sync PPS signals within 5ms jitter tolerances.
+6. **Dual-Engine LLM Verification**: Confirm that Gemini 2.5 Flash and Gemini 2.5 Pro endpoints respond properly with fallback heuristic verification enabled for air-gapped operations.
+7. **RBAC Validation**: Test that all security persona roles (`analyst`, `admin`, `auditor`, `executive`) accurately enforce their respective clearance boundaries with proper HTTP 403 controls.
+8. **SOAR Playbook Testing**: Execute non-destructive test isolation commands to confirm rapid host network quarantine and credential revocation workflows.
+
+================================================================================
+End of Sovereign Specification | CECUR-IT Unified SOC Console Platform
+================================================================================

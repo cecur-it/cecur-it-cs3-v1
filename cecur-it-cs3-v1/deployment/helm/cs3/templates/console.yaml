@@ -1,0 +1,152 @@
+{{- $name := printf "%s-console" (include "cs3.fullname" .) }}
+{{- $sel := dict "root" . "component" "console" }}
+{{- $secret := include "cs3.secretName" . }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  selector: {{- include "cs3.selector" $sel | nindent 4 }}
+  ports:
+    - { name: http, port: 80, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.console.hpa.enabled }}
+  replicas: {{ .Values.console.replicas }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  selector:
+    matchLabels: {{- include "cs3.selector" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "cs3.selector" $sel | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "cs3.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile: { type: RuntimeDefault }
+      {{- if .Values.console.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: {{- include "cs3.selector" $sel | nindent 14 }}
+      {{- end }}
+      containers:
+        - name: console
+          image: {{ include "cs3.image" (dict "root" . "img" .Values.console.image) }}
+          imagePullPolicy: {{ .Values.console.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          ports:
+            - { name: http, containerPort: {{ .Values.console.port }} }
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: PORT, value: {{ .Values.console.port | quote }} }
+            - { name: APP_URL, value: {{ .Values.console.appUrl | quote }} }
+            - { name: CS3_PROFILE, value: {{ .Values.global.profile | quote }} }
+            - { name: CS3_PERSISTENCE, value: postgres }
+            - { name: CS3_INGEST_REQUIRE_KEY, value: {{ .Values.console.ingestRequireKey | quote }} }
+            - { name: CS3_ENROLL_MAX_BATCH, value: {{ .Values.console.enrollMaxBatch | quote }} }
+            - { name: CS3_JSON_LIMIT, value: {{ .Values.console.jsonLimit | quote }} }
+            - { name: CS3_PG_POOL_MAX, value: {{ .Values.console.pgPoolMax | quote }} }
+            - { name: CECUR_INDEXER_URL, value: {{ .Values.indexer.url | quote }} }
+            - { name: CECUR_CLUSTER_NAME, value: {{ .Values.indexer.clusterName | quote }} }
+            {{- if .Values.ollama.enabled }}
+            - { name: CS3_LLM_MODE, value: local }
+            - { name: OLLAMA_BASE_URL, value: "http://{{ include "cs3.fullname" . }}-ollama-lb:11434/v1" }
+            - { name: OLLAMA_PRIMARY_MODEL, value: {{ .Values.ollama.primaryModel | quote }} }
+            - { name: OLLAMA_FALLBACK_MODEL, value: {{ .Values.ollama.fallbackModel | quote }} }
+            {{- end }}
+            {{- range $k := list "JWT_SECRET" "DATABASE_URL" }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef: { name: {{ $secret }}, key: {{ $k }} }
+            {{- end }}
+            {{- range $k := list "SOC_INGESTION_SECRET" }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef: { name: {{ $secret }}, key: {{ $k }}, optional: true }
+            {{- end }}
+            {{- if eq .Values.global.profile "cloud" }}
+            {{- range $k := list "GEMINI_API_KEY" "DEEPSEEK_API_KEY" }}
+            - name: {{ $k }}
+              valueFrom:
+                secretKeyRef: { name: {{ $secret }}, key: {{ $k }}, optional: true }
+            {{- end }}
+            {{- end }}
+            {{- with .Values.console.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          readinessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /api/health, port: http }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          startupProbe:
+            httpGet: { path: /api/health, port: http }
+            failureThreshold: 30
+            periodSeconds: 2
+          resources: {{- toYaml .Values.console.resources | nindent 12 }}
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.console.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if .Values.console.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $name }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: {{ $name }} }
+  minReplicas: {{ .Values.console.hpa.minReplicas }}
+  maxReplicas: {{ .Values.console.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: {{ .Values.console.hpa.targetCPUUtilizationPercentage }} }
+{{- end }}
+{{- if .Values.console.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $name }}
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.console.pdb.minAvailable }}
+  selector:
+    matchLabels: {{- include "cs3.selector" $sel | nindent 6 }}
+{{- end }}

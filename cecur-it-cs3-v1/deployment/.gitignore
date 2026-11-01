@@ -1,0 +1,20 @@
+# Terraform / OpenTofu state and local variable files (state can contain secrets)
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+terraform/**/*.tfvars
+!terraform/**/*.tfvars.example
+terraform/**/crash.log
+
+# Ansible: real secrets/inventories and offline collections
+ansible/**/vault.yml
+ansible/collections/
+ansible/inventory/*
+!ansible/inventory/example/
+
+# One-time enrollment token files produced by agents/cs3-enroll.mjs
+cs3-enrollment-*.json
+agents/cs3-enrollment*.json
+
+# Local compose env
+docker/.env

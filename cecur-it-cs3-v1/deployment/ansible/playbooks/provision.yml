@@ -1,0 +1,18 @@
+# Provision CS3 hosts (base OS settings, container runtime, compose stack).
+#   ansible-playbook playbooks/provision.yml -e @vars/onprem.yml --ask-vault-pass
+#   ansible-playbook playbooks/provision.yml -e @vars/airgap.yml --limit cs3-console-01.example.internal --check
+- name: Provision CS3 hosts
+  hosts: cs3_hosts
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  pre_tasks:
+    - name: A profile must be selected
+      ansible.builtin.assert:
+        that: cs3_profile in ['cloud', 'onprem', 'airgap']
+        fail_msg: "Pass a profile: -e @vars/onprem.yml (or cloud.yml / airgap.yml)"
+  roles:
+    - common
+    - container_runtime
+    - role: cs3_stack
+      when: "'cs3_console' in group_names"

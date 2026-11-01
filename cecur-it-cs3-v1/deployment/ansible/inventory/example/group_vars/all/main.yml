@@ -1,0 +1,3 @@
+# Site-wide settings. Profile defaults come from vars/<profile>.yml (-e @vars/onprem.yml).
+cs3_console_url: https://soc.example.internal
+cs3_ca_bundle_src: "{{ playbook_dir }}/../files/internal-ca.pem"

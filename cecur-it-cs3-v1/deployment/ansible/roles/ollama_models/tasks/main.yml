@@ -1,0 +1,98 @@
+- name: Required inputs
+  ansible.builtin.assert:
+    that:
+      - cs3_ollama_service is defined
+      - (model_bundle is defined) or (rollback_snapshot is defined and ollama_models_action == 'rollback')
+    fail_msg: "Set cs3_ollama_service per host and -e model_bundle=... (or -e rollback_snapshot=... for rollback)."
+
+- name: Swap the model store on this node
+  vars:
+    volume: "cs3_{{ cs3_ollama_service }}"
+    compose: "{{ cs3_container_runtime }} compose"
+    ts: "{{ ansible_date_time.iso8601_basic_short }}"
+    snapshot_file: "{{ cs3_backup_dir }}/{{ cs3_ollama_service }}-{{ ts }}.tar"
+  block:
+    - name: Backup/stage directories
+      ansible.builtin.file: { path: "{{ item }}", state: directory, mode: "0750" }
+      loop: ["{{ cs3_backup_dir }}", "{{ cs3_stage_dir }}"]
+
+    - name: Copy and re-verify the bundle on the node
+      when: model_bundle is defined
+      block:
+        - name: Copy bundle and checksum
+          ansible.builtin.copy:
+            src: "{{ item }}"
+            dest: "{{ cs3_stage_dir }}/{{ item | basename }}"
+            mode: "0640"
+          loop:
+            - "{{ model_bundle }}"
+            - "{{ model_bundle_sha256 | default(model_bundle ~ '.sha256') }}"
+        - name: Verify SHA-256 on the node before extraction
+          ansible.builtin.shell: "cd {{ cs3_stage_dir }} && sha256sum --check --strict {{ (model_bundle_sha256 | default(model_bundle ~ '.sha256')) | basename }}"
+          changed_when: false
+
+    - name: Snapshot the current model volume (rollback point)
+      ansible.builtin.command:
+        argv: "{{ [cs3_container_runtime, 'run', '--rm', '-v', volume ~ ':/src:ro', '-v', cs3_backup_dir ~ ':/backup', 'busybox', 'sh', '-c', 'cd /src && tar -cf /backup/' ~ (snapshot_file | basename) ~ ' .'] }}"
+      changed_when: true
+      register: ollama_snapshot
+
+    - name: Record the rollback point
+      ansible.builtin.copy:
+        dest: "{{ cs3_home }}/model-state.json"
+        mode: "0640"
+        content: "{{ {'node': cs3_ollama_service, 'previous_snapshot': snapshot_file, 'action': ollama_models_action, 'bundle': (model_bundle | default('snapshot')) | basename, 'at': ts} | to_nice_json }}"
+
+    - name: Stop node (NGINX LB passive health checks route around it)
+      ansible.builtin.command:
+        chdir: "{{ cs3_home }}"
+        argv: "{{ (compose | split(' ')) + ['stop', cs3_ollama_service] }}"
+      changed_when: true
+
+    - name: Replace model store from the verified bundle
+      when: model_bundle is defined
+      ansible.builtin.shell: |
+        set -euo pipefail
+        d={{ cs3_stage_dir }}/{{ (model_bundle | basename) | regex_replace('\.tar$', '') }}
+        rm -rf "$d" && mkdir -p "$d"
+        tar -xf {{ cs3_stage_dir }}/{{ model_bundle | basename }} -C "$d"
+        test -d "$d/models"
+        {{ cs3_container_runtime }} run --rm -v {{ volume }}:/dst -v "$d/models":/src:ro busybox sh -c 'rm -rf /dst/* && cp -a /src/. /dst/'
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Replace model store from a snapshot tarball
+      when: model_bundle is not defined
+      ansible.builtin.command:
+        argv: "{{ [cs3_container_runtime, 'run', '--rm', '-v', volume ~ ':/dst', '-v', (rollback_snapshot | dirname) ~ ':/backup:ro', 'busybox', 'sh', '-c', 'rm -rf /dst/* && cd /dst && tar -xf /backup/' ~ (rollback_snapshot | basename)] }}"
+      changed_when: true
+
+    - name: Start node
+      ansible.builtin.command:
+        chdir: "{{ cs3_home }}"
+        argv: "{{ (compose | split(' ')) + ['up', '-d', cs3_ollama_service] }}"
+      changed_when: true
+
+    - name: Acceptance — the approved primary and fallback models are listed
+      ansible.builtin.command:
+        argv: "{{ (compose | split(' ')) + ['exec', '-T', cs3_ollama_service, 'ollama', 'list'] }}"
+        chdir: "{{ cs3_home }}"
+      register: ollama_list
+      retries: 12
+      delay: 10
+      until: ollama_list.rc == 0 and cs3_ollama_primary_model in ollama_list.stdout and cs3_ollama_fallback_model in ollama_list.stdout
+      changed_when: false
+  rescue:
+    - name: Acceptance failed — restore the pre-change snapshot and restart this node
+      ansible.builtin.shell: |
+        set -euo pipefail
+        {{ cs3_container_runtime }} run --rm -v {{ volume }}:/dst -v {{ cs3_backup_dir }}:/backup:ro busybox sh -c 'rm -rf /dst/* && cd /dst && tar -xf /backup/{{ snapshot_file | basename }}'
+        cd {{ cs3_home }} && {{ compose }} up -d {{ cs3_ollama_service }}
+      args:
+        executable: /bin/bash
+      when: ollama_snapshot is defined and ollama_snapshot is succeeded
+      changed_when: true
+    - name: Halt the rollout
+      ansible.builtin.fail:
+        msg: "Model change failed on {{ inventory_hostname }}; previous model store restored. Remaining nodes untouched."

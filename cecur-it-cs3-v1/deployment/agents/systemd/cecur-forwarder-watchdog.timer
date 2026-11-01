@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the Cecur CS3 forwarder watchdog every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+RandomizedDelaySec=20s
+
+[Install]
+WantedBy=timers.target

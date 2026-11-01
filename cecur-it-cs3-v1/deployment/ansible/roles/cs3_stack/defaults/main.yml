@@ -1,0 +1,16 @@
+cs3_home: /opt/cs3
+cs3_container_runtime: docker
+cs3_compose_files: [docker-compose.yml]
+cs3_compose_profiles: []
+cs3_console_image: ghcr.io/dascient/cs3-soc-console:latest
+cs3_console_port: 3000
+cs3_console_url: https://soc.example.internal
+cs3_ingest_require_key: true
+cs3_hosted_models_enabled: false
+cs3_ollama_primary_model: nemotron-3-nano:30b
+cs3_ollama_fallback_model: gemma4:26b
+cs3_ollama_num_parallel: 4
+cs3_ollama_max_loaded_models: 2
+cs3_ollama_keep_alive: 30m
+cs3_opensearch_java_opts: "-Xms2g -Xmx2g"
+cs3_compose_src: "{{ playbook_dir }}/../../docker/"

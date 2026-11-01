@@ -1,0 +1,8 @@
+apiVersion: v2
+name: cs3
+description: CS3 / CECUR-IT Unified SOC Console with PostgreSQL (JSONB), multi-node Ollama and load balancer
+type: application
+version: 0.1.0
+appVersion: "latest"
+kubeVersion: ">=1.27.0-0"
+keywords: [soc, siem, ollama, postgresql]

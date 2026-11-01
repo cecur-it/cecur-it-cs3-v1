@@ -1,0 +1,21 @@
+# Connected on-prem: in-cluster PostgreSQL, 2-node local Ollama, no hosted-model keys.
+global:
+  profile: onprem
+console:
+  replicas: 2
+  hpa: { enabled: true, minReplicas: 2, maxReplicas: 8, targetCPUUtilizationPercentage: 70 }
+postgres:
+  enabled: true
+  persistence: { size: 200Gi, storageClass: "" }
+ollama:
+  enabled: true
+  replicas: 2
+  pullModelsOnStart: true
+  gpu: { enabled: true, count: 1, resourceName: nvidia.com/gpu }
+ingress:
+  host: soc.corp.example
+  tls: { enabled: true, secretName: cs3-console-tls }
+  mtls: { enabled: true, caSecret: cs3/cs3-agent-ca, verify: optional, verifyDepth: 2 }
+networkPolicy:
+  enabled: true
+  egressUnrestricted: false

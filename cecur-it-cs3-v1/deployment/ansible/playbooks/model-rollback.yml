@@ -1,0 +1,26 @@
+# Roll Ollama nodes back to a previous state.
+#   a) previous verified bundle:  -e model_bundle=/srv/cs3/bundles/cs3-model-bundle-v1.3.2.tar
+#   b) pre-change volume snapshot: -e rollback_snapshot=/srv/cs3/backups/ollama/ollama-1-<ts>.tar
+#      (use --limit <node> with (b); each node has its own snapshot; see {{ cs3_home }}/model-state.json on the node)
+- name: Verify the bundle on the controller (variant a)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: scripts/verify-bundle.mjs
+      ansible.builtin.command:
+        argv: >-
+          {{ ['node', playbook_dir ~ '/../../../scripts/verify-bundle.mjs', '--bundle', model_bundle, '--sha256', model_bundle_sha256 | default(model_bundle ~ '.sha256'), '--verbose'] }}
+      changed_when: false
+      when: model_bundle is defined
+
+- name: Roll back Ollama nodes
+  hosts: cs3_ollama
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: ollama_models
+      vars:
+        ollama_models_action: rollback

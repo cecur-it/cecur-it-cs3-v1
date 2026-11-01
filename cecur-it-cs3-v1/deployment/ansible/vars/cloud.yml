@@ -1,0 +1,14 @@
+# Cloud VMs (IaaS). Prefer Helm/Kustomize on managed Kubernetes; use this for VM-based deployments.
+# Network ACLs live in cloud security groups (deployment/terraform); the host firewall is a second layer.
+cs3_profile: cloud
+cs3_container_runtime: docker
+cs3_offline: false
+cs3_hosted_models_enabled: true               # still empty unless vault keys are set
+cs3_ingest_require_key: true
+cs3_console_image: ghcr.io/dascient/cs3-soc-console:latest
+cs3_compose_profiles: [pull-models]
+cs3_compose_files: [docker-compose.yml]
+cs3_firewall_ruleset: nftables-cloud-host.nft
+cs3_ollama_num_parallel: 4
+cs3_ollama_max_loaded_models: 2
+cs3_forwarder_batch: "10%"

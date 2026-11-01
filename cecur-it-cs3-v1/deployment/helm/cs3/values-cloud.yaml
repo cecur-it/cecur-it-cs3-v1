@@ -1,0 +1,28 @@
+# Cloud: managed PostgreSQL (RDS/Cloud SQL/Azure DB/Supabase), hosted LLMs, autoscaled console.
+# Provide GEMINI_API_KEY / DEEPSEEK_API_KEY and DATABASE_URL through secrets.existingSecret.
+global:
+  profile: cloud
+secrets:
+  existingSecret: cs3-credentials
+console:
+  replicas: 3
+  hpa: { enabled: true, minReplicas: 3, maxReplicas: 20, targetCPUUtilizationPercentage: 65 }
+  topologySpreadConstraints: true
+postgres:
+  enabled: false
+  external:
+    host: cs3-db.cluster-xxxx.us-east-1.rds.amazonaws.com
+    port: 5432
+    sslmode: verify-full
+ollama:
+  enabled: false
+ollamaLb:
+  replicas: 0
+ingress:
+  host: soc.example.com
+  className: nginx
+  tls: { enabled: true, secretName: cs3-console-tls }
+  mtls: { enabled: true, caSecret: cs3/cs3-agent-ca, verify: optional, verifyDepth: 2 }
+networkPolicy:
+  enabled: true
+  egressUnrestricted: true   # Gemini / DeepSeek / Firestore over 443

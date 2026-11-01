@@ -1,0 +1,43 @@
+# on-prem/vyos/vyos-vars.example.yml
+#
+# Per-site addressing model consumed by bootstrap-vyos-edge.sh.
+# Copy this file to vyos-vars.yml and replace every value for your site.
+# Flat "key: value" pairs only (no nesting/lists) -- bootstrap-vyos-edge.sh parses this
+# with a simple line-oriented reader, matching the existing repo convention of avoiding
+# new scripting-language dependencies (see deployment/agents/*.sh).
+#
+# Source design doc: deployment/operations/firewall/vyos-onprem.md
+#                     deployment/operations/networking-architecture.md
+
+# --- VyOS host & interfaces (deployment/operations/firewall/vyos-onprem.md "Assumptions") ---
+vyos_host: vyos.example.internal
+vyos_ssh_user: admin
+iface_uplink: eth0     # uplink / remote forwarder side feeding the DMZ
+iface_dmz: eth1
+iface_internal: eth2
+iface_data: eth3
+iface_mgmt: eth4
+
+# --- Segment CIDRs ---
+dmz_cidr: 10.20.10.0/24
+internal_cidr: 10.20.20.0/24
+data_cidr: 10.20.30.0/24
+mgmt_cidr: 10.20.40.0/24
+forwarder_cidr: 10.50.0.0/16
+admin_vpn_cidr: 10.60.0.0/24
+
+# --- Key hosts ---
+dmz_proxy_ip: 10.20.10.10
+dmz_relay_ip: 10.20.10.20
+console_ip: 10.20.20.10
+ollama_lb_ip: 10.20.20.20
+postgres_ip: 10.20.30.10
+opensearch_ip: 10.20.30.20
+bastion_ip: 10.20.40.10
+pki_services_ip: 10.20.40.53
+
+# --- Ports (match deployment/docker/docker-compose.yml defaults) ---
+console_port: 3000
+postgres_port: 5432
+opensearch_port: 9200
+ollama_port: 11434

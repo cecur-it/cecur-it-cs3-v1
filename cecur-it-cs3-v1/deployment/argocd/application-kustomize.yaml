@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cs3-prod-kustomize
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: cs3
+  source:
+    repoURL: https://github.com/DaScient/cecur-it-cs3.git
+    targetRevision: main
+    path: deployment/kustomize/overlays/onprem     # or overlays/cloud | overlays/airgap
+  destination: { server: https://kubernetes.default.svc, namespace: cs3 }
+  syncPolicy:
+    automated: { prune: false, selfHeal: true }
+    syncOptions: [ServerSideApply=true]
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers: [/spec/replicas]

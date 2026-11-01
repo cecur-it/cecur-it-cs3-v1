@@ -1,0 +1,6 @@
+# Offline / air-gapped controllers:
+#   ansible-galaxy collection download -r requirements.yml -p ./collections   (internet-connected staging host)
+#   ansible-galaxy collection install -r collections/requirements.yml -p ~/.ansible/collections   (enclave)
+collections:
+  - name: ansible.posix
+  - name: ansible.windows

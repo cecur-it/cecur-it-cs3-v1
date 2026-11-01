@@ -1,0 +1,6 @@
+# Full environment: provision hosts, then (optionally) roll out forwarders.
+#   ansible-playbook playbooks/site.yml -e @vars/onprem.yml --ask-vault-pass
+#   ansible-playbook playbooks/site.yml -e @vars/onprem.yml -e cs3_enrollment_file=./cs3-enrollment.json
+- ansible.builtin.import_playbook: provision.yml
+- ansible.builtin.import_playbook: deploy-forwarders.yml
+  when: cs3_enrollment_file is defined

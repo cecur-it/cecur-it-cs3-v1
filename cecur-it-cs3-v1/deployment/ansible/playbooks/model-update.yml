@@ -1,0 +1,30 @@
+# Roll a verified model bundle across Ollama nodes, one node at a time (canary first).
+#   ansible-playbook playbooks/model-update.yml -e @vars/airgap.yml \
+#       -e model_bundle=/srv/cs3/bundles/cs3-model-bundle-v1.4.0.tar
+# Expects <bundle>.sha256 next to the bundle (or -e model_bundle_sha256=...).
+# Any failure restores that node's snapshot and halts the rollout (serial: 1, any_errors_fatal).
+- name: Verify the bundle on the controller (checksum + manifest vs onboarding/models.json)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Bundle path provided
+      ansible.builtin.assert:
+        that: model_bundle is defined
+        fail_msg: "-e model_bundle=/path/to/cs3-model-bundle-<tag>.tar is required"
+    - name: scripts/verify-bundle.mjs
+      ansible.builtin.command:
+        argv: >-
+          {{ ['node', playbook_dir ~ '/../../../scripts/verify-bundle.mjs', '--bundle', model_bundle, '--sha256', model_bundle_sha256 | default(model_bundle ~ '.sha256'), '--verbose'] }}
+      changed_when: false
+
+- name: Roll the bundle across Ollama nodes
+  hosts: cs3_ollama
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: ollama_models
+      vars:
+        ollama_models_action: update

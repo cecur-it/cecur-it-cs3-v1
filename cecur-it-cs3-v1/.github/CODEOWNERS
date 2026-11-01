@@ -1,0 +1,21 @@
+# CS3 Installation Repository — Code Owners
+#
+# Routes changes to install-path and CI logic through platform security
+# review before merge, per the CS3 Installation Guide (README.md, Section
+# 2.1). Replace @DaScient below with your organization's
+# actual GitHub teams before enabling branch protection.
+
+# Default owners for everything not matched below.
+*                               @DaScient
+
+# Install scripts and onboarding wizard/config carry local system privileges.
+/scripts/                       @DaScient
+/onboarding/wizard.config.json  @DaScient
+/onboarding/models.json         @DaScient
+/install.sh                     @DaScient
+/install.command                @DaScient
+/install.ps1                    @DaScient
+/cs3-launcher.mjs               @DaScient
+
+# CI/CD workflows control what gets signed, released, and bundled.
+/.github/workflows/             @DaScient

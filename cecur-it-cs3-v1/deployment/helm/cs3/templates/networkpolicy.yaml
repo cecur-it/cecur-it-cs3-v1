@@ -1,0 +1,129 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- $fn := include "cs3.fullname" . }}
+{{- $console := dict "root" . "component" "console" }}
+{{- $pg := dict "root" . "component" "postgres" }}
+{{- $ollama := dict "root" . "component" "ollama" }}
+{{- $lb := dict "root" . "component" "ollama-lb" }}
+# Default deny for every pod of this release, then explicit allows.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fn }}-default-deny
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fn }}-console
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {{- include "cs3.selector" $console | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {{- toYaml .Values.networkPolicy.ingressNamespaceLabel | nindent 14 }}
+      ports: [{ port: {{ .Values.console.port }} }]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+    {{- if .Values.postgres.enabled }}
+    - to:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $pg | nindent 16 }}
+      ports: [{ port: 5432 }]
+    {{- else }}
+    - to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]   # managed database; restrict to its CIDR in production
+      ports: [{ port: {{ .Values.postgres.external.port }} }]
+    {{- end }}
+    {{- if .Values.ollama.enabled }}
+    - to:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $lb | nindent 16 }}
+      ports: [{ port: 11434 }]
+    {{- end }}
+    - to: [{ ipBlock: { cidr: 10.0.0.0/8 } }, { ipBlock: { cidr: 172.16.0.0/12 } }, { ipBlock: { cidr: 192.168.0.0/16 } }]
+      ports: [{ port: 9200 }]   # OpenSearch / Wazuh Indexer
+    {{- if .Values.networkPolicy.egressUnrestricted }}
+    - to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]
+      ports: [{ port: 443 }]
+    {{- end }}
+    {{- range .Values.networkPolicy.allowEgressCIDRs }}
+    - to: [{ ipBlock: { cidr: {{ . | quote }} } }]
+    {{- end }}
+{{- if .Values.postgres.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fn }}-postgres
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {{- include "cs3.selector" $pg | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $console | nindent 16 }}
+      ports: [{ port: 5432 }]
+{{- end }}
+{{- if .Values.ollama.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fn }}-ollama
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {{- include "cs3.selector" $ollama | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $lb | nindent 16 }}
+      ports: [{ port: 11434 }]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+    {{- if .Values.ollama.pullModelsOnStart }}
+    - to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]   # registry.ollama.ai (connected onprem only)
+      ports: [{ port: 443 }]
+    {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fn }}-ollama-lb
+  labels: {{- include "cs3.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {{- include "cs3.selector" $lb | nindent 6 }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $console | nindent 16 }}
+      ports: [{ port: 11434 }]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
+    - to:
+        - podSelector:
+            matchLabels: {{- include "cs3.selector" $ollama | nindent 16 }}
+      ports: [{ port: 11434 }]
+{{- end }}
+{{- end }}

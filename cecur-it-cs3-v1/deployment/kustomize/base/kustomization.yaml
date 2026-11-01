@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cs3
+labels:
+  - pairs: { app.kubernetes.io/part-of: cs3 }
+    includeSelectors: false
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - console.yaml
+  - ingress.yaml
+  - networkpolicy.yaml
+images:
+  - { name: ghcr.io/dascient/cs3-soc-console, newTag: latest }
+  - { name: ollama/ollama, newTag: latest }
+  - { name: postgres, newTag: 16-alpine }
+  - { name: nginx, newTag: 1.27-alpine }
+# The Secret "cs3-credentials" is NOT part of the base. Provide it from External Secrets / SOPS /
+# Sealed Secrets (keys: JWT_SECRET, DATABASE_URL, POSTGRES_PASSWORD, CS3_APP_PASSWORD,
+# CS3_MIGRATOR_PASSWORD, CS3_ARCHIVER_PASSWORD, optional SOC_INGESTION_SECRET).

@@ -1,0 +1,228 @@
+# CS3 seed policies
+#
+# Baseline analyst-in-the-loop and AI-router guardrails applied to a freshly
+# onboarded tenant, mirroring the CS3 Platform's published control coverage
+# so that demo data and documentation tell the same story. These are
+# starting defaults, not a substitute for your own organization's authorized
+# policy set or formal ATO package — review and tune before production use,
+# and see README.md Section 9 for the split between engineering practice
+# (what this repository implements) and the customer's own authorization
+# decision (what only your AO can grant).
+#
+# Each policy is tagged with the NIST SP 800-53 Rev. 5 / NIST SP 800-171
+# Rev. 3 control family it supports, using the same twelve families the
+# platform's public control-coverage summary enumerates. This is a coverage
+# map for engineering controls, not a claim of any specific assessment
+# outcome (SPRS score, 3PAO/C3PAO result, or ATO status) — those are
+# established by the customer's own authorization process.
+
+controlFamilies:
+  AC: access control
+  AU: audit and accountability
+  SC: system and communications protection
+  SI: system and information integrity
+  SR: supply chain risk management
+  CM: configuration management
+  IA: identification and authentication
+  IR: incident response
+  CA: assessment and authorization
+  RA: risk assessment
+  PT: privacy processing and transparency
+  CP: contingency planning
+
+policies:
+  - id: analyst-in-the-loop
+    controlFamily: AC
+    description: >
+      No AI-generated remediation or SOAR playbook step may execute against a
+      production asset without explicit analyst confirmation. The Agentic LLM
+      Router is a decision-support surface, not an autonomous actor.
+    enforce: true
+    applies_to:
+      - soar-playbooks
+      - remediation-actions
+
+  - id: least-privilege-service-accounts
+    controlFamily: AC
+    description: >
+      Local inference services run under a dedicated, unprivileged service
+      account (cs3-ollama / _cs3-ollama) created by
+      scripts/install-ollama.sh, never as root/Administrator. Console and
+      wizard processes never require elevated privileges to run.
+    enforce: true
+
+  - id: verification-result-logging
+    controlFamily: AU
+    description: >
+      Every scripts/verify-bundle.mjs run (pass or fail) is timestamped,
+      attributed to the invoking user/host, and persisted to
+      .cs3-bundle-state.json; --verbose emits the same result as
+      machine-readable JSON suitable for pasting into an ATO
+      change-management record.
+    enforce: true
+
+  - id: ai-router-audit-trail
+    controlFamily: AU
+    description: >
+      Every AIIncidentAnalysis response attached to an incident retains its
+      source model tag, profile (cloud/onprem/airgap), and confidence score
+      so a reviewer can reconstruct which model produced which
+      recommendation.
+    enforce: true
+
+  - id: airgap-network-egress
+    controlFamily: SC
+    description: >
+      On the airgap profile, no outbound network call may originate from the
+      console, the Agentic LLM Router, or the local Ollama endpoint.
+      cs3-launcher.mjs and onboarding/wizard.mjs install an in-process
+      network-egress guard for the airgap profile that fails loudly (halts
+      the process) on any non-loopback connection attempt rather than
+      allowing it silently; the physical/network air gap remains the primary
+      control, this is defense in depth.
+    applies_to_profile: airgap
+    enforce: true
+
+  - id: onprem-egress-allowlist
+    controlFamily: SC
+    description: >
+      On the onprem profile, outbound egress is limited to the explicitly
+      allow-listed model registry and API hosts configured by the customer's
+      network team; no other destinations are permitted by default. Ollama
+      itself binds only to loopback (127.0.0.1:11434) regardless of profile.
+    applies_to_profile: onprem
+    enforce: true
+
+  - id: ai-router-output-contract
+    controlFamily: SI
+    description: >
+      All agent responses must validate against the AIIncidentAnalysis JSON
+      schema before being surfaced to an analyst or attached to an incident;
+      malformed or schema-drifted responses are rejected rather than passed
+      through (see README Section 11 troubleshooting: malformed tool-calling
+      responses).
+    enforce: true
+
+  - id: rollback-required
+    controlFamily: SI
+    description: >
+      Every AI-generated remediation must ship with a documented, tested
+      rollback procedure before it can be attached to an automated playbook.
+    enforce: true
+
+  - id: mandatory-bundle-verification
+    controlFamily: SR
+    description: >
+      scripts/verify-bundle.mjs is the single supply-chain gate for offline
+      model weights: it checks the bundle's SHA-256 before extraction and
+      cross-checks the bundle manifest against onboarding/models.json for
+      the installing release tag. There is no bypass flag for a checksum
+      mismatch, and the check is mandatory on every transfer, including
+      transfers between two hosts the customer controls.
+    enforce: true
+
+  - id: sbom-review-before-install
+    controlFamily: SR
+    description: >
+      .github/workflows/release.yml publishes a CycloneDX SBOM and a
+      SHA-256 manifest with every tagged release so customers can run their
+      own vulnerability review before installing, rather than trusting the
+      release sight-unseen.
+    enforce: true
+
+  - id: pinned-runtime-versions
+    controlFamily: CM
+    description: >
+      Ollama and llama.cpp versions are pinned to named constants
+      (OLLAMA_PINNED_VERSION, LLAMA_CPP_PINNED_TAG) reviewed and updated
+      deliberately rather than tracking "latest"; onboarding/models.json is
+      the single source of truth for which model tags are approved for a
+      given release, and nothing in the installer may pull a model absent
+      from that registry.
+    enforce: true
+
+  - id: idempotent-install-scripts
+    controlFamily: CM
+    description: >
+      Every install script (install-ollama.sh, install-llama.cpp.sh,
+      install.sh/.command/.ps1) is safe to re-run: it detects existing
+      service accounts, units, and installed versions rather than producing
+      duplicate state.
+    enforce: true
+
+  - id: dedicated-service-identity
+    controlFamily: IA
+    description: >
+      The Ollama inference service runs under its own named, non-interactive
+      local identity (cs3-ollama) rather than a shared or human operator
+      account, so service actions are attributable to that identity alone.
+    enforce: true
+
+  - id: post-install-identity-check
+    controlFamily: IA
+    description: >
+      Post-install health checks require the console's authenticated
+      identity endpoint to return a valid principal, not just a 200 from the
+      unauthenticated health endpoint, before an install is considered
+      successful.
+    enforce: true
+
+  - id: incident-response-escalation
+    controlFamily: IR
+    description: >
+      Suspected vulnerabilities or install-path incidents route through the
+      customer's CECUR-IT engagement lead or the published security contact
+      (see SECURITY.md, contact@cecur-it.io); credentials and bundle
+      checksums are never filed in a public issue tracker, even one linked
+      from a private repository's project boards.
+    enforce: true
+
+  - id: authorization-not-substituted
+    controlFamily: CA
+    description: >
+      This policy set, the seed data, and the installation guide describe
+      engineering practice and default guardrails. They do not constitute an
+      assessment, an authorization decision, or a claim about any specific
+      customer's ATO, SPRS score, or 3PAO/C3PAO result — those are
+      established solely by the customer's own formal authorization process.
+    enforce: true
+
+  - id: hardware-sizing-fail-closed
+    controlFamily: RA
+    description: >
+      scripts/detect-hardware.mjs recommends a model tier from detected
+      GPU/VRAM/RAM; cs3-launcher.mjs fails closed rather than degrading
+      gracefully when the selected profile's model tier exceeds detected
+      capacity, instead of allowing a load that is likely to OOM in
+      production.
+    enforce: true
+
+  - id: thinking-mode-selection
+    controlFamily: RA
+    description: >
+      Nemotron-3-Nano thinking mode defaults to enabled for SOAR playbook
+      generation and root-cause synthesis (favoring correctness), and should
+      be disabled for high-volume, low-latency triage classification
+      (favoring latency) — an explicit risk/latency tradeoff the operator
+      selects, not a hidden default.
+    default_enabled: true
+
+  - id: seed-data-non-sensitive
+    controlFamily: PT
+    description: >
+      onboarding/seed/demo-data.json contains only synthetic tenant,
+      incident, and asset records for smoke-testing dashboards before real
+      telemetry arrives — no real host, identity, or customer data is ever
+      seeded, and the wizard only ever collects the environment fields
+      required by the selected profile.
+    enforce: true
+
+  - id: fallback-model-failover
+    controlFamily: CP
+    description: >
+      onprem and airgap profiles configure both a primary and a fallback
+      model tag (OLLAMA_PRIMARY_MODEL / OLLAMA_FALLBACK_MODEL) so the
+      Agentic LLM Router has a documented degraded-mode path if the primary
+      model fails to load (e.g. insufficient VRAM discovered at runtime)
+      instead of an undefined failure.
+    enforce: true

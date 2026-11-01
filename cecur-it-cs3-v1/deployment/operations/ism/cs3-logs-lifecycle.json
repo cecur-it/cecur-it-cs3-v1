@@ -1,0 +1,114 @@
+{
+  "policy": {
+    "policy_id": "cs3-logs-lifecycle",
+    "description": "Hot 30d, warm 90d, cold 1y with snapshot before delete for CS3 and Wazuh log indices.",
+    "last_updated_time": 0,
+    "schema_version": 1,
+    "default_state": "hot",
+    "states": [
+      {
+        "name": "hot",
+        "actions": [
+          {
+            "replica_count": {
+              "number_of_replicas": 1
+            }
+          },
+          {
+            "rollover": {
+              "min_index_age": "1d",
+              "min_primary_shard_size": "35gb"
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "state_name": "warm",
+            "conditions": {
+              "min_index_age": "30d"
+            }
+          }
+        ]
+      },
+      {
+        "name": "warm",
+        "actions": [
+          {
+            "allocation": {
+              "require": {
+                "tier": "warm"
+              },
+              "wait_for": false
+            }
+          },
+          {
+            "replica_count": {
+              "number_of_replicas": 1
+            }
+          },
+          {
+            "force_merge": {
+              "max_num_segments": 1
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "state_name": "cold",
+            "conditions": {
+              "min_index_age": "90d"
+            }
+          }
+        ]
+      },
+      {
+        "name": "cold",
+        "actions": [
+          {
+            "read_only": {}
+          },
+          {
+            "allocation": {
+              "require": {
+                "tier": "cold"
+              },
+              "wait_for": false
+            }
+          },
+          {
+            "snapshot": {
+              "repository": "cs3-cold",
+              "snapshot": "{{ctx.index}}-{{ctx.indexUuid}}"
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "state_name": "delete",
+            "conditions": {
+              "min_index_age": "365d"
+            }
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "actions": [
+          {
+            "delete": {}
+          }
+        ],
+        "transitions": []
+      }
+    ],
+    "ism_template": [
+      {
+        "index_patterns": [
+          "cs3-*",
+          "wazuh-alerts-*"
+        ],
+        "priority": 100
+      }
+    ]
+  }
+}

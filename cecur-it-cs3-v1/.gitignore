@@ -1,0 +1,47 @@
+# Secrets & generated configuration — never commit a populated .env
+# (onboarding/env.*.template files are NOT matched by this and stay tracked)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bundle verification state (local to each host, may reference local paths)
+.cs3-bundle-state.json
+
+# Air-gap model bundles and checksums (large binaries; distribute out-of-band)
+cs3-model-bundle-*.tar
+cs3-model-bundle-*.sha256
+*.tar
+*.tar.gz
+
+# Node
+node_modules/
+npm-debug.log*
+.npm
+
+# Build / release artifacts
+dist/
+build/
+*.sbom.json
+SHA256SUMS
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# Third-party reference documents are not redistributed (see NOTICE)
+*.pdf
+
+# Local secrets
+demo/demo-100226/private/
+demo/demo-100226/firebase-applet-config.json

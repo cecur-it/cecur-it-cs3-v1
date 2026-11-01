@@ -1,0 +1,127 @@
+# CS3 chart defaults. Production profiles: values-cloud.yaml, values-onprem.yaml, values-airgap.yaml
+#   helm upgrade --install cs3 deployment/helm/cs3 -n cs3 --create-namespace -f deployment/helm/cs3/values-onprem.yaml
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  profile: onprem            # cloud | onprem | airgap
+  imageRegistry: ""          # e.g. registry.internal:5000 (airgap)
+  imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Secrets. For GitOps always set existingSecret (External Secrets / SOPS / Sealed Secrets) containing:
+#   JWT_SECRET, POSTGRES_PASSWORD, CS3_APP_PASSWORD, CS3_MIGRATOR_PASSWORD, CS3_ARCHIVER_PASSWORD,
+#   DATABASE_URL (only when postgres.enabled=false), SOC_INGESTION_SECRET (optional),
+#   GEMINI_API_KEY / DEEPSEEK_API_KEY (cloud profile only)
+# Otherwise the chart generates random values once (kept across `helm upgrade` via lookup).
+secrets:
+  existingSecret: ""
+  geminiApiKey: ""
+  deepseekApiKey: ""
+
+console:
+  image:
+    repository: ghcr.io/dascient/cs3-soc-console
+    tag: ""                  # defaults to appVersion; pin a digest in production
+    digest: ""
+    pullPolicy: IfNotPresent
+  replicas: 2
+  port: 3000
+  appUrl: https://soc.example.internal
+  ingestRequireKey: true     # CS3_INGEST_REQUIRE_KEY: per-agent X-API-Key on /api/cecur/logs/ingest
+  enrollMaxBatch: 1000       # CS3_ENROLL_MAX_BATCH
+  jsonLimit: 2mb             # CS3_JSON_LIMIT
+  pgPoolMax: 20              # per replica; keep replicas * pgPoolMax < postgres max_connections
+  extraEnv: []
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { cpu: "2", memory: 1Gi }
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  pdb:
+    enabled: true
+    minAvailable: 1
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: true
+
+postgres:
+  enabled: true              # false => use postgres.external (managed DB / CloudNativePG / Patroni)
+  image: { repository: postgres, tag: 16-alpine, pullPolicy: IfNotPresent }
+  database: cs3
+  user: postgres
+  persistence: { size: 100Gi, storageClass: "" }
+  walArchive: { enabled: true, size: 50Gi }
+  maxConnections: 300
+  sharedBuffers: 1GB
+  resources:
+    requests: { cpu: "1", memory: 2Gi }
+    limits: { cpu: "4", memory: 8Gi }
+  external:
+    host: ""
+    port: 5432
+    sslmode: require
+  nodeSelector: {}
+  tolerations: []
+
+ollama:
+  enabled: true              # false (cloud profile) => hosted LLM keys are used instead
+  replicas: 2
+  image: { repository: ollama/ollama, tag: latest, pullPolicy: IfNotPresent }
+  primaryModel: nemotron-3-nano:30b
+  fallbackModel: gemma4:26b
+  numParallel: 4
+  maxLoadedModels: 2
+  keepAlive: 30m
+  pullModelsOnStart: true    # MUST be false on airgap (models come from a verified bundle on the PVC)
+  persistence: { size: 200Gi, storageClass: "" }
+  gpu: { enabled: false, count: 1, resourceName: nvidia.com/gpu }
+  resources:
+    requests: { cpu: "4", memory: 16Gi }
+    limits: { memory: 48Gi }
+  nodeSelector: {}
+  tolerations: []
+
+ollamaLb:
+  image: { repository: nginx, tag: 1.27-alpine, pullPolicy: IfNotPresent }
+  replicas: 2
+  maxConnections: 64
+  resources:
+    requests: { cpu: 100m, memory: 64Mi }
+    limits: { cpu: 500m, memory: 128Mi }
+
+indexer:
+  url: https://wazuh-indexer.cs3-siem.svc:9200   # external OpenSearch / Wazuh Indexer (see operations/opensearch-cluster.md)
+  clusterName: cecur-prod-cluster
+
+ingress:
+  enabled: true
+  className: nginx
+  host: soc.example.internal
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"   # SSE streams
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-body-size: 4m
+  tls:
+    enabled: true
+    secretName: cs3-console-tls       # create with cert-manager or your PKI
+  # Optional mTLS for agent ingest (ingress-nginx). See operations/mtls-certificate-pinning.md
+  mtls:
+    enabled: false
+    caSecret: cs3/cs3-agent-ca        # <namespace>/<secret> holding ca.crt (+ optional ca.crl)
+    verify: optional                  # on | optional | optional_no_ca
+    verifyDepth: 2
+
+networkPolicy:
+  enabled: true
+  ingressNamespaceLabel: { kubernetes.io/metadata.name: ingress-nginx }
+  allowEgressCIDRs: []       # cloud profile: allow hosted LLM / Firestore egress (e.g. 0.0.0.0/0 on 443)
+  egressUnrestricted: false  # true only for cloud profile

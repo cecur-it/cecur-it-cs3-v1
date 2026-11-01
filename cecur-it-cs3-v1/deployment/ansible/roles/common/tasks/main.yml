@@ -1,0 +1,43 @@
+- name: Install base packages
+  ansible.builtin.package:
+    name: [curl, ca-certificates, openssl, "{{ cs3_ntp_package }}", nftables]
+    state: present
+  when: not (cs3_offline | default(false))
+
+- name: Kernel settings for high connection counts (1,000+ forwarders)
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/90-cs3.conf
+    mode: "0644"
+    content: |
+      net.core.somaxconn = 4096
+      net.ipv4.tcp_max_syn_backlog = 8192
+      net.ipv4.ip_local_port_range = 10240 65000
+      fs.file-max = 1048576
+      vm.max_map_count = 262144
+      vm.swappiness = 1
+  notify: Reload sysctl
+
+- name: Create CS3 home
+  ansible.builtin.file:
+    path: "{{ cs3_home }}"
+    state: directory
+    mode: "0750"
+
+- name: Ensure time sync is running (audit log timestamps / certificate validity depend on it)
+  ansible.builtin.service:
+    name: "{{ 'chrony' if ansible_facts.os_family == 'Debian' else 'chronyd' }}"
+    state: started
+    enabled: true
+
+- name: Firewall ruleset (validate, install, optionally apply)
+  when: cs3_manage_firewall | bool
+  block:
+    - name: Install ruleset (validated with nft -c before it is placed)
+      ansible.builtin.copy:
+        src: "{{ cs3_firewall_src }}"
+        dest: /etc/nftables.d/cs3.nft
+        mode: "0600"
+        validate: nft -c -f %s
+      notify: Apply nftables
+    - name: Flush handlers so apply happens only when requested
+      ansible.builtin.meta: flush_handlers

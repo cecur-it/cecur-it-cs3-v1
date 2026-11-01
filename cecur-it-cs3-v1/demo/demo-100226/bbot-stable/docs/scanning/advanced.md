@@ -1,0 +1,190 @@
+# Advanced
+
+Below you can find some advanced uses of BBOT.
+
+## BBOT as a Python library
+
+#### Synchronous
+```python
+from bbot.scanner import Scanner
+
+if __name__ == "__main__":
+    scan = Scanner("evilcorp.com", presets=["subdomain-enum"])
+    for event in scan.start():
+        print(event)
+```
+
+#### Asynchronous
+```python
+from bbot.scanner import Scanner
+
+
+async def main():
+    scan = Scanner("evilcorp.com", presets=["subdomain-enum"])
+    async for event in scan.async_start():
+        print(event.json())
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(main())
+```
+
+## Command-Line Help
+
+<!-- BBOT HELP OUTPUT -->
+```text
+usage: bbot [-h] [-t TARGET [TARGET ...]] [-s SEEDS [SEEDS ...]]
+               [-b BLACKLIST [BLACKLIST ...]] [--strict-scope]
+               [-p [PRESET ...]] [-c [CONFIG ...]] [-lp]
+               [-m MODULE [MODULE ...]] [-l] [-lmo] [-em MODULE [MODULE ...]]
+               [-f FLAG [FLAG ...]] [-lf] [-rf FLAG [FLAG ...]]
+               [-ef FLAG [FLAG ...]] [-n SCAN_NAME] [-v] [-d] [-S] [--force]
+               [-y] [--fast-mode] [--dry-run] [--current-preset]
+               [--current-preset-full] [-mh MODULE] [-o DIR]
+               [-om MODULE [MODULE ...]] [-eom MODULE [MODULE ...]] [-lo]
+               [--json] [--brief] [--no-color]
+               [--event-types EVENT_TYPES [EVENT_TYPES ...]] [--exclude-cdn]
+               [--no-deps | --force-deps | --retry-deps |
+               --ignore-failed-deps] [--install-all-deps] [--version]
+               [--reset-config] [--reset-secrets] [--proxy HTTP_PROXY]
+               [--no-proxy HOST [HOST ...]]
+               [-H CUSTOM_HEADERS [CUSTOM_HEADERS ...]]
+               [-C CUSTOM_COOKIES [CUSTOM_COOKIES ...]]
+               [--custom-yara-rules CUSTOM_YARA_RULES]
+               [--user-agent USER_AGENT] [--user-agent-suffix SUFFIX]
+
+Bighuge BLS OSINT Tool
+
+options:
+  -h, --help            show this help message and exit
+
+Target:
+  -t, --targets TARGET [TARGET ...]
+                        Target scope
+  -s, --seeds SEEDS [SEEDS ...]
+                        Define seeds to drive passive modules without being in scope (if not specified, defaults to same as targets)
+  -b, --blacklist BLACKLIST [BLACKLIST ...]
+                        Don't touch these things
+  --strict-scope        Don't consider subdomains of target to be in-scope - exact matches only
+
+Presets:
+  -p, --preset [PRESET ...]
+                        Enable BBOT preset(s)
+  -c, --config [CONFIG ...]
+                        Custom config options in key=value format: e.g. 'modules.shodan.api_key=1234'
+  -lp, --list-presets   List available presets.
+
+Modules:
+  -m, --modules MODULE [MODULE ...]
+                        Modules to enable. Choices: affiliates,ajaxpro,anubisdb,apkpure,asn,aspnet_bin_exposure,azure_tenant,baddns,baddns_direct,baddns_zone,badsecrets,bevigil,bucket_amazon,bucket_digitalocean,bucket_file_enum,bucket_firebase,bucket_google,bucket_hetzner,bucket_microsoft,bufferoverrun,builtwith,bypass403,c99,censys_dns,censys_ip,certspotter,chaos,code_repository,credshed,crt,crt_db,dehashed,dnsbimi,dnsbrute,dnsbrute_mutations,dnscaa,dnscommonsrv,dnsdumpster,dnstlsrpt,docker_pull,dockerhub,dotnetnuke,emailformat,filedownload,fingerprintx,fullhunt,generic_ssrf,git,git_clone,gitdumper,github_codesearch,github_org,github_usersearch,github_workflows,gitlab_com,gitlab_onprem,google_playstore,gowitness,graphql_introspection,hackertarget,host_header,http,hunt,hunterio,iis_shortnames,ip2location,ipneighbor,ipstack,jadx,kreuzberg,leakix,legba,lightfuzz,medusa,myssl,newsletters,ntlm,nuclei,oauth,otx,paramminer_cookies,paramminer_getparams,paramminer_headers,pgp,portfilter,portscan,postman,postman_download,rapiddns,reflected_parameters,retirejs,robots,securitytrails,securitytxt,shodan_dns,shodan_enterprise,shodan_idb,skymem,social,sslcert,subdomaincenter,subdomainradar,telerik,trajan,trickest,trufflehog,url_manipulation,urlscan,viewdns,virtualhost,virustotal,waf_bypass,wafw00f,wayback,webbrute,webbrute_shortnames
+  -l, --list-modules    List available modules.
+  -lmo, --list-module-options
+                        Show all module config options
+  -em, --exclude-modules MODULE [MODULE ...]
+                        Exclude these modules.
+  -f, --flags FLAG [FLAG ...]
+                        Enable modules by flag. Choices: active,affiliates,baddns,cloud-enum,code-enum,download,email-enum,iis-shortnames,invasive,loud,passive,portscan,safe,service-enum,slow,social-enum,subdomain-enum,subdomain-hijack,web,web-heavy,web-paramminer,web-screenshots
+  -lf, --list-flags     List available flags.
+  -rf, --require-flags FLAG [FLAG ...]
+                        Only enable modules with these flags (e.g. -rf passive)
+  -ef, --exclude-flags FLAG [FLAG ...]
+                        Disable modules with these flags. (e.g. -ef loud)
+
+Scan:
+  -n, --name SCAN_NAME  Name of scan (default: random)
+  -v, --verbose         Be more verbose
+  -d, --debug           Enable debugging
+  -S, --silent          Be quiet
+  --force               Run scan even in the case of condition violations or failed module setups
+  -y, --yes             Skip scan confirmation prompt
+  --fast-mode           Scan only the provided targets as fast as possible, with no extra discovery
+  --dry-run             Abort before executing scan
+  --current-preset      Show the current preset in YAML format
+  --current-preset-full
+                        Show the current preset in its full form, including defaults
+  -mh, --module-help MODULE
+                        Show help for a specific module
+
+Output:
+  -o, --output-dir DIR  Directory to output scan results
+  -om, --output-modules MODULE [MODULE ...]
+                        Add output module(s). Choices: asset_inventory,csv,discord,elastic,emails,json,kafka,mongo,mysql,nats,neo4j,nmap_xml,postgres,rabbitmq,slack,splunk,sqlite,stdout,subdomains,teams,txt,web_parameters,web_report,webhook,websocket,zeromq
+  -eom, --exclude-output-modules MODULE [MODULE ...]
+                        Exclude output module(s)
+  -lo, --list-output-modules
+                        List available output modules
+  --json, -j            Output scan data in JSON format
+  --brief, -br          Output only the data itself
+  --no-color            Disable colored terminal output
+  --event-types EVENT_TYPES [EVENT_TYPES ...]
+                        Choose which event types to display
+  --exclude-cdn, -ec    Filter out unwanted open ports on CDNs/WAFs (80,443 only)
+
+Module dependencies:
+  Control how modules install their dependencies
+
+  --no-deps             Don't install module dependencies
+  --force-deps          Force install all module dependencies
+  --retry-deps          Try again to install failed module dependencies
+  --ignore-failed-deps  Run modules even if they have failed dependencies
+  --install-all-deps    Install dependencies for all modules
+
+Misc:
+  --version             show BBOT version and exit
+  --reset-config        Regenerate bbot.yml from current defaults (overwrites; backs up to .bak)
+  --reset-secrets       Regenerate secrets.yml from current defaults (overwrites; backs up to .bak)
+  --proxy HTTP_PROXY    Use this proxy for all HTTP requests
+  --no-proxy HOST [HOST ...]
+                        Exclude these hosts from proxy (e.g. localhost *.internal.corp 10.0.0.0/8)
+  -H, --custom-headers CUSTOM_HEADERS [CUSTOM_HEADERS ...]
+                        List of custom headers as key value pairs (header=value).
+  -C, --custom-cookies CUSTOM_COOKIES [CUSTOM_COOKIES ...]
+                        List of custom cookies as key value pairs (cookie=value).
+  --custom-yara-rules, -cy CUSTOM_YARA_RULES
+                        Add custom yara rules to excavate
+  --user-agent, -ua USER_AGENT
+                        Set the user-agent for all HTTP requests
+  --user-agent-suffix, -uas SUFFIX
+                        Suffix to append to the user-agent
+
+EXAMPLES
+
+    Subdomains:
+        bbot -t evilcorp.com -p subdomain-enum
+
+    Subdomains (passive only):
+        bbot -t evilcorp.com -p subdomain-enum -rf passive
+
+    Subdomains + port scan + web screenshots:
+        bbot -t evilcorp.com -p subdomain-enum -m portscan gowitness -n my_scan -o .
+
+    Subdomains + basic web scan:
+        bbot -t evilcorp.com -p subdomain-enum web
+
+    Web spider:
+        bbot -t www.evilcorp.com -p spider -c web.spider_distance=2 web.spider_depth=2
+
+    Everything everywhere all at once:
+        bbot -t evilcorp.com -p kitchen-sink
+
+    List modules:
+        bbot -l
+
+    List output modules:
+        bbot -lo
+
+    List presets:
+        bbot -lp
+
+    List flags:
+        bbot -lf
+
+    Show help for a specific module:
+        bbot -mh <module_name>
+
+```
+<!-- END BBOT HELP OUTPUT -->
+
+[Next Up: Configuration -->](./configuration.md){ .md-button .md-button--primary }

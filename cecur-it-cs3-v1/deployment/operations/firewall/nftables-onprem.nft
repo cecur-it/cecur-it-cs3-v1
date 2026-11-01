@@ -1,0 +1,73 @@
+#!/usr/sbin/nft -f
+flush ruleset
+
+define DMZ_IF = "eth1"
+define APP_IF = "eth2"
+define DATA_IF = "eth3"
+define MGMT_IF = "eth4"
+
+define PROXY_ADDR = 10.20.10.10
+define RELAY_ADDR = 10.20.10.20
+define CONSOLE_ADDR = 10.20.20.10
+define OLLAMA_ADDR = 10.20.20.20
+define PG_ADDR = 10.20.30.10
+define OS_ADDR = 10.20.30.20
+
+table inet filter {
+  set forwarder_nets {
+    type ipv4_addr
+    flags interval
+    elements = { 10.50.0.0/16 }
+  }
+
+  set admin_vpn_nets {
+    type ipv4_addr
+    flags interval
+    elements = { 10.60.0.0/24 }
+  }
+
+  chain input {
+    type filter hook input priority filter; policy drop;
+    iifname "lo" accept
+    ct state { established, related } accept
+    ct state invalid drop
+
+    ip protocol icmp accept
+    ip6 nexthdr ipv6-icmp accept
+
+    iifname $MGMT_IF ip saddr @admin_vpn_nets tcp dport 22 accept comment "SSH to firewall host"
+    iifname $MGMT_IF ip saddr @admin_vpn_nets tcp dport 443 accept comment "HTTPS admin to firewall host"
+  }
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+    ct state { established, related } accept
+    ct state invalid drop
+
+    iifname $DMZ_IF ip saddr @forwarder_nets ip daddr { $PROXY_ADDR, $RELAY_ADDR } tcp dport 443 accept comment "Forwarders and site relays to DMZ ingress"
+    iifname $DMZ_IF ip saddr @admin_vpn_nets ip daddr $PROXY_ADDR tcp dport 443 accept comment "Admin UI/API to reverse proxy"
+
+    ip saddr { $PROXY_ADDR, $RELAY_ADDR } ip daddr $CONSOLE_ADDR tcp dport 3000 accept comment "DMZ to console"
+    ip saddr $CONSOLE_ADDR ip daddr $PG_ADDR tcp dport 5432 accept comment "Console to Postgres"
+    ip saddr $CONSOLE_ADDR ip daddr $OS_ADDR tcp dport 9200 accept comment "Console to OpenSearch"
+    ip saddr $CONSOLE_ADDR ip daddr $OLLAMA_ADDR tcp dport 11434 accept comment "Console to Ollama LB"
+
+    iifname $MGMT_IF ip saddr @admin_vpn_nets ip daddr { $PROXY_ADDR, $RELAY_ADDR } tcp dport 443 accept comment "Admin access to DMZ services"
+    iifname $MGMT_IF ip saddr @admin_vpn_nets ip daddr $CONSOLE_ADDR tcp dport { 22, 3000 } accept comment "Admin maintenance to console"
+    iifname $MGMT_IF ip saddr @admin_vpn_nets ip daddr { $PG_ADDR, $OS_ADDR } tcp dport { 5432, 9200 } accept comment "Admin maintenance to data services"
+    iifname $MGMT_IF ip saddr @admin_vpn_nets tcp dport 6443 accept comment "Kubernetes API via management zone"
+
+    ip saddr { $PROXY_ADDR, $CONSOLE_ADDR } udp dport { 53, 123 } accept comment "DNS and NTP to internal infrastructure"
+    ip saddr { $PROXY_ADDR, $CONSOLE_ADDR } tcp dport { 53, 80, 443 } accept comment "DNS and PKI/CRL/OCSP reachability"
+  }
+
+  chain output {
+    type filter hook output priority filter; policy drop;
+    oifname "lo" accept
+    ct state { established, related } accept
+
+    udp dport { 53, 123 } accept
+    tcp dport { 53, 80, 443 } accept comment "DNS, PKI, CRL/OCSP"
+    tcp dport 22 accept comment "Operator-initiated SSH from firewall host"
+  }
+}

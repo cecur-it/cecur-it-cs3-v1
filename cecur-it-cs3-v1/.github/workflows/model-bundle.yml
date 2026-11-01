@@ -1,0 +1,85 @@
+name: model-bundle
+
+# Pre-pulls the approved Gemma-4 / Nemotron-3-Nano model tags from
+# onboarding/models.json and packages them into a portable, checksummed
+# cs3-model-bundle-<tag>.tar for fully air-gapped installs. Must run on an
+# internet-connected staging runner — never against a live customer enclave.
+# See scripts/build-airgap-bundle.mjs and README.md Section 6.2/6.3.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag this bundle is built for (must match onboarding/models.json releaseTag)"
+        required: true
+      models:
+        description: "Comma-separated model ids to include (blank = all approved models)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build-bundle:
+    # Replace with a self-hosted, GPU-capable, internet-connected staging
+    # runner label before enabling this in production — GitHub-hosted
+    # runners do not have the VRAM to pull the Frontier/Agentic tiers.
+    runs-on: [self-hosted, cs3-airgap-staging]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ -n "${{ github.event.inputs.release_tag }}" ]]; then
+            echo "tag=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Confirm this runner is not the target enclave
+        run: |
+          if [[ "${CS3_AIRGAP_ENCLAVE:-}" == "true" ]]; then
+            echo "::error::CS3_AIRGAP_ENCLAVE=true — refusing to run a network-pulling job here."
+            exit 1
+          fi
+
+      - name: Build air-gap model bundle
+        run: |
+          set -euo pipefail
+          OUT="cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar"
+          ARGS=(--out "$OUT" --release-tag "${{ steps.tag.outputs.tag }}" --include-ollama-binary)
+          if [[ -n "${{ github.event.inputs.models }}" ]]; then
+            ARGS+=(--models "${{ github.event.inputs.models }}")
+          fi
+          node scripts/build-airgap-bundle.mjs "${ARGS[@]}"
+
+      - name: Verify the bundle we just built (dogfood scripts/verify-bundle.mjs)
+        run: |
+          node scripts/verify-bundle.mjs --bundle "cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar" --verbose
+
+      - name: Upload bundle + checksum as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cs3-model-bundle-${{ steps.tag.outputs.tag }}
+          path: |
+            cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar
+            cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar.sha256
+
+      - name: Attach bundle to the GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: |
+            cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar
+            cs3-model-bundle-${{ steps.tag.outputs.tag }}.tar.sha256

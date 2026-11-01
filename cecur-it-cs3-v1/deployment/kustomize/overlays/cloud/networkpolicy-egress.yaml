@@ -1,0 +1,10 @@
+# Cloud profile: console may reach managed DB, hosted LLMs and Firestore over 443/5432.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: console-cloud-egress }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/component: console } }
+  policyTypes: [Egress]
+  egress:
+    - to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]
+      ports: [{ port: 443 }, { port: 5432 }]

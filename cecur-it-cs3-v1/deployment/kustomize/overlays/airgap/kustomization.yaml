@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: [../../base]
+components: [../../components/postgres, ../../components/ollama]
+# All images come from the internal registry; pin by digest of the verified release.
+images:
+  - { name: ghcr.io/dascient/cs3-soc-console, newName: registry.airgap.internal:5000/cs3/cs3-soc-console, newTag: latest }
+  - { name: ollama/ollama, newName: registry.airgap.internal:5000/ollama/ollama, newTag: latest }
+  - { name: postgres, newName: registry.airgap.internal:5000/library/postgres, newTag: 16-alpine }
+  - { name: nginx, newName: registry.airgap.internal:5000/library/nginx, newTag: 1.27-alpine }
+patches:
+  - target: { kind: Deployment, name: cs3-console }
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/3/value
+        value: airgap
+  - target: { kind: Ingress, name: cs3-console }
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: soc.airgap.internal
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: soc.airgap.internal
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-secret
+        value: cs3/cs3-agent-ca
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-verify-client
+        value: "on"
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1auth-tls-verify-depth
+        value: "2"
+# No egress anywhere: the base policies already deny all non-listed traffic. Models are imported from
+# the verified bundle (deployment/operations/model-update-rollback.md); do not enable pull-on-start.

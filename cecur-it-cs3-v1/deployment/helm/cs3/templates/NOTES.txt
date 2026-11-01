@@ -1,0 +1,15 @@
+CS3 {{ .Chart.AppVersion }} installed as "{{ .Release.Name }}" (profile: {{ .Values.global.profile }}).
+
+Console:   https://{{ .Values.ingress.host }}
+Health:    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "cs3.fullname" . }}-console 8080:80 && curl localhost:8080/api/health
+Database:  {{ if .Values.postgres.enabled }}in-cluster StatefulSet {{ include "cs3.fullname" . }}-postgres{{ else }}external {{ .Values.postgres.external.host }}{{ end }}
+LLM:       {{ if .Values.ollama.enabled }}{{ .Values.ollama.replicas }} Ollama node(s) behind {{ include "cs3.fullname" . }}-ollama-lb{{ else }}hosted providers (cloud profile){{ end }}
+
+{{- if not .Values.secrets.existingSecret }}
+
+Generated credentials live in Secret/{{ include "cs3.secretName" . }}. For GitOps use secrets.existingSecret instead.
+{{- end }}
+{{- if and (eq .Values.global.profile "airgap") .Values.ollama.pullModelsOnStart }}
+
+WARNING: airgap profile with ollama.pullModelsOnStart=true. Set it to false and import the verified model bundle.
+{{- end }}

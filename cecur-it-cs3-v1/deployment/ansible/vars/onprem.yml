@@ -1,0 +1,13 @@
+# Production profile: on-prem, internet egress restricted to approved mirrors.
+cs3_profile: onprem
+cs3_container_runtime: docker          # docker | podman
+cs3_offline: false
+cs3_hosted_models_enabled: false       # Gemini/DeepSeek keys are rejected on onprem
+cs3_ingest_require_key: true
+cs3_console_image: ghcr.io/dascient/cs3-soc-console:latest
+cs3_compose_profiles: [pull-models, siem]
+cs3_compose_files: [docker-compose.yml]      # add docker-compose.gpu.yml on GPU hosts
+cs3_firewall_ruleset: nftables-onprem.nft
+cs3_ollama_num_parallel: 4
+cs3_ollama_max_loaded_models: 2
+cs3_forwarder_batch: "10%"

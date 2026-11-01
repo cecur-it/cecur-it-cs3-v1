@@ -1,0 +1,8 @@
+[Unit]
+Description=Cecur CS3 forwarder health check / auto-remediation
+After=cecur-forwarder.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/cecur/forwarder.env
+ExecStart=/usr/local/sbin/cs3-forwarder-watchdog.sh

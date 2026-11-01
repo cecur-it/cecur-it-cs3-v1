@@ -1,0 +1,73 @@
+# Fleet health check with bounded auto-remediation (Linux + Windows forwarders, console stack).
+#   ansible-playbook playbooks/health-remediation.yml -e @vars/onprem.yml                # check + remediate
+#   ansible-playbook playbooks/health-remediation.yml --check                            # report only
+#   ansible-playbook playbooks/health-remediation.yml --limit compromised-hosts -e cs3_reinstall=true
+# Ladder: restart service -> (cs3_reinstall) re-apply config/units from the staged installer.
+# Reinstall never re-enrolls; for a compromised host revoke and re-enroll (operations/agent-fleet-management.md).
+- name: Linux forwarders
+  hosts: cs3_linux_endpoints
+  become: true
+  serial: "{{ cs3_forwarder_batch | default('10%') }}"
+  max_fail_percentage: 10
+  tasks:
+    - name: Service state
+      ansible.builtin.command: systemctl is-active cecur-forwarder.service
+      register: svc
+      changed_when: false
+      failed_when: false
+    - name: Local health endpoint
+      ansible.builtin.uri:
+        url: http://127.0.0.1:2020/api/v1/health
+        timeout: 5
+      register: health
+      failed_when: false
+      when: svc.stdout == 'active'
+    - name: Restart unhealthy forwarders
+      ansible.builtin.service: { name: cecur-forwarder, state: restarted }
+      when: svc.stdout != 'active' or (health.status | default(0)) != 200
+      register: restarted
+    - name: Re-apply config and units (cs3_reinstall=true)
+      ansible.builtin.command:
+        argv: [/opt/cecur-forwarder-src/install-forwarder.sh, --console-url, "{{ cs3_console_url }}"]
+      when: cs3_reinstall | default(false) | bool
+      changed_when: true
+    - name: Re-check after remediation
+      ansible.builtin.uri:
+        url: http://127.0.0.1:2020/api/v1/health
+      register: recheck
+      retries: 6
+      delay: 5
+      until: recheck.status == 200
+      when: restarted is changed
+    - name: Escalate hosts that did not recover
+      ansible.builtin.command: logger -p daemon.crit -t cs3-remediation "forwarder did not recover after restart"
+      when: recheck is failed
+      changed_when: true
+
+- name: Windows forwarders
+  hosts: cs3_windows_endpoints
+  serial: "{{ cs3_forwarder_batch | default('10%') }}"
+  max_fail_percentage: 10
+  tasks:
+    - name: Run the watchdog once with remediation
+      ansible.windows.win_command: powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Program Files\CecurForwarder\Test-CecurForwarder.ps1" -Remediate
+      register: wd
+      failed_when: wd.rc not in [0, 1, 2]
+      changed_when: wd.rc == 2
+
+- name: Console stack
+  hosts: cs3_console
+  become: true
+  tasks:
+    - name: Console health
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ cs3_console_port | default(3000) }}/api/health"
+        timeout: 5
+      register: console_health
+      failed_when: false
+    - name: Bring up any exited containers
+      ansible.builtin.command:
+        argv: ["{{ cs3_container_runtime | default('docker') }}", compose, up, -d]
+        chdir: "{{ cs3_home | default('/opt/cs3') }}"
+      when: console_health.status | default(0) != 200
+      changed_when: true

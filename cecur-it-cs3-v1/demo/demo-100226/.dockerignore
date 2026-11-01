@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+bbot-stable
+hexstrike-ai-master
+private
+*.pdf
+Literature
+Consumption
+spec-v4.14.7.yaml
