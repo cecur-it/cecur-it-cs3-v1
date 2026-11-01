@@ -6,7 +6,7 @@ The **CECUR-IT CS3 Platform** (`cecur-it-cs3-v1`) is an Enterprise Security Oper
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### 1. Prerequisites
 
