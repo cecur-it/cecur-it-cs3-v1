@@ -102,14 +102,14 @@ The CS3 Backend exposes a modular, RESTful API layer coupled with a persistent S
 
 ---
 
-## 8. HexStrike AI Offensive Reconnaissance (`/api/hexstrike`)
+## 8. errow Offensive Reconnaissance (`/api/errow`)
 
 | Method | Endpoint | Clearance | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/hexstrike/status` | Admin Only | Returns connector mode (`LIVE` vs `DEMO`), base URL, and available tools. |
-| `GET` | `/api/hexstrike/targets` | Admin Only | Lists authorized reconnaissance target entries in `db.targetAllowlist`. |
-| `GET` | `/api/hexstrike/jobs` | Admin Only | Lists recent and running offensive scan jobs. |
-| `POST` | `/api/hexstrike/scan` | Admin Only | Triggers scoped scan (`nmap`, `nuclei`, `gobuster`, `subfinder`) against allowlisted host. |
+| `GET` | `/api/errow/status` | Admin Only | Returns connector mode (`LIVE` vs `DEMO`), base URL, and available tools. |
+| `GET` | `/api/errow/targets` | Admin Only | Lists authorized reconnaissance target entries in `db.targetAllowlist`. |
+| `GET` | `/api/errow/jobs` | Admin Only | Lists recent and running offensive scan jobs. |
+| `POST` | `/api/errow/scan` | Admin Only | Triggers scoped scan (`nmap`, `nuclei`, `gobuster`, `subfinder`) against allowlisted host. |
 
 ---
 

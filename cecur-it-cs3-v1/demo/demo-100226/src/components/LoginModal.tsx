@@ -110,7 +110,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     admin: {
       title: 'Security Administrator',
       clearance: 'Top Secret / Full Admin Authority',
-      desc: 'Full administrative authority, offensive HexStrike scans, target allowlist management, and DB reseeding.',
+      desc: 'Full administrative authority, offensive Errow scans, target allowlist management, and DB reseeding.',
       badgeColor: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/30',
     },
     auditor: {

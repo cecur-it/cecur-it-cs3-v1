@@ -5,6 +5,7 @@ global:
 secrets:
   existingSecret: cs3-credentials
 console:
+  errow: { mode: remote }
   replicas: 3
   hpa: { enabled: true, minReplicas: 3, maxReplicas: 20, targetCPUUtilizationPercentage: 65 }
   topologySpreadConstraints: true

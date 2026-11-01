@@ -20,29 +20,31 @@ import { apiRequest } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   TargetAllowlistEntry,
-  HexStrikeJob,
-  HexStrikeFinding,
+  ErrowTask,
+  ErrowFinding,
 } from '../../types';
 import { getSeverityBadgeStyle } from '../../theme';
 import { ExportModal } from '../common/ExportModal';
-import { buildHexStrikeExportPayload, ExportPayload } from '../../lib/exportUtils';
+import { buildErrowExportPayload, ExportPayload } from '../../lib/exportUtils';
 
-interface HexStrikeStatus {
+interface ErrowStatus {
   mode: 'LIVE' | 'DEMO';
   baseUrl?: string;
   authenticated: boolean;
   activeScanCount: number;
   availableTools: string[];
+  agentMode?: string;
+  sandboxRuntime?: string;
   message: string;
 }
 
-export const HexStrikePanel: React.FC = () => {
+export const ErrowPanel: React.FC = () => {
   const { canPerformAction, user } = useAuth();
-  const [status, setStatus] = useState<HexStrikeStatus | null>(null);
+  const [status, setStatus] = useState<ErrowStatus | null>(null);
   const [targets, setTargets] = useState<TargetAllowlistEntry[]>([]);
-  const [jobs, setJobs] = useState<HexStrikeJob[]>([]);
+  const [jobs, setJobs] = useState<ErrowTask[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedJob, setSelectedJob] = useState<HexStrikeJob | null>(null);
+  const [selectedJob, setSelectedJob] = useState<ErrowTask | null>(null);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportPayload, setExportPayload] = useState<ExportPayload | null>(null);
 
@@ -63,9 +65,9 @@ export const HexStrikePanel: React.FC = () => {
     try {
       setLoading(true);
       const [statusRes, targetsRes, jobsRes] = await Promise.all([
-        apiRequest<HexStrikeStatus>('/api/hexstrike/status'),
-        apiRequest<{ count: number; targets: TargetAllowlistEntry[] }>('/api/hexstrike/allowlist'),
-        apiRequest<{ total: number; jobs: HexStrikeJob[] }>('/api/hexstrike/jobs'),
+        apiRequest<ErrowStatus>('/api/errow/status'),
+        apiRequest<{ count: number; targets: TargetAllowlistEntry[] }>('/api/errow/allowlist'),
+        apiRequest<{ total: number; jobs: ErrowTask[] }>('/api/errow/jobs'),
       ]);
       setStatus(statusRes);
       setTargets(targetsRes.targets);
@@ -77,7 +79,7 @@ export const HexStrikePanel: React.FC = () => {
         setScanTargetId(targetsRes.targets[0].id);
       }
     } catch (err: any) {
-      console.error('Failed to load HexStrike data:', err);
+      console.error('Failed to load Errow data:', err);
     } finally {
       setLoading(false);
     }
@@ -94,7 +96,7 @@ export const HexStrikePanel: React.FC = () => {
 
     setScanning(true);
     try {
-      const res = await apiRequest<{ success: boolean; job: HexStrikeJob }>('/api/hexstrike/run-scan', {
+      const res = await apiRequest<{ success: boolean; job: ErrowTask }>('/api/errow/run-scan', {
         method: 'POST',
         body: JSON.stringify({
           targetId: target.id,
@@ -117,7 +119,7 @@ export const HexStrikePanel: React.FC = () => {
     e.preventDefault();
     try {
       const res = await apiRequest<{ success: boolean; target: TargetAllowlistEntry }>(
-        '/api/hexstrike/allowlist',
+        '/api/errow/allowlist',
         {
           method: 'POST',
           body: JSON.stringify({
@@ -142,7 +144,7 @@ export const HexStrikePanel: React.FC = () => {
   const handleDeleteTarget = async (id: string) => {
     if (!confirm('Are you sure you want to revoke authorization and remove this target from the allowlist?')) return;
     try {
-      await apiRequest(`/api/hexstrike/allowlist/${id}`, { method: 'DELETE' });
+      await apiRequest(`/api/errow/allowlist/${id}`, { method: 'DELETE' });
       setTargets((prev) => prev.filter((t) => t.id !== id));
     } catch (err: any) {
       alert(err.message || 'Failed to remove target');
@@ -150,13 +152,13 @@ export const HexStrikePanel: React.FC = () => {
   };
 
   const handleExportFindings = () => {
-    const payload = buildHexStrikeExportPayload(jobs, targets);
+    const payload = buildErrowExportPayload(jobs, targets);
     setExportPayload(payload);
     setExportModalOpen(true);
   };
 
   return (
-    <div id="panel-hexstrike" className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto font-sans">
+    <div id="panel-errow" className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto font-sans">
       {/* Export & Sharing Modal */}
       <ExportModal
         isOpen={exportModalOpen}
@@ -170,7 +172,7 @@ export const HexStrikePanel: React.FC = () => {
           <div className="flex items-center gap-2">
             <Crosshair className="w-5 h-5 text-[var(--color-primary)]" />
             <h1 className="text-lg font-sans font-extrabold text-[var(--color-text-dark)] uppercase tracking-wider">
-              HexStrike AI Offensive Reconnaissance & Auditing
+              errow Offensive Reconnaissance & Auditing
             </h1>
           </div>
           <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-sans">
@@ -180,7 +182,7 @@ export const HexStrikePanel: React.FC = () => {
 
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            id="btn-export-hexstrike-findings"
+            id="btn-export-errow-findings"
             onClick={handleExportFindings}
             className="px-3.5 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] text-[var(--color-primary)] border border-[var(--color-border-card)] rounded-sm text-xs font-bold font-mono flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
           >
@@ -216,6 +218,7 @@ export const HexStrikePanel: React.FC = () => {
             </span>
             <span className="text-[var(--color-text-muted)] font-mono text-[11px]">
               {status?.baseUrl ? `Host: ${status.baseUrl}` : 'Deterministic Heuristic Engine'}
+              {status?.sandboxRuntime ? ` · Sandbox: ${status.sandboxRuntime} (${status.agentMode})` : ''}
             </span>
           </div>
           <p className="text-[var(--color-text-dark)] font-sans text-xs">{status?.message}</p>

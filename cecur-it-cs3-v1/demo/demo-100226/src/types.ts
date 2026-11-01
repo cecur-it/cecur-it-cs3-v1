@@ -333,7 +333,7 @@ export interface TargetAllowlistEntry {
   lastScanned?: string;
 }
 
-export interface HexStrikeFinding {
+export interface ErrowFinding {
   id: string;
   title: string;
   severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
@@ -345,7 +345,7 @@ export interface HexStrikeFinding {
   remediation: string;
 }
 
-export interface HexStrikeJob {
+export interface ErrowTask {
   id: string;
   targetId: string;
   targetHost: string;
@@ -356,7 +356,7 @@ export interface HexStrikeJob {
   triggeredBy: string;
   findingsCount: number;
   rawOutput: string;
-  findings: HexStrikeFinding[];
+  findings: ErrowFinding[];
 }
 
 export interface AuditLogEntry {

@@ -1,4 +1,4 @@
-import { HexStrikeJob, HexStrikeFinding } from '../../src/types';
+import { ErrowTask, ErrowFinding } from '../../src/types';
 import { db } from '../db';
 
 export const SAFE_TOOL_PROFILES = [
@@ -10,45 +10,60 @@ export const SAFE_TOOL_PROFILES = [
 
 export type SafeTool = typeof SAFE_TOOL_PROFILES[number];
 
-export interface HexStrikeStatus {
+export interface ErrowStatus {
   mode: 'LIVE' | 'DEMO';
   baseUrl?: string;
   authenticated: boolean;
   activeScanCount: number;
   availableTools: typeof SAFE_TOOL_PROFILES;
+  agentMode: string;
+  sandboxRuntime: string;
+  integrations: { caido: boolean; projectdiscovery: boolean };
   message: string;
 }
 
-export function getHexStrikeStatus(): HexStrikeStatus {
-  const baseUrl = process.env.HEXSTRIKE_BASE_URL;
-  const apiKey = process.env.HEXSTRIKE_API_KEY;
+// ERROW_MODE: embedded (local runner, default for onprem/airgap) | remote (hosted/API, cloud).
+// ERROW_SANDBOX_RUNTIME: container runtime that isolates the errow-agent sandbox.
+function runtimeInfo() {
+  return {
+    agentMode: process.env.ERROW_MODE || 'embedded',
+    sandboxRuntime: process.env.ERROW_SANDBOX_RUNTIME || 'docker',
+    integrations: { caido: true, projectdiscovery: true },
+  };
+}
+
+export function getErrowStatus(): ErrowStatus {
+  const baseUrl = process.env.ERROW_BASE_URL;
+  const apiKey = process.env.ERROW_API_KEY;
 
   if (baseUrl) {
     return {
       mode: 'LIVE',
       baseUrl: baseUrl,
       authenticated: Boolean(apiKey),
-      activeScanCount: db.hexstrikeJobs.filter((j) => j.status === 'RUNNING').length,
+      activeScanCount: db.errowJobs.filter((j) => j.status === 'RUNNING').length,
       availableTools: SAFE_TOOL_PROFILES,
-      message: `Live HexStrike AI Connector configured at ${baseUrl}. Safe Tool Guardrails active.`,
+      ...runtimeInfo(),
+      message: `Live errow Connector configured at ${baseUrl}. Safe Tool Guardrails active.`,
     };
   }
 
   return {
     mode: 'DEMO',
     authenticated: true,
-    activeScanCount: db.hexstrikeJobs.filter((j) => j.status === 'RUNNING').length,
+    activeScanCount: db.errowJobs.filter((j) => j.status === 'RUNNING').length,
     availableTools: SAFE_TOOL_PROFILES,
-    message: 'Running in SOC Demo Simulation mode. Set HEXSTRIKE_BASE_URL in environment for live host integration.',
+    ...runtimeInfo(),
+    message: 'Running in SOC Demo Simulation mode. Set ERROW_BASE_URL in environment for live host integration.',
   };
 }
 
-export async function runHexStrikeScan(
+export async function runErrowScan(
   targetHost: string,
   targetId: string,
   tool: SafeTool,
   triggeredBy: string
-): Promise<HexStrikeJob> {
+): Promise<ErrowTask> {
   // Validate that target is strictly on the target allowlist
   const allowlistEntry = db.targetAllowlist.find(
     (t) => t.id === targetId || t.hostname.toLowerCase() === targetHost.toLowerCase()
@@ -63,11 +78,11 @@ export async function runHexStrikeScan(
     throw new Error(`Tool profile '${tool}' is not in the approved safe reconnaissance allowlist.`);
   }
 
-  const jobId = `job-hex-${Date.now()}`;
+  const jobId = `task-errow-${Date.now()}`;
   const now = new Date().toISOString();
 
   // Create initial job in DB
-  const job: HexStrikeJob = {
+  const job: ErrowTask = {
     id: jobId,
     targetId: allowlistEntry.id,
     targetHost: allowlistEntry.hostname,
@@ -76,20 +91,20 @@ export async function runHexStrikeScan(
     startedAt: now,
     triggeredBy,
     findingsCount: 0,
-    rawOutput: `[HEXSTRIKE-ORCHESTRATOR] Initializing ${tool} against ${allowlistEntry.hostname}...\n[+] Verification: Target ID ${allowlistEntry.id} is AUTHORIZED by ${allowlistEntry.authorizedBy}.\n[*] Executing scoped detection modules...\n`,
+    rawOutput: `[ERROW-ORCHESTRATOR] Initializing ${tool} against ${allowlistEntry.hostname}...\n[+] Verification: Target ID ${allowlistEntry.id} is AUTHORIZED by ${allowlistEntry.authorizedBy}.\n[*] Executing scoped detection modules...\n`,
     findings: [],
   };
 
-  db.hexstrikeJobs.unshift(job);
+  db.errowJobs.unshift(job);
   allowlistEntry.scanCount += 1;
   allowlistEntry.lastScanned = now;
 
-  // If live connector configured, try connecting to live HexStrike REST API
-  const baseUrl = process.env.HEXSTRIKE_BASE_URL;
+  // If live connector configured, try connecting to live Errow REST API
+  const baseUrl = process.env.ERROW_BASE_URL;
   if (baseUrl) {
     try {
-      const apiKey = process.env.HEXSTRIKE_API_KEY;
-      const resp = await fetch(`${baseUrl}/api/scan`, {
+      const apiKey = process.env.ERROW_API_KEY;
+      const resp = await fetch(`${baseUrl}/api/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,16 +121,16 @@ export async function runHexStrikeScan(
         const liveResult = await resp.json();
         job.status = 'COMPLETED';
         job.completedAt = new Date().toISOString();
-        job.rawOutput += `\n[LIVE HEXSTRIKE OUTPUT]\n${JSON.stringify(liveResult, null, 2)}`;
+        job.rawOutput += `\n[LIVE ERROW OUTPUT]\n${JSON.stringify(liveResult, null, 2)}`;
         return job;
       }
     } catch (err: any) {
-      console.warn('[HexStrike] Live connector call failed, falling back to deterministic simulation engine:', err.message);
+      console.warn('[Errow] Live connector call failed, falling back to deterministic simulation engine:', err.message);
     }
   }
 
   // High-fidelity deterministic simulation
-  let simulatedFindings: HexStrikeFinding[] = [];
+  let simulatedFindings: ErrowFinding[] = [];
   let simulatedOutput = '';
 
   if (tool === 'nmap_scan') {

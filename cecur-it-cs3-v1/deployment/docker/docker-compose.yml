@@ -103,6 +103,10 @@ services:
       CECUR_INDEXER_TLS_INSECURE: ${CECUR_INDEXER_TLS_INSECURE:-false}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      ERROW_BASE_URL: ${ERROW_BASE_URL:-}
+      ERROW_API_KEY: ${ERROW_API_KEY:-}
+      ERROW_MODE: ${ERROW_MODE:-embedded}
+      ERROW_SANDBOX_RUNTIME: ${ERROW_SANDBOX_RUNTIME:-docker}
     ports:
       - "${CS3_CONSOLE_PORT:-3000}:3000"
     healthcheck:
@@ -112,6 +116,20 @@ services:
       retries: 3
       start_period: 20s
     networks: [frontend, data, inference, siem]
+
+  # Optional offensive-security runner (errow-agent). Enable with: --profile errow
+  # and set ERROW_BASE_URL=http://errow:8088 on the console. Offline: load images/errow-agent-airgap.tar.
+  errow:
+    profiles: [errow]
+    image: ${ERROW_IMAGE:-errow-agent:airgap}
+    build:
+      context: ../../errow
+      dockerfile: containers/Dockerfile
+    restart: unless-stopped
+    environment:
+      ERROW_API_KEY: ${ERROW_API_KEY:-}
+      OLLAMA_BASE_URL: http://ollama-lb:11434/v1
+    networks: [inference]
 
   ollama-1:
     <<: *ollama

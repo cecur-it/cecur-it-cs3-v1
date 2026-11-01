@@ -5,7 +5,7 @@
 
 ## 1. Executive Summary
 
-The **CS3 Platform** is engineered as a unified Security Operations Center (SOC), Extended Detection & Response (XDR), and Security Orchestration, Automation, and Response (SOAR) architecture. The platform unifies high-velocity event telemetry, user behavior analytics (UBA / ActivTrak), offensive threat reconnaissance (HexStrike AI), interactive 3D asset topology fusion graphs, and dual-agent LLM reasoning into a single cohesive pane of glass.
+The **CS3 Platform** is engineered as a unified Security Operations Center (SOC), Extended Detection & Response (XDR), and Security Orchestration, Automation, and Response (SOAR) architecture. The platform unifies high-velocity event telemetry, user behavior analytics (UBA / ActivTrak), offensive threat reconnaissance (errow), interactive 3D asset topology fusion graphs, and dual-agent LLM reasoning into a single cohesive pane of glass.
 
 ---
 
@@ -17,7 +17,7 @@ The **CS3 Platform** is engineered as a unified Security Operations Center (SOC)
 |                                                                                        |
 |   React 18 + TypeScript + Tailwind CSS + Lucide Icons + Three.js / Canvas 2D / SSE     |
 |   - Real-time Console Panels: Overview, Incidents, Cecur SIEM, ActivTrak, Sensor Grid  |
-|   - Advanced Modules: 3D Asset Fusion, HexStrike AI Recon, Operational Audit, CISO KPI |
+|   - Advanced Modules: 3D Asset Fusion, errow Recon, Operational Audit, CISO KPI |
 |   - Authentication Context, Role Switching, Dynamic Modals, Real-Time Toasts           |
 +-------------------------------------------+--------------------------------------------+
                                             |
@@ -38,7 +38,7 @@ The **CS3 Platform** is engineered as a unified Security Operations Center (SOC)
 |   | - Dual-Agent LLM Dispatcher: Gemini 3.7 Flash + DeepSeek Chat + Local Heuristics | |
 |   | - Sensor Grid Daemon: Jitter Damping, Packet Drop Recalibration, Node Lifecycle  | |
 |   | - Asset Fusion Engine: Graph Topology, Lateral Propagation, Blast Radius Sim     | |
-|   | - HexStrike Connector: Scoped Safe Reconnaissance Execution Engine               | |
+|   | - Errow Connector: Scoped Safe Reconnaissance Execution Engine               | |
 |   | - ActivTrak Bridge: Insider Risk Scoring & Productivity Deviation Analysis       | |
 |   | - SSE Live Stream Broadcaster: Real-time Telemetry Loop (3500ms Interval)       | |
 |   +----------------------------------------------------------------------------------+ |
@@ -69,7 +69,7 @@ The `CecurEngine` serves as the central log parsing and signature detection engi
 
 ### 3.2. Real-Time Telemetry & SSE Engine (`server.ts`)
 * **Server-Sent Events (SSE)**: The `/api/live/stream` endpoint maintains persistent HTTP connections with active frontend clients.
-* **Simulation & Ticking Loop**: Every 3.5 seconds, `db.simulateTick()` dynamically adjusts sensor bandwidth, injects transient anomaly spikes, advances ongoing HexStrike scan jobs, and pushes structured updates across all active SSE listeners.
+* **Simulation & Ticking Loop**: Every 3.5 seconds, `db.simulateTick()` dynamically adjusts sensor bandwidth, injects transient anomaly spikes, advances ongoing Errow scan jobs, and pushes structured updates across all active SSE listeners.
 * **Fallback Polling**: Dashboards gracefully fall back to `/api/live/telemetry` if SSE connections encounter network partition.
 
 ### 3.3. Dual-Agent LLM Pipeline (`server/ai/cecurAI.ts`)
@@ -82,10 +82,10 @@ The `CecurEngine` serves as the central log parsing and signature detection engi
 * **Blast Radius Simulation**: Evaluates lateral movement paths based on credential cascade, unpatched CVE exploitation, cross-VPC peering, and active mitigations (e.g., zero-trust network segmentation, MFA enforcement).
 * **Threat Intelligence Export**: Generates standardized TLP-classified JSON reports containing topological risk scores, critical path analysis, and recommended countermeasures.
 
-### 3.5. HexStrike AI Offensive Reconnaissance Connector (`server/connectors/hexstrikeClient.ts`)
+### 3.5. errow Offensive Reconnaissance Connector (`server/connectors/errowClient.ts`)
 * **Target Allowlist Gate**: All reconnaissance actions are strictly bounded to approved target identifiers (`db.targetAllowlist`). Any probe against unapproved IP/hostname is rejected at the API layer.
 * **Safe Tool Profiles**: Restricted to defensive reconnaissance: `nmap_scan`, `nuclei_scan`, `gobuster_scan`, and `subfinder_scan`.
-* **Hybrid Execution**: Connects to live HexStrike REST server if `HEXSTRIKE_BASE_URL` is configured; otherwise operates in deterministic high-fidelity SOC simulation mode.
+* **Hybrid Execution**: Connects to live Errow REST server if `ERROW_BASE_URL` is configured; otherwise operates in deterministic high-fidelity SOC simulation mode.
 
 ### 3.6. ActivTrak Insider Threat & Behavioral Analytics (`server/routes/activtrak.ts`)
 * Evaluates insider risk indicators, anomalous off-hours authentication, privileged data staging, and productivity metric deviations.

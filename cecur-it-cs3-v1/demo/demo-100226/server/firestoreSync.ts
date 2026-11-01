@@ -87,7 +87,7 @@ export async function seedFirestoreDemonstrativeCredentials() {
         username: 'admin',
         role: 'admin',
         clearance: 'Top Secret / Full Admin Authority',
-        description: 'Chief Security Engineer & Admin with full offensive HexStrike scans, target allowlist management, and DB reseeding.',
+        description: 'Chief Security Engineer & Admin with full offensive Errow scans, target allowlist management, and DB reseeding.',
         isDemo: true,
         createdAt: '2025-11-01T08:00:00.000Z',
       },

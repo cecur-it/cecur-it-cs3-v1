@@ -19,7 +19,7 @@ The CS3 SOC Console implements a multi-tier, server-enforced Role-Based Access C
 | **ActivTrak Insider Risk (`activtrak`)**| ⚡ Full Access | ⚡ Full Access | 👁️ Read-Only | ❌ Denied (`HTTP 403`) | Raw employee productivity data hidden from Executive persona. |
 | **CS3 Sensor Grid (`sensors`)** | 🔧 Calibrate / View | ⚡ Full Admin / Reboot | 👁️ Read-Only | ❌ Denied (`HTTP 403`) | Sensor reboot restricted to Admin; Executive blocked. |
 | **Asset Fusion 3D Graph (`fusion`)** | ✅ Allowed | ✅ Allowed | ❌ Denied (`HTTP 403`) | ❌ Denied (`HTTP 403`) | Attack graph & blast simulation restricted to technical staff. |
-| **HexStrike AI Offensive Recon (`hexstrike`)** | ❌ Denied (`HTTP 403`) | ⚡ Full Authority | ❌ Denied (`HTTP 403`) | ❌ Denied (`HTTP 403`) | Offensive recon restricted strictly to Admin (Red Team). |
+| **errow Offensive Recon (`errow`)** | ❌ Denied (`HTTP 403`) | ⚡ Full Authority | ❌ Denied (`HTTP 403`) | ❌ Denied (`HTTP 403`) | Offensive recon restricted strictly to Admin (Red Team). |
 | **Operational Audit Trail (`audit`)** | 👁️ View Logs | ⚡ Full Export | ⚡ Full Export | 👁️ View Logs | Export authority granted to GRC Auditor & Admin. |
 | **Executive CISO KPIs (`executive`)** | ❌ Denied (`HTTP 403`) | ✅ Full Access | ✅ Full Access | ✅ Full Access | Financial ROI and executive KPIs blocked for Analyst. |
 | **Database Reseed / Reset (`reseed_db`)**| ❌ Denied (`HTTP 403`) | ⚡ Allowed | ❌ Denied (`HTTP 403`) | ❌ Denied (`HTTP 403`) | High-impact reset sequence restricted to Admin. |
@@ -31,11 +31,11 @@ The CS3 SOC Console implements a multi-tier, server-enforced Role-Based Access C
 ### 3.1. Security Analyst (`analyst`)
 * **Primary Mandate**: Active threat triage, incident investigation, sensor calibration, and SOAR containment execution.
 * **Included Panels**: `overview`, `incidents`, `cecur`, `activtrak`, `sensors`, `fusion`, `audit`.
-* **Prohibited Capabilities**: Offensive reconnaissance scans (`hexstrike`), Executive financial ROI panels (`executive`), sensor reboots, and database resets.
+* **Prohibited Capabilities**: Offensive reconnaissance scans (`errow`), Executive financial ROI panels (`executive`), sensor reboots, and database resets.
 
 ### 3.2. Security Administrator (`admin`)
 * **Primary Mandate**: Complete infrastructure oversight, red-team penetration reconnaissance, system policy enforcement, and node reboots.
-* **Included Panels**: All panels (`overview`, `incidents`, `cecur`, `activtrak`, `sensors`, `fusion`, `hexstrike`, `audit`, `executive`, `reseed_db`).
+* **Included Panels**: All panels (`overview`, `incidents`, `cecur`, `activtrak`, `sensors`, `fusion`, `errow`, `audit`, `executive`, `reseed_db`).
 * **Authority Level**: Highest operational clearance tier.
 
 ### 3.3. Compliance Auditor (`auditor`)
@@ -55,8 +55,8 @@ The CS3 SOC Console implements a multi-tier, server-enforced Role-Based Access C
 Clearance policies are enforced by Express middleware prior to reaching route controllers:
 
 ```typescript
-// Example: Restricting HexStrike routes to 'admin'
-hexstrikeRouter.post('/scan', requireAuth, requirePanel('hexstrike'), requireAction('run_offensive_scan'), (req, res) => {
+// Example: Restricting Errow routes to 'admin'
+errowRouter.post('/scan', requireAuth, requirePanel('errow'), requireAction('run_offensive_scan'), (req, res) => {
   // Only executed if user possesses 'admin' role token; otherwise emits HTTP 403 Forbidden
 });
 

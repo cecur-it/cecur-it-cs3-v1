@@ -192,7 +192,7 @@ export const AuditPanel: React.FC = () => {
           <option value="auth">auth</option>
           <option value="cecur">cecur</option>
           <option value="incidents">incidents</option>
-          <option value="hexstrike">hexstrike</option>
+          <option value="errow">errow</option>
           <option value="sensors">sensors</option>
           <option value="audit">audit</option>
         </select>

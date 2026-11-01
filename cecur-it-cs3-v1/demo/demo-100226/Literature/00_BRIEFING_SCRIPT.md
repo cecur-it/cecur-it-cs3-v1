@@ -11,7 +11,7 @@
 | **2. The CS3 Solution: Unified SOC Architecture** | 3 mins | Technical & C-Suite | CS3 converges SIEM, SOAR, XDR, UBA, AI reasoning, and 3D topology into one screen. |
 | **3. Autonomous Dual-Agent AI Reasoning** | 3 mins | Technology & Operations | Sub-second incident triage with Gemini 3.7 Flash + DeepSeek fallback + local heuristics. |
 | **4. Edge Sensor Grid & Ingestion Pipeline** | 2 mins | SecOps & Infrastructure | Multi-format log ingestion, optical taps, zero-loss jitter calibration, air-gap readiness. |
-| **5. Threat Reconnaissance & Blast Simulation** | 2 mins | Red/Blue Teams & Risk | Scoped offensive recon with HexStrike AI and interactive 3D attack graph simulations. |
+| **5. Threat Reconnaissance & Blast Simulation** | 2 mins | Red/Blue Teams & Risk | Scoped offensive recon with errow and interactive 3D attack graph simulations. |
 | **6. Governance, RBAC & Unit Economics** | 2 mins | Compliance & Finance | Server-enforced RBAC/RBAM, HATS regulatory compliance, and high gross margin SaaS economics. |
 | **7. Closing Summary & Live Demonstration** | 1 min | All Stakeholders | Scalable, resilient, cross-platform enterprise cybersecurity operations. |
 
@@ -35,7 +35,7 @@
 > 2. **Real-Time Telemetry Streaming**: Low-latency Server-Sent Events (SSE) that push live system deltas, bandwidth metrics, and threat notifications across all connected operations screens without the overhead of heavy polling.
 > 3. **Interactive 3D Asset Fusion Topology**: A directed-graph visualization engine that models network infrastructure, domain controllers, databases, cloud storage, and firewall perimeters, featuring a real-time **Blast Radius Simulator** to evaluate lateral attack paths before adversaries exploit them.
 > 4. **ActivTrak Insider Threat & Behavioral Analytics**: Direct monitoring of privileged user deviations, off-hours authentication spikes, and data staging indicators.
-> 5. **HexStrike AI Offensive Reconnaissance**: Safe, scope-bounded active reconnaissance executing Nmap, Nuclei, Gobuster, and Subfinder tools against authorized targets to proactively identify exposed vulnerabilities before attackers do.
+> 5. **errow Offensive Reconnaissance**: Safe, scope-bounded active reconnaissance executing Nmap, Nuclei, Gobuster, and Subfinder tools against authorized targets to proactively identify exposed vulnerabilities before attackers do.
 > 6. **Zero-Loss Sensor Grid**: Centralized calibration, jitter damping, and telemetry tracking across 8 distributed edge collector nodes.
 > 7. **Role-Enforced Access Gates & Cryptographic Audit Trails**: Server-side RBAC/RBAM clearance tiers protecting sensitive operational actions, backed by immutable audit trails."*
 
@@ -95,7 +95,7 @@ CORE CAPABILITIES:
   [x] Dual-Agent Threat AI (Google Gemini 3.7 Flash + DeepSeek Chat + Local Offline Heuristics)
   [x] Interactive 3D Asset Topology & Lateral Movement Blast Radius Simulator
   [x] ActivTrak Insider Risk Scoring & Privileged User Behavioral Analytics
-  [x] HexStrike AI Scoped Offensive Threat Reconnaissance (Allowlist Gated)
+  [x] errow Scoped Offensive Threat Reconnaissance (Allowlist Gated)
   [x] 8-Node Distributed Sensor Grid with Real-Time Zero-Loss Jitter Calibration
   [x] Server-Enforced RBAC Clearance Gates (Analyst, Admin, Auditor, Executive)
   [x] Real-Time SSE Telemetry Stream (3.5-second deltas with zero polling lag)

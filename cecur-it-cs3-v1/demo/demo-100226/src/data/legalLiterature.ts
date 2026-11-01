@@ -137,7 +137,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
   version: 'v4.14.7-Rev5',
   badge: 'Enterprise Master Terms',
   overview:
-    'These Terms of Service ("Terms", "Agreement") constitute a legally binding agreement between CECUR-IT, Inc. (including Mormar Technology, Inc., "CECUR-IT", "Provider") and the enterprise client, governmental agency, or authorized individual ("Customer", "Subscriber", "Operator") accessing or utilizing the CS3 Unified SOC Console, BYOS Forwarders, Asset Fusion 3D engines, HexStrike AI reconnaissance tools, and associated advisory services.',
+    'These Terms of Service ("Terms", "Agreement") constitute a legally binding agreement between CECUR-IT, Inc. (including Mormar Technology, Inc., "CECUR-IT", "Provider") and the enterprise client, governmental agency, or authorized individual ("Customer", "Subscriber", "Operator") accessing or utilizing the CS3 Unified SOC Console, BYOS Forwarders, Asset Fusion 3D engines, errow reconnaissance tools, and associated advisory services.',
   sections: [
     {
       id: 'license-grant',
@@ -153,10 +153,10 @@ export const TERMS_OF_SERVICE: LegalDocument = {
     {
       id: 'permissible-use-offensive',
       number: 'Article 2.0',
-      title: 'Authorized Scopes & Offensive Reconnaissance Guardrails (HexStrike / BBOT)',
+      title: 'Authorized Scopes & Offensive Reconnaissance Guardrails (Errow / BBOT)',
       summary: 'STRICT CLAUSE: Offensive reconnaissance, active port scans, and vulnerability fuzzers must ONLY be directed against verified, customer-authorized assets.',
       content: [
-        '2.1 STRICT RESTRICTION — Authorized Targets Only: The CS3 Console incorporates active reconnaissance, port discovery, and adversary simulation capabilities (including HexStrike AI, BBOT scanners, and LightFuzz modules). Customer explicitly agrees and warrants that ALL active scans, fuzzing campaigns, and penetration testing modules SHALL BE EXECUTED EXCLUSIVELY against IP addresses, subdomains, and networks owned, operated, or contractually designated in writing by Customer.',
+        '2.1 STRICT RESTRICTION — Authorized Targets Only: The CS3 Console incorporates active reconnaissance, port discovery, and adversary simulation capabilities (including errow, BBOT scanners, and LightFuzz modules). Customer explicitly agrees and warrants that ALL active scans, fuzzing campaigns, and penetration testing modules SHALL BE EXECUTED EXCLUSIVELY against IP addresses, subdomains, and networks owned, operated, or contractually designated in writing by Customer.',
         '2.2 Absolute Prohibition on Third-Party Weaponization: Under no circumstances shall Customer utilize CECUR-IT offensive modules to scan, probe, stress-test, or exploit third-party systems, public utility networks, municipal services, or unverified targets without verified written authorization.',
         '2.3 Immediate Termination for Ethical Breach: Any violation of target authorization rules constitutes a material breach of contract resulting in immediate account suspension, revocation of licenses, and reporting to competent regulatory and law enforcement authorities.',
       ],
@@ -164,7 +164,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
         {
           title: 'Mandatory Target Validation Rules',
           points: [
-            'All HexStrike recon scans require explicit domain/CIDR entry into the verified target inventory.',
+            'All Errow recon scans require explicit domain/CIDR entry into the verified target inventory.',
             'Production SCADA/ICS nodes must be excluded from automated fuzzing loops unless marked for scheduled maintenance.',
             'Audit logs capture the authenticated operator ID for all launched scan tasks.',
           ],
@@ -229,7 +229,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
       title: 'Intellectual Property Rights & Mutual Non-Disclosure',
       summary: 'CECUR-IT retains platform, algorithm, and Hats Method IP; Customer retains all rights to their telemetry and proprietary data.',
       content: [
-        '7.1 Provider IP: CECUR-IT retains all rights, title, and interest (including patent, copyright, trademark, and trade secret rights) in the CS3 platform, Hats Operational Doctrine, sensor source code, Fusion 3D graph algorithms, and HexStrike integration libraries.',
+        '7.1 Provider IP: CECUR-IT retains all rights, title, and interest (including patent, copyright, trademark, and trade secret rights) in the CS3 platform, Hats Operational Doctrine, sensor source code, Fusion 3D graph algorithms, and Errow integration libraries.',
         '7.2 Customer Data Ownership: Customer retains sole and exclusive ownership of all customer telemetry, internal log files, proprietary network architecture topologies, and corporate incident records.',
         '7.3 Mutual NDA: Both parties agree to protect and maintain the confidentiality of non-public technical specifications, vulnerability findings, and security postures shared during the course of the engagement.',
       ],
@@ -276,12 +276,12 @@ export const TERMS_OF_SERVICE: LegalDocument = {
 export const RULES_OF_ENGAGEMENT: LegalDocument = {
   id: 'rules-of-engagement',
   title: 'CECUR-IT, Inc. — Offensive Security Rules of Engagement (ROE)',
-  subtitle: 'Operational Guidelines for HexStrike AI, BBOT Scanners & Red Team Adversary Emulation',
+  subtitle: 'Operational Guidelines for errow, BBOT Scanners & Red Team Adversary Emulation',
   lastUpdated: 'September 2026',
   version: 'v4.14.7-Rev5',
   badge: 'Operational Directive',
   overview:
-    'This Rules of Engagement (ROE) Directive governs all offensive security testing, automated attack-path tracing, external attack surface discovery (BBOT/HexStrike), and adversary emulation exercises executed through the CS3 platform.',
+    'This Rules of Engagement (ROE) Directive governs all offensive security testing, automated attack-path tracing, external attack surface discovery (BBOT/Errow), and adversary emulation exercises executed through the CS3 platform.',
   sections: [
     {
       id: 'roe-authorization',
@@ -289,7 +289,7 @@ export const RULES_OF_ENGAGEMENT: LegalDocument = {
       title: 'Explicit Authorization & Scope Validation',
       summary: 'Mandatory verification of ownership or explicit written authorization prior to offensive tool execution.',
       content: [
-        '1. Operators must possess verifiable authorization (letter of authorization / written penetration testing agreement) for every domain, host, and IP range inputted into the HexStrike or BBOT scanner engines.',
+        '1. Operators must possess verifiable authorization (letter of authorization / written penetration testing agreement) for every domain, host, and IP range inputted into the Errow or BBOT scanner engines.',
         '2. Third-party cloud service providers (AWS, Azure, GCP, Cloudflare) must be notified in accordance with their respective penetration testing notification policies where applicable.',
       ],
       complianceTags: ['NIST SP 800-115', 'FedRAMP Penetration Testing Guidance', 'NIST SP 800-53 Rev 5 CA-8'],
@@ -311,7 +311,7 @@ export const RULES_OF_ENGAGEMENT: LegalDocument = {
       title: 'Full Audit Logging & Attack Traceability',
       summary: 'Every offensive scan, query, and tool execution is immutably logged with operator credentials and timestamps.',
       content: [
-        '1. All recon jobs executed via HexStrike, BBOT, or custom scripts log target URI, source IP, authenticated operator username, and tool parameters to the immutable CS3 audit log.',
+        '1. All recon jobs executed via Errow, BBOT, or custom scripts log target URI, source IP, authenticated operator username, and tool parameters to the immutable CS3 audit log.',
         '2. In the event of an anomalous system event during a test window, operators must immediately consult the Audit Trail to correlate activity timestamps.',
       ],
       complianceTags: ['NIST SP 800-53 Rev 5 AU-2/AU-3/AU-12', 'NIST SP 800-171 Rev 3 03.03.01'],

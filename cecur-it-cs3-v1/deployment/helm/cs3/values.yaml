@@ -32,6 +32,10 @@ console:
   replicas: 2
   port: 3000
   appUrl: https://soc.example.internal
+  errow:
+    baseUrl: ""             # empty => console runs errow in simulation mode
+    mode: embedded           # embedded (onprem/airgap local runner) | remote (cloud hosted API)
+    sandboxRuntime: docker
   ingestRequireKey: true     # CS3_INGEST_REQUIRE_KEY: per-agent X-API-Key on /api/cecur/logs/ingest
   enrollMaxBatch: 1000       # CS3_ENROLL_MAX_BATCH
   jsonLimit: 2mb             # CS3_JSON_LIMIT

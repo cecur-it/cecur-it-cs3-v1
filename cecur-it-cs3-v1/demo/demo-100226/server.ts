@@ -10,7 +10,7 @@ import { cecurRouter } from './server/routes/cecur';
 import { activtrakRouter } from './server/routes/activtrak';
 import { sensorsRouter } from './server/routes/sensors';
 import { fusionRouter } from './server/routes/fusion';
-import { hexstrikeRouter } from './server/routes/hexstrike';
+import { errowRouter } from './server/routes/errow';
 import { auditRouter } from './server/routes/audit';
 import { executiveRouter } from './server/routes/executive';
 import { systemRouter } from './server/routes/system';
@@ -124,7 +124,7 @@ async function startServer() {
   app.use('/api/activtrak', activtrakRouter);
   app.use('/api/sensors', sensorsRouter);
   app.use('/api/fusion', fusionRouter);
-  app.use('/api/hexstrike', hexstrikeRouter);
+  app.use('/api/errow', errowRouter);
   app.use('/api/audit', auditRouter);
   app.use('/api/executive', executiveRouter);
   app.use('/api/system', systemRouter);

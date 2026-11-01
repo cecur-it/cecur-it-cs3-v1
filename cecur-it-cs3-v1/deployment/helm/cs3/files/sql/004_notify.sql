@@ -30,7 +30,7 @@ DECLARE
 BEGIN
   FOREACH t IN ARRAY ARRAY[
     'users', 'incidents', 'audit_logs', 'sensors', 'transactions',
-    'hexstrike_allowlist', 'hexstrike_jobs', 'wazuh_alerts',
+    'errow_allowlist', 'errow_jobs', 'wazuh_alerts',
     'activtrak_sessions', 'agents'
   ] LOOP
     EXECUTE format('DROP TRIGGER IF EXISTS %I ON cs3.%I', t || '_notify', t);

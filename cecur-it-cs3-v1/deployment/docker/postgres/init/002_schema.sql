@@ -10,8 +10,8 @@
 --   auditLogs              ->  cs3.audit_logs        (append-only, see 003)
 --   sensors                ->  cs3.sensors
 --   transactions           ->  cs3.transactions
---   hexstrikeAllowlist     ->  cs3.hexstrike_allowlist
---   hexstrikeJobs          ->  cs3.hexstrike_jobs
+--   errowAllowlist     ->  cs3.errow_allowlist
+--   errowJobs          ->  cs3.errow_jobs
 --   wazuhAlerts            ->  cs3.wazuh_alerts
 --   activtrakSessions      ->  cs3.activtrak_sessions
 --   (new) fleet            ->  cs3.agents, cs3.enrollments
@@ -45,7 +45,7 @@ DECLARE
 BEGIN
   FOREACH t IN ARRAY ARRAY[
     'users', 'credentials', 'incidents', 'sensors', 'transactions',
-    'hexstrike_allowlist', 'hexstrike_jobs', 'wazuh_alerts',
+    'errow_allowlist', 'errow_jobs', 'wazuh_alerts',
     'activtrak_sessions', 'agents'
   ] LOOP
     EXECUTE format($f$
@@ -92,7 +92,7 @@ CREATE INDEX IF NOT EXISTS enrollments_key_idx   ON cs3.enrollments (key_sha256)
 -- Runtime grants (DML only; no DDL, no TRUNCATE) ----------------------------
 GRANT SELECT, INSERT, UPDATE, DELETE ON
   cs3.users, cs3.credentials, cs3.incidents, cs3.sensors, cs3.transactions,
-  cs3.hexstrike_allowlist, cs3.hexstrike_jobs, cs3.wazuh_alerts,
+  cs3.errow_allowlist, cs3.errow_jobs, cs3.wazuh_alerts,
   cs3.activtrak_sessions, cs3.agents, cs3.enrollments
 TO cs3_app;
 

@@ -18,7 +18,7 @@ This directory contains the internal backend documentation for system unit econo
 * **Scope**: Server-enforced panel clearance matrix governing security personas across Analyst (Tier 2/3), Admin (Infra/Red), Auditor (GRC), and Executive (CISO).
 * **Key Enforcement**:
   * HTTP 403 Forbidden response boundaries
-  * SIEM / SOAR, ActivTrak, Sensor Grid, Asset Fusion, and HexStrike clearance tiers
+  * SIEM / SOAR, ActivTrak, Sensor Grid, Asset Fusion, and Errow clearance tiers
   * Database reseed and administrative authority gates
 
 ### 3. [Cross-Platform Forwarder Installation & Footprint](./CROSS_PLATFORM_FORWARDERS.md)
