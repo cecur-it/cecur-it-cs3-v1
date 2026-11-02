@@ -24,7 +24,7 @@ Clone the repository and run the interactive onboarding wizard to configure your
 
 ```bash
 git clone https://github.com/cecur-it/cecur-it-cs3-v1.git
-cd cecur-it-cs3-v1
+cd cecur-it-cs3-v1/cecur-it-cs3-v1
 
 # Run the onboarding wizard to generate your environment configuration (.env)
 node onboarding/wizard.mjs
