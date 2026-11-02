@@ -33,7 +33,7 @@ no step is hypothetical.
                                                                     |
                                                                     v
                                         +----------------------------------------------+
-                                        | OpenSearch / Wazuh Indexer                    |
+                                        | OpenSearch Indexer                            |
                                         | ISM lifecycle: hot 30d / warm 90d / cold 1y   |
                                         | (deployment/operations/ism/                   |
                                         |  cs3-logs-lifecycle.json)                     |
