@@ -2,20 +2,20 @@
 #
 # Routes changes to install-path and CI logic through platform security
 # review before merge, per the CS3 Installation Guide (README.md, Section
-# 2.1). Replace @DaScient below with your organization's
+# 2.1). Replace @cecur-it below with your organization's
 # actual GitHub teams before enabling branch protection.
 
 # Default owners for everything not matched below.
-*                               @DaScient
+*                               @cecur-it
 
 # Install scripts and onboarding wizard/config carry local system privileges.
-/scripts/                       @DaScient
-/onboarding/wizard.config.json  @DaScient
-/onboarding/models.json         @DaScient
-/install.sh                     @DaScient
-/install.command                @DaScient
-/install.ps1                    @DaScient
-/cs3-launcher.mjs               @DaScient
+/scripts/                       @cecur-it
+/onboarding/wizard.config.json  @cecur-it
+/onboarding/models.json         @cecur-it
+/install.sh                     @cecur-it
+/install.command                @cecur-it
+/install.ps1                    @cecur-it
+/cs3-launcher.mjs               @cecur-it
 
 # CI/CD workflows control what gets signed, released, and bundled.
-/.github/workflows/             @DaScient
+/.github/workflows/             @cecur-it
