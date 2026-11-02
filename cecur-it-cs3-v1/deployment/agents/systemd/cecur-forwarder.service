@@ -1,6 +1,6 @@
 [Unit]
 Description=Cecur CS3 log forwarder (Fluent Bit)
-Documentation=https://github.com/DaScient/cecur-it-cs3/blob/main/deployment/agents/README.md
+Documentation=https://github.com/cecur-it/cecur-it-cs3/blob/main/deployment/agents/README.md
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=300
