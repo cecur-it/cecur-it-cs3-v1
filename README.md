@@ -23,7 +23,7 @@ Ensure the host system has the following installed:
 Clone the repository and run the interactive onboarding wizard to configure your deployment profile:
 
 ```bash
-git clone https://github.com/cecur-it/cecur-it-cs3-v1.git
+git clone https://github.com/cecur-it/cecur-it-cs3-errow.git
 cd cecur-it-cs3-errow
 
 # Run the onboarding wizard to generate your environment configuration (.env)
