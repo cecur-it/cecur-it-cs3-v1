@@ -5,7 +5,7 @@ cs3_container_runtime: docker
 cs3_offline: false
 cs3_hosted_models_enabled: true               # still empty unless vault keys are set
 cs3_ingest_require_key: true
-cs3_console_image: ghcr.io/dascient/cs3-soc-console:latest
+cs3_console_image: ghcr.io/cecur-it/cs3-soc-console:latest
 cs3_compose_profiles: [pull-models]
 cs3_compose_files: [docker-compose.yml]
 cs3_firewall_ruleset: nftables-cloud-host.nft
