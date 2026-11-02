@@ -1,8 +1,7 @@
 # 01. Architecture — Real Telemetry Data Path
 
 This document describes the data path `on-prem/` deployments use, and how it differs from the
-demo console's simulation loop. Every box in the diagram below is a real file in this repository —
-no step is hypothetical.
+demo console's simulation loop. 
 
 ## 1. End-to-end data path
 
