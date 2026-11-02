@@ -163,8 +163,8 @@ Use this path when the CS3 console and Agentic LLM Router may call CS3 Cloud-hos
 1. Authenticate to the private repo (SSH deploy key or fine-grained PAT scoped read-only)
 
    ```bash
-   git clone git@github.com:DaScient/cecur-it-cs3.git
-   cd cecur-it-cs3
+   git clone git@github.com:cecur-it/cecur-it-cs3-v1.git
+   cd cecur-it-cs3-v1
    ```
 
 2. Run the shared launcher and select the cloud profile
