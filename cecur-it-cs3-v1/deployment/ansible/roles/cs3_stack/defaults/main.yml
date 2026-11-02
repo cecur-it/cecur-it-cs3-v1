@@ -2,7 +2,7 @@ cs3_home: /opt/cs3
 cs3_container_runtime: docker
 cs3_compose_files: [docker-compose.yml]
 cs3_compose_profiles: []
-cs3_console_image: ghcr.io/cecur-it/cecur-it-cs3-v1/cecur-it-cs3-v1:latest
+cs3_console_image: ghcr.io/cecur-it/cs3-soc-console:latest
 cs3_console_port: 3000
 cs3_console_url: https://soc.example.internal
 cs3_ingest_require_key: true
