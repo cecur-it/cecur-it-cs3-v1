@@ -1,15 +1,15 @@
 openapi: '3.0.0'
 info:
   description: |
-    The Wazuh API is an open-source RESTful API that allows for interaction with the Wazuh manager from a web browser,
-    command line tools like cURL or any script or program that can make web requests. The Wazuh WUI relies on this
-    heavily and Wazuh’s goal is to accommodate complete remote management of the Wazuh infrastructure via the Wazuh WUI.
-    Use the Wazuh API to easily perform everyday actions like adding an agent, restarting the manager(s) or agent(s)
+    The Vendetta API is an open-source RESTful API that allows for interaction with the Vendetta manager from a web browser,
+    command line tools like cURL or any script or program that can make web requests. The Vendetta WUI relies on this
+    heavily and Vendetta’s goal is to accommodate complete remote management of the Vendetta infrastructure via the Vendetta WUI.
+    Use the Vendetta API to easily perform everyday actions like adding an agent, restarting the manager(s) or agent(s)
     or looking up syscheck details.
 
     # Authentication
 
-    Wazuh API endpoints require authentication to be used. Therefore, all calls must include a JSON Web Token.
+    Vendetta API endpoints require authentication to be used. Therefore, all calls must include a JSON Web Token.
     JWT is an open standard (RFC 7519) that defines a compact and self-contained way for securely transmitting
     information between parties as a JSON object. Perform a call with `basicAuth` to `POST /security/user/authenticate`
     and obtain a JWT token to run any endpoint.
@@ -42,10 +42,10 @@ info:
 
   version: '4.14.7'
   x-revision: 'rc1'
-  title: 'Wazuh API REST'
+  title: 'Vendetta API REST'
   license:
     name: 'GPL 2.0'
-    url: 'https://github.com/wazuh/wazuh/blob/v4.14.7/LICENSE'
+    url: 'https://github.com/Vendetta/Vendetta/blob/v4.14.7/LICENSE'
 
 servers:
   - url: '{protocol}://{host}:{port}'
@@ -74,7 +74,7 @@ x-rbac-catalog:
     'node:id':
       description: "Reference cluster nodes via node ID (i.e. node:id:worker1)"
     'decoder:file':
-      description: "Reference decoder files via its path (i.e. decoder:file:0005-wazuh_decoders.xml)"
+      description: "Reference decoder files via its path (i.e. decoder:file:0005-Vendetta_decoders.xml)"
     'list:file':
       description: "Reference list files via its filename (i.e. list:file:audit-keys)"
     'rule:file':
@@ -217,7 +217,7 @@ x-rbac-catalog:
         resources: ['agent:id:001', 'agent:id:003', 'agent:group:default']
         effect: "deny"
     'cluster:read':
-      description: "Read Wazuh's cluster nodes configuration"
+      description: "Read Vendetta's cluster nodes configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/node:id'
       example:
@@ -225,7 +225,7 @@ x-rbac-catalog:
         resources: ['node:id:worker1', 'node:id:worker3']
         effect: "deny"
     'cluster:update_config':
-      description: "Change the Wazuh's cluster node configuration"
+      description: "Change the Vendetta's cluster node configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/node:id'
       example:
@@ -233,7 +233,7 @@ x-rbac-catalog:
         resources: ['node:id:worker1']
         effect: "allow"
     'cluster:read_api_config':
-      description: "Check Wazuh's cluster nodes API configuration"
+      description: "Check Vendetta's cluster nodes API configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -241,7 +241,7 @@ x-rbac-catalog:
         resources: ['node:id:worker1', 'node:id:worker3']
         effect: "allow"
     'cluster:restart':
-      description: "Restart Wazuh's cluster nodes"
+      description: "Restart Vendetta's cluster nodes"
       resources:
         - $ref: '#/x-rbac-catalog/resources/node:id'
       example:
@@ -249,7 +249,7 @@ x-rbac-catalog:
         resources: ['node:id:worker1']
         effect: "allow"
     'cluster:status':
-      description: "Check Wazuh's cluster general status"
+      description: "Check Vendetta's cluster general status"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -257,7 +257,7 @@ x-rbac-catalog:
         resources: ['*:*:*']
         effect: "allow"
     'manager:read':
-      description: "Read Wazuh manager configuration"
+      description: "Read Vendetta manager configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -265,7 +265,7 @@ x-rbac-catalog:
         resources: ['*:*:*']
         effect: "allow"
     'manager:update_config':
-      description: "Update current Wazuh manager configuration"
+      description: "Update current Vendetta manager configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -273,7 +273,7 @@ x-rbac-catalog:
         resources: [ '*:*:*' ]
         effect: "allow"
     'manager:read_api_config':
-      description: "Read Wazuh manager API configuration"
+      description: "Read Vendetta manager API configuration"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -281,7 +281,7 @@ x-rbac-catalog:
         resources: ['*:*:*']
         effect: "allow"
     'manager:restart':
-      description: "Restart Wazuh managers"
+      description: "Restart Vendetta managers"
       resources:
         - $ref: '#/x-rbac-catalog/resources/*:*'
       example:
@@ -571,7 +571,7 @@ components:
             detail: "Permission denied: Resource type: *:*"
             remediation: "Please, make sure you have permissions to execute the current request. For more information
             on how to set up permissions, please visit
-            https://documentation.wazuh.com/4.14/user-manual/api/rbac/configuration.html"
+            https://documentation.Vendetta.com/4.14/user-manual/api/rbac/configuration.html"
             error: 4000
             dapi_errors:
               unknown-node:
@@ -614,7 +614,7 @@ components:
           schema:
             $ref: '#/components/schemas/RequestError'
           example:
-            title: "Wazuh Error"
+            title: "Vendetta Error"
             detail: "The body type is not the one specified in the content-type"
             error: 6002
 
@@ -635,10 +635,10 @@ components:
           schema:
             $ref: '#/components/schemas/RequestError'
           example:
-            title: "Wazuh Error"
+            title: "Vendetta Error"
             detail: "Maximum number of requests per minute reached"
             remediation: "This limit can be changed in api.yaml file. More information here:
-            https://documentation.wazuh.com/4.14/user-manual/api/security/configuration.html"
+            https://documentation.Vendetta.com/4.14/user-manual/api/security/configuration.html"
             code: 6001
 
     ResourceNotFoundResponse:
@@ -651,7 +651,7 @@ components:
             title: "Resource Not Found"
             detail: "The group does not exist"
             remediation: "Please, use `GET /groups` to find all available groups:
-            https://documentation.wazuh.com/4.14/user-manual/api/rbac/configuration.html"
+            https://documentation.Vendetta.com/4.14/user-manual/api/rbac/configuration.html"
             code: 1710
             dapi_errors:
               unknown-node:
@@ -829,7 +829,7 @@ components:
               items:
                 $ref: '#/components/schemas/AgentDistinct'
 
-    AllItemsResponseWazuhDaemonStats:
+    AllItemsResponseVendettaDaemonStats:
       allOf:
         - type: object
           required:
@@ -840,12 +840,12 @@ components:
               description: "Items that successfully applied the API call action"
               items:
                 oneOf:
-                  - $ref: '#/components/schemas/WazuhRemotedStatsItem'
-                  - $ref: '#/components/schemas/WazuhAnalysisdStatsItem'
-                  - $ref: '#/components/schemas/WazuhDBStatsItem'
+                  - $ref: '#/components/schemas/VendettaRemotedStatsItem'
+                  - $ref: '#/components/schemas/VendettaAnalysisdStatsItem'
+                  - $ref: '#/components/schemas/VendettaDBStatsItem'
         - $ref: '#/components/schemas/AllItemsResponse'
 
-    AllItemsResponseWazuhDaemonStatsAgents:
+    AllItemsResponseVendettaDaemonStatsAgents:
       allOf:
         - type: object
           required:
@@ -856,8 +856,8 @@ components:
               description: "Items that successfully applied the API call action"
               items:
                 oneOf:
-                  - $ref: '#/components/schemas/WazuhRemotedStatsAgentsItem'
-                  - $ref: '#/components/schemas/WazuhAnalysisdStatsAgentsItem'
+                  - $ref: '#/components/schemas/VendettaRemotedStatsAgentsItem'
+                  - $ref: '#/components/schemas/VendettaAnalysisdStatsAgentsItem'
         - $ref: '#/components/schemas/AllItemsResponse'
 
     AllItemsResponseGroups:
@@ -1355,7 +1355,7 @@ components:
               items:
                   $ref: '#/components/schemas/ClusterNode'
 
-    AllItemsResponseWazuhLogs:
+    AllItemsResponseVendettaLogs:
       allOf:
         - $ref: '#/components/schemas/AllItemsResponse'
         - type: object
@@ -1366,7 +1366,7 @@ components:
               type: array
               description: "Items that successfully applied the API call action"
               items:
-                  $ref: '#/components/schemas/WazuhLogs'
+                  $ref: '#/components/schemas/VendettaLogs'
 
     AllItemsResponseValidationStatus:
       allOf:
@@ -1381,7 +1381,7 @@ components:
               items:
                   $ref: '#/components/schemas/ValidationStatus'
 
-    AllItemsResponseWazuhStats:
+    AllItemsResponseVendettaStats:
       allOf:
         - type: object
           required:
@@ -1392,11 +1392,11 @@ components:
               description: "Items that successfully applied the API call action"
               items:
                 anyOf:
-                  - $ref: '#/components/schemas/WazuhStats'
-                  - $ref: '#/components/schemas/WazuhHourlyStats'
-                  - $ref: '#/components/schemas/WazuhWeeklyStats'
-                  - $ref: '#/components/schemas/WazuhAnalysisdStats'
-                  - $ref: '#/components/schemas/WazuhRemotedStats'
+                  - $ref: '#/components/schemas/VendettaStats'
+                  - $ref: '#/components/schemas/VendettaHourlyStats'
+                  - $ref: '#/components/schemas/VendettaWeeklyStats'
+                  - $ref: '#/components/schemas/VendettaAnalysisdStats'
+                  - $ref: '#/components/schemas/VendettaRemotedStats'
         - $ref: '#/components/schemas/AllItemsResponse'
 
 
@@ -1434,14 +1434,14 @@ components:
         relative_dirname:
           type: string
           format: paths
-          description: "Folder path where the file is located. This path is relative to the Wazuh installation path"
+          description: "Folder path where the file is located. This path is relative to the Vendetta installation path"
 
     RulesetStatus:
       type: object
       properties:
         status:
           type: string
-          description: "Whether the specified ruleset file is enabled or disabled in Wazuh manager configuration"
+          description: "Whether the specified ruleset file is enabled or disabled in Vendetta manager configuration"
           enum:
             - enabled
             - disabled
@@ -1475,7 +1475,7 @@ components:
       properties:
         version:
           type: string
-          description: "Wazuh version the agent has installed"
+          description: "Vendetta version the agent has installed"
         id:
           $ref: '#/components/schemas/AgentID'
         name:
@@ -1607,7 +1607,7 @@ components:
           type: string
           maxLength: 64
           minLength: 64
-          format: wazuh_key
+          format: Vendetta_key
           description: "Key to use when communicating with the manager. The agent must have the same key on
           its `client.keys` file"
         name:
@@ -1631,7 +1631,7 @@ components:
       - pending
       - never_connected
       - disconnected
-      description: "Agent status. It is calculated based on the last keepalive and the Wazuh version"
+      description: "Agent status. It is calculated based on the last keepalive and the Vendetta version"
 
     AgentsSummary:
       type: object
@@ -1758,7 +1758,7 @@ components:
           description: "Time the agent must has been registered to force the insertion. Time in seconds, ‘[n_days]d’, ‘[n_hours]h’, ‘[n_minutes]m’ or ‘[n_seconds]s’. For example, `7d`, `10s` and `10` are valid values. If no time unit is specified, seconds are used"
           format: timeframe
 
-    WazuhRemotedStatsAgentsItem:
+    VendettaRemotedStatsAgentsItem:
       type: object
       properties:
         timestamp:
@@ -1769,7 +1769,7 @@ components:
           type: string
           description: "Daemon name"
           enum:
-            - wazuh-remoted
+            - Vendetta-remoted
         agents:
           type: array
           items:
@@ -1847,7 +1847,7 @@ components:
                             format: int32
                             description: "Shared configuration messages (merged.mg) sent to agent"
 
-    WazuhAnalysisdStatsAgentsItem:
+    VendettaAnalysisdStatsAgentsItem:
       type: object
       properties:
         timestamp:
@@ -1858,7 +1858,7 @@ components:
           type: string
           description: "Daemon name"
           enum:
-            - wazuh-analysisd
+            - Vendetta-analysisd
         agents:
           type: array
           items:
@@ -2128,7 +2128,7 @@ components:
         version:
           type: string
           format: \d+\.\d+\.\d+
-          description: "Wazuh version installed in the node"
+          description: "Vendetta version installed in the node"
         ip:
           type: string
           description: "IP the node is using to communicate with other nodes in the cluster"
@@ -2304,7 +2304,7 @@ components:
         data:
           properties:
             enabled:
-              description: "Whether the cluster is enabled in the Wazuh configuration"
+              description: "Whether the cluster is enabled in the Vendetta configuration"
               type: string
               enum:
               - "yes"
@@ -2558,7 +2558,7 @@ components:
           description: "User's JWT token"
 
     # Cluster and manager models
-    WazuhRemotedStatsItem:
+    VendettaRemotedStatsItem:
       type: object
       properties:
         uptime:
@@ -2573,7 +2573,7 @@ components:
           type: string
           description: "Daemon name"
           enum:
-            - wazuh-remoted
+            - Vendetta-remoted
         metrics:
           type: object
           properties:
@@ -2687,7 +2687,7 @@ components:
               format: int32
               description: "Current active TCP sessions (agents)"
 
-    WazuhAnalysisdStatsItem:
+    VendettaAnalysisdStatsItem:
       type: object
       properties:
         uptime:
@@ -2702,7 +2702,7 @@ components:
           type: string
           description: "Daemon name"
           enum:
-            - wazuh-analysisd
+            - Vendetta-analysisd
         metrics:
           type: object
           properties:
@@ -3182,7 +3182,7 @@ components:
                       format: int32
                       description: "Current usage of the upgrade queue (percentage)"
 
-    WazuhDBStatsItem:
+    VendettaDBStatsItem:
       type: object
       properties:
         uptime:
@@ -3197,7 +3197,7 @@ components:
           type: string
           description: "Daemon name"
           enum:
-            - wazuh-db
+            - Vendetta-db
         metrics:
           type: object
           properties:
@@ -3207,14 +3207,14 @@ components:
                 received:
                   type: integer
                   format: int32
-                  description: "Total number of queries through WazuhDB socket"
+                  description: "Total number of queries through VendettaDB socket"
                 received_breakdown:
                   type: object
                   properties:
                     agent:
                       type: integer
                       format: int32
-                      description: "Number of agent queries through WazuhDB socket"
+                      description: "Number of agent queries through VendettaDB socket"
                     agent_breakdown:
                       type: object
                       properties:
@@ -3346,7 +3346,7 @@ components:
                     global:
                       type: integer
                       format: int32
-                      description: "Number of global queries through WazuhDB socket"
+                      description: "Number of global queries through VendettaDB socket"
                     global_breakdown:
                       type: object
                       properties:
@@ -3457,7 +3457,7 @@ components:
                     mitre:
                       type: integer
                       format: int32
-                      description: "Number of mitre queries through WazuhDB socket"
+                      description: "Number of mitre queries through VendettaDB socket"
                     mitre_breakdown:
                       type: object
                       properties:
@@ -3471,7 +3471,7 @@ components:
                     task:
                       type: integer
                       format: int32
-                      description: "Number of task queries through WazuhDB socket"
+                      description: "Number of task queries through VendettaDB socket"
                     task_breakdown:
                       type: object
                       properties:
@@ -3513,11 +3513,11 @@ components:
                                 upgrade_update_status:
                                   type: integer
                                   format: int32
-                    wazuhdb:
+                    Vendettadb:
                       type: integer
                       format: int32
-                      description: "Number of wazuhdb queries through WazuhDB socket"
-                    wazuhdb_breakdown:
+                      description: "Number of Vendettadb queries through VendettaDB socket"
+                    Vendettadb_breakdown:
                       type: object
                       properties:
                         db:
@@ -3839,11 +3839,11 @@ components:
                                 upgrade_update_status:
                                   type: integer
                                   format: int32
-                    wazuhdb:
+                    Vendettadb:
                       type: integer
                       format: int32
-                      description: "Time taken by all wazuhdb queries (milliseconds)"
-                    wazuhdb_breakdown:
+                      description: "Time taken by all Vendettadb queries (milliseconds)"
+                    Vendettadb_breakdown:
                       type: object
                       properties:
                         db:
@@ -3854,55 +3854,55 @@ components:
                               type: integer
                               format: int32
 
-    WazuhDaemonsStatus:
+    VendettaDaemonsStatus:
       type: object
       properties:
-        wazuh-agentlessd:
+        Vendetta-agentlessd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-analysisd:
+        Vendetta-analysisd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-authd:
+        Vendetta-authd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-csyslogd:
+        Vendetta-csyslogd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-execd:
+        Vendetta-execd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-integratord:
+        Vendetta-integratord:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-logcollector:
+        Vendetta-logcollector:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-maild:
+        Vendetta-maild:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-monitord:
+        Vendetta-monitord:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-remoted:
+        Vendetta-remoted:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-reportd:
+        Vendetta-reportd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-syscheckd:
+        Vendetta-syscheckd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-apid:
+        Vendetta-apid:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-clusterd:
+        Vendetta-clusterd:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-db:
+        Vendetta-db:
           $ref: '#/components/schemas/DaemonStatus'
-        wazuh-modulesd:
+        Vendetta-modulesd:
           $ref: '#/components/schemas/DaemonStatus'
 
-    WazuhInfo:
+    VendettaInfo:
       type: object
       properties:
         path:
           type: string
           format: paths
-          description: "Wazuh installation path"
+          description: "Vendetta installation path"
         version:
           type: string
-          description: "Wazuh version"
+          description: "Vendetta version"
         type:
           type: string
-          description: "Wazuh installation type"
+          description: "Vendetta installation type"
           enum:
           - server
           - local
@@ -3921,7 +3921,7 @@ components:
           type: string
           nullable: true
 
-    WazuhManagerConfiguration:
+    VendettaManagerConfiguration:
       type: object
       properties:
         active-response:
@@ -3981,7 +3981,7 @@ components:
           items:
             type: object
 
-        #Wodle sections inside WazuhConfiguration(ossec.conf)
+        #Wodle sections inside VendettaConfiguration(ossec.conf)
         aws-s3:
           type: object
         azure-logs:
@@ -3997,7 +3997,7 @@ components:
         syscollector:
           type: object
 
-    WazuhStats:
+    VendettaStats:
       type: object
       items:
         type: object
@@ -4042,7 +4042,7 @@ components:
             format: int32
             description: "Number of alerts raised during the specified hour"
 
-    WazuhHourlyStats:
+    VendettaHourlyStats:
       type: object
       properties:
         averages:
@@ -4056,25 +4056,25 @@ components:
           type: integer
           format: int32
 
-    WazuhWeeklyStats:
+    VendettaWeeklyStats:
       type: object
       properties:
         Sun:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Mon:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Tue:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Wed:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Thu:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Fri:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
         Sat:
-          $ref: '#/components/schemas/WazuhHourlyStats'
+          $ref: '#/components/schemas/VendettaHourlyStats'
 
-    WazuhAnalysisdStats:
+    VendettaAnalysisdStats:
       type: object
       properties:
         alerts_queue_size:
@@ -4114,7 +4114,7 @@ components:
         events_processed:
           type: number
           format: float
-          description: "Total number of events processed (i.e. matched against Wazuh ruleset) in the last 5 seconds"
+          description: "Total number of events processed (i.e. matched against Vendetta ruleset) in the last 5 seconds"
         events_received:
           type: number
           format: float
@@ -4135,7 +4135,7 @@ components:
           type: number
           format: float
           description: "Same as `alerts_written` but focusing on [FTS alerts]
-          (https://documentation.wazuh.com/4.14/user-manual/ruleset/ruleset-xml-syntax/decoders.html?highlight=fts
+          (https://documentation.Vendetta.com/4.14/user-manual/ruleset/ruleset-xml-syntax/decoders.html?highlight=fts
           #fts)"
         hostinfo_queue_size:
           type: number
@@ -4169,7 +4169,7 @@ components:
           type: number
           format: float
           description: "After decoding, events are pushed to a _pending to process_ queue which will match the events
-          against the Wazuh ruleset to raise alerts. This variable shows usage of that queue"
+          against the Vendetta ruleset to raise alerts. This variable shows usage of that queue"
         sca_events_decoded:
           type: number
           format: float
@@ -4233,7 +4233,7 @@ components:
           format: float
           description: "Same as `syscheck_queue_usage` but for Windows events"
 
-    WazuhRemotedStats:
+    VendettaRemotedStats:
       type: object
       properties:
         ctrl_msg_count:
@@ -4269,7 +4269,7 @@ components:
           format: float
           description: "Total queue size to store events from agents"
 
-    WazuhLogs:
+    VendettaLogs:
       type: object
       properties:
         description:
@@ -4288,7 +4288,7 @@ components:
         tag:
           type: string
           format: alphanumeric
-          description: "Wazuh component that logged the event"
+          description: "Vendetta component that logged the event"
         timestamp:
           type: string
           format: date-time
@@ -4331,72 +4331,72 @@ components:
           format: int32
           minimum: 0
 
-    WazuhLogsSummary:
+    VendettaLogsSummary:
       type: object
       properties:
           indexer-connector:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-agentlessd:
+          Vendetta-agentlessd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-analysisd:
+          Vendetta-analysisd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-authd:
+          Vendetta-authd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-csyslogd:
+          Vendetta-csyslogd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-execd:
+          Vendetta-execd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-integratord:
+          Vendetta-integratord:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-maild:
+          Vendetta-maild:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-monitord:
+          Vendetta-monitord:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-logcollector:
+          Vendetta-logcollector:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-remoted:
+          Vendetta-remoted:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-reportd:
+          Vendetta-reportd:
             $ref: '#/components/schemas/LogSummary'
           rootcheck:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-syscheckd:
+          Vendetta-syscheckd:
             $ref: '#/components/schemas/LogSummary'
           sca:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-db:
+          Vendetta-db:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:
+          Vendetta-modulesd:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:agent-upgrade:
+          Vendetta-modulesd:agent-upgrade:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:aws-s3:
+          Vendetta-modulesd:aws-s3:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:azure-logs:
+          Vendetta-modulesd:azure-logs:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:ciscat:
+          Vendetta-modulesd:ciscat:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:control:
+          Vendetta-modulesd:control:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:command:
+          Vendetta-modulesd:command:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:content_manager:
+          Vendetta-modulesd:content_manager:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:database:
+          Vendetta-modulesd:database:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:docker-listener:
+          Vendetta-modulesd:docker-listener:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:download:
+          Vendetta-modulesd:download:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:oscap:
+          Vendetta-modulesd:oscap:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:osquery:
+          Vendetta-modulesd:osquery:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:syscollector:
+          Vendetta-modulesd:syscollector:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:vulnerability-scanner:
+          Vendetta-modulesd:vulnerability-scanner:
             $ref: '#/components/schemas/LogSummary'
-          wazuh-modulesd:task-manager:
+          Vendetta-modulesd:task-manager:
             $ref: '#/components/schemas/LogSummary'
 
     ConfirmationMessage:
@@ -4592,7 +4592,7 @@ components:
                   format: int32
         uuid:
           type: string
-          description: "Identifier of the Wazuh instance"
+          description: "Identifier of the Vendetta instance"
 
     # Rules models
     RuleFile:
@@ -5777,12 +5777,12 @@ components:
                 format: alphanumeric_symbols
         groups:
           type: array
-          description: "Recount of the number of Wazuh agents group by Wazuh groups"
+          description: "Recount of the number of Vendetta agents group by Vendetta groups"
           items:
             $ref: '#/components/schemas/AgentGroup'
         agent_os:
           type: array
-          description: "Recount of the number of Wazuh agents group by OS"
+          description: "Recount of the number of Vendetta agents group by OS"
           items:
             type: object
             properties:
@@ -5805,7 +5805,7 @@ components:
           $ref: '#/components/schemas/AgentsSummaryStatus'
         agent_version:
           type: array
-          description: "Recount of the number of Wazuh agents group by version"
+          description: "Recount of the number of Vendetta agents group by version"
           items:
             type: object
             properties:
@@ -5883,7 +5883,7 @@ components:
         - monitor
         - request
         - syscheck
-        - wazuh-db
+        - Vendetta-db
         - wmodules
     configuration:
       in: path
@@ -6081,12 +6081,12 @@ components:
         <td><code>&lt;syscheck&gt;</code>, <code>&lt;rootcheck&gt;</code></td>
         </tr>
         <tr>
-        <td>wazuh-db</td>
+        <td>Vendetta-db</td>
         <td>internal</td>
-        <td><code>&lt;wazuh_db&gt;</code></td>
+        <td><code>&lt;Vendetta_db&gt;</code></td>
         </tr>
         <tr>
-        <td>wazuh-db</td>
+        <td>Vendetta-db</td>
         <td>wdb</td>
         <td><code>&lt;wdb&gt;</code></td>
         </tr>
@@ -6137,9 +6137,9 @@ components:
         items:
           type: string
           enum:
-            - wazuh-analysisd
-            - wazuh-remoted
-            - wazuh-db
+            - Vendetta-analysisd
+            - Vendetta-remoted
+            - Vendetta-db
     daemons_list_agents:
       in: query
       name: daemons_list
@@ -6149,8 +6149,8 @@ components:
         items:
           type: string
           enum:
-            - wazuh-analysisd
-            - wazuh-remoted
+            - Vendetta-analysisd
+            - Vendetta-remoted
     decoder_name:
       in: query
       name: decoder_names
@@ -6554,7 +6554,7 @@ components:
       in: query
       name: purge
       description: |
-        Permanently delete an agent from the key store. The wazuh-authd `purge` configuration option has
+        Permanently delete an agent from the key store. The Vendetta-authd `purge` configuration option has
         precedence over this parameter, when enabled, agents will be permanently deleted regardless of this value.
       schema:
         type: boolean
@@ -6894,7 +6894,7 @@ components:
     version:
       in: query
       name: version
-      description: "Filter by agents version using one of the following formats: 'X.Y.Z', 'vX.Y.Z', 'wazuh X.Y.Z' or 'wazuh vX.Y.Z'. For example: '4.4.0'"
+      description: "Filter by agents version using one of the following formats: 'X.Y.Z', 'vX.Y.Z', 'Vendetta X.Y.Z' or 'Vendetta vX.Y.Z'. For example: '4.4.0'"
       schema:
         type: string
         format: alphanumeric
@@ -6932,7 +6932,7 @@ components:
     section:
       in: query
       name: section
-      description: "Indicates the wazuh configuration section"
+      description: "Indicates the Vendetta configuration section"
       schema:
         type: string
         enum:
@@ -6985,7 +6985,7 @@ components:
     tag:
       in: query
       name: tag
-      description: "Wazuh component that logged the event"
+      description: "Vendetta component that logged the event"
       schema:
         type: string
         format: alphanumeric
@@ -7570,10 +7570,10 @@ components:
     upgrade_version:
       in: query
       name: upgrade_version
-      description: "Wazuh version to upgrade to"
+      description: "Vendetta version to upgrade to"
       schema:
         type: string
-        format: wazuh_version
+        format: Vendetta_version
     force:
       in: query
       name: force
@@ -7600,7 +7600,7 @@ components:
     file_path:
       in: query
       name: file_path
-      description: "Full path to the WPK file. The file must be on a folder on the Wazuh's installation directory
+      description: "Full path to the WPK file. The file must be on a folder on the Vendetta's installation directory
       (by default, <code>/var/ossec</code>)"
       required: True
       schema:
@@ -7666,7 +7666,7 @@ components:
 
 tags:
   - name: API Info
-    description: "Wazuh API information"
+    description: "Vendetta API information"
   - name: Active-response
     description: "Agents Active Response"
   - name: Agents
@@ -7674,7 +7674,7 @@ tags:
   - name: Ciscat
     description: "Retrieve information from CIS-CAT scans"
   - name: Cluster
-    description: "Wazuh cluster and nodes management"
+    description: "Vendetta cluster and nodes management"
   - name: Decoders
     description: "Decoders management"
   - name: Events
@@ -7688,11 +7688,11 @@ tags:
   - name: Logtest
     description: "Logtest: testing and verification tool for rules and decoders"
   - name: Manager
-    description: "Wazuh manager management"
+    description: "Vendetta manager management"
   - name: MITRE
     description: "Technique information from MITRE database"
   - name: Overview
-    description: "Overview of Wazuh"
+    description: "Overview of Vendetta"
   - name: Rootcheck
     description: "Rootcheck management"
   - name: Rules
@@ -7732,12 +7732,12 @@ paths:
                   data:
                     $ref: '#/components/schemas/BasicInfo'
               example:
-                title: "Wazuh API"
+                title: "Vendetta API"
                 api_version: "v4.5.0"
                 revision: 'beta1'
                 license_name: "GPL 2.0"
-                license_url: "https://github.com/wazuh/wazuh/blob/v4.14.7/LICENSE"
-                hostname: "wazuh"
+                license_url: "https://github.com/Vendetta/Vendetta/blob/v4.14.7/LICENSE"
+                hostname: "Vendetta"
                 timestamp: "2019-04-02T08:08:11Z"
 
   /active-response:
@@ -7912,14 +7912,14 @@ paths:
                       id: '001'
                       dateAdd: 2021-05-26T12:40:08Z
                       configSum: ab73af41699f13fdd81903b5f23d8d00
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group: [default]
                       registerIP: any
                       ip: 172.25.0.6
                       name: ac7cb188d538
                       status: active
                       mergedSum: 9a016508cea1e997ab8569f5cfab30f5
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       node_name: worker2
                       group_config_status: 'synced'
                       status_code: 0
@@ -7937,14 +7937,14 @@ paths:
                       id: '002'
                       dateAdd: 2021-05-26T12:40:10Z
                       configSum: ab73af41699f13fdd81903b5f23d8d00
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group: [default]
                       registerIP: any
                       ip: 172.25.0.11
                       name: 91642a418627
                       status: active
                       mergedSum: 9a016508cea1e997ab8569f5cfab30f5
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       node_name: worker2
                       group_config_status: 'synced'
                       status_code: 0
@@ -7962,14 +7962,14 @@ paths:
                       id: '003'
                       dateAdd: 2021-05-26T12:40:10Z
                       configSum: ab73af41699f13fdd81903b5f23d8d00
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group: [default]
                       registerIP: any
                       ip: 172.25.0.10
                       name: a442e15bc84e
                       status: active
                       mergedSum: 9a016508cea1e997ab8569f5cfab30f5
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       node_name: worker1
                       group_config_status: 'not synced'
                       status_code: 0
@@ -8378,8 +8378,8 @@ paths:
     get:
       tags:
         - Agents
-      summary: "Get Wazuh daemon stats from an agent"
-      description: "Return Wazuh statistical information from specified daemons in a specified agent"
+      summary: "Get Vendetta daemon stats from an agent"
+      description: "Return Vendetta statistical information from specified daemons in a specified agent"
       operationId: api.controllers.agent_controller.get_daemon_stats
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/agent:read'
@@ -8390,7 +8390,7 @@ paths:
         - $ref: '#/components/parameters/daemons_list_agents'
       responses:
         '200':
-          description: "Wazuh daemon stats"
+          description: "Vendetta daemon stats"
           content:
             application/json:
               schema:
@@ -8399,12 +8399,12 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhDaemonStatsAgents'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaDaemonStatsAgents'
               example:
                 data:
                   affected_items:
                     - timestamp: 2022-07-27T14:09:20+00:00
-                      name: wazuh-remoted
+                      name: Vendetta-remoted
                       agents:
                         - uptime: 2022-07-27T14:09:20+00:00
                           id: 1
@@ -8426,7 +8426,7 @@ paths:
                                 request: 0
                                 shared: 0
                     - timestamp: 2022-07-27T14:09:20+00:00
-                      name: wazuh-analysisd
+                      name: Vendetta-analysisd
                       agents:
                         - uptime: 2022-07-27T14:09:20+00:00
                           id: 1
@@ -8489,7 +8489,7 @@ paths:
       tags:
         - Agents
       summary: "Get agent's component stats"
-      description: "Return Wazuh's {component} statistical information from agent {agent_id}"
+      description: "Return Vendetta's {component} statistical information from agent {agent_id}"
       operationId: api.controllers.agent_controller.get_component_stats
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/agent:read'
@@ -9086,7 +9086,7 @@ paths:
                     - node_name: unknown
                       ip: 172.16.16.16
                       id: 009
-                      name: test_agent_wazuh
+                      name: test_agent_Vendetta
                       status: never_connected
                       dateAdd: 2021-05-27T10:06:13Z
                       registerIP: 172.16.16.16
@@ -9095,7 +9095,7 @@ paths:
                     - node_name: unknown
                       ip: 172.16.16.17
                       id: 010
-                      name: test_agent_wazuh2
+                      name: test_agent_Vendetta2
                       status: never_connected
                       dateAdd: 2021-05-27T10:06:27Z
                       registerIP: 172.16.16.17
@@ -9104,7 +9104,7 @@ paths:
                     - node_name: unknown
                       ip: any
                       id: 011
-                      name: test_wazuh_quick
+                      name: test_Vendetta_quick
                       status: never_connected
                       dateAdd: 2021-05-27T10:07:37Z
                       registerIP: any
@@ -9221,14 +9221,14 @@ paths:
                       id: '001'
                       dateAdd: 2024-02-26T12:40:08Z
                       configSum: ab73af41699f13fdd81903b5f23d8d00
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group: [default]
                       registerIP: any
                       ip: 172.25.0.6
                       name: ac7cb188d538
                       status: active
                       mergedSum: 9a016508cea1e997ab8569f5cfab30f5
-                      version: Wazuh v3.0.0
+                      version: Vendetta v3.0.0
                       node_name: worker2
                       group_config_status: "synced"
                       status_code: 0
@@ -9246,14 +9246,14 @@ paths:
                       id: '002'
                       dateAdd: 2024-02-26T12:40:10Z
                       configSum: ab73af41699f13fdd81903b5f23d8d00
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group: [default]
                       registerIP: any
                       ip: 172.25.0.11
                       name: 91642a418627
                       status: active
                       mergedSum: 9a016508cea1e997ab8569f5cfab30f5
-                      version: Wazuh v3.0.0
+                      version: Vendetta v3.0.0
                       node_name: worker2
                       group_config_status: "synced"
                       status_code: 0
@@ -9363,8 +9363,8 @@ paths:
                           code: 1707
                           message: "Cannot send request, agent is not active"
                           remediation: "Please, check non-active agents connection and try again.
-                           Visit https://documentation.wazuh.com/4.14/user-manual/registering/index.html
-                           and https://documentation.wazuh.com/4.14/user-manual/agents/agent-connection.html
+                           Visit https://documentation.Vendetta.com/4.14/user-manual/registering/index.html
+                           and https://documentation.Vendetta.com/4.14/user-manual/agents/agent-connection.html
                            to obtain more information on registering and connecting agents"
                         id:
                           - '009'
@@ -9776,7 +9776,7 @@ paths:
                       node_name: worker1
                       ip: 172.20.0.7
                       id: 004
-                      manager: wazuh-worker1
+                      manager: Vendetta-worker1
                       group:
                         - default
                         - group1
@@ -9786,7 +9786,7 @@ paths:
                       dateAdd: 2021-05-27T09:14:19Z
                       registerIP: any
                       lastKeepAlive: 2021-05-27T09:23:59Z
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       status_code: 0
                     - os:
                         arch: x86_64
@@ -9802,7 +9802,7 @@ paths:
                       node_name: worker1
                       ip: 172.20.0.9
                       id: 005
-                      manager: wazuh-worker1
+                      manager: Vendetta-worker1
                       group:
                         - default
                         - group2
@@ -9812,7 +9812,7 @@ paths:
                       dateAdd: 2021-05-27T09:14:19Z
                       registerIP: any
                       lastKeepAlive: 2021-05-27T09:23:52Z
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       status_code: 0
                     - os:
                         arch: x86_64
@@ -9828,7 +9828,7 @@ paths:
                       node_name: worker2
                       ip: 172.20.0.10
                       id: 006
-                      manager: wazuh-worker2
+                      manager: Vendetta-worker2
                       group:
                         - default
                         - group3
@@ -9838,7 +9838,7 @@ paths:
                       dateAdd: 2021-05-27T09:14:19Z
                       registerIP: any
                       lastKeepAlive: 2021-05-27T09:23:52Z
-                      version: Wazuh v4.3.0
+                      version: Vendetta v4.3.0
                       status_code: 0
                   total_affected_items: 3
                   total_failed_items: 0
@@ -10212,7 +10212,7 @@ paths:
                 data:
                   affected_items:
                     - node: "master-node"
-                      cluster: "wazuh"
+                      cluster: "Vendetta"
                       type: "master"
                   total_affected_items: 1
                   total_failed_items: 0
@@ -10254,14 +10254,14 @@ paths:
               example:
                 data:
                   affected_items:
-                    - name: wazuh
+                    - name: Vendetta
                       node_name: master-node
                       node_type: master
                       key: 9d273b53510fef702b54a92e9cffc82e
                       port: 1516
                       bind_addr: 0.0.0.0
                       nodes:
-                        - wazuh-master
+                        - Vendetta-master
                       hidden: "no"
                       disabled: false
                   total_affected_items: 1
@@ -10319,7 +10319,7 @@ paths:
                     - name: master-node
                       type: master
                       version: 4.4.0
-                      ip: wazuh-master
+                      ip: Vendetta-master
                     - name: worker1
                       type: worker
                       version: 4.4.0
@@ -10377,7 +10377,7 @@ paths:
                         name: master-node
                         type: master
                         version: 4.4.0
-                        ip: wazuh-master
+                        ip: Vendetta-master
                         n_active_agents: 5
                     - info:
                         name: worker1
@@ -10738,7 +10738,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node status"
-      description: "Return the status of all Wazuh daemons in node node_id"
+      description: "Return the status of all Vendetta daemons in node node_id"
       operationId: api.controllers.cluster_controller.get_status_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -10748,7 +10748,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Node wazuh daemons statuses"
+          description: "Node Vendetta daemons statuses"
           content:
             application/json:
               schema:
@@ -10757,26 +10757,26 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhDaemonsStatus'
+                        $ref: '#/components/schemas/VendettaDaemonsStatus'
               example:
                 data:
                   affected_items:
-                    - wazuh-agentlessd: stopped
-                      wazuh-analysisd: running
-                      wazuh-authd: stopped
-                      wazuh-csyslogd: stopped
-                      wazuh-monitord: running
-                      wazuh-execd: running
-                      wazuh-integratord: stopped
-                      wazuh-logcollector: running
-                      wazuh-maild: stopped
-                      wazuh-remoted: running
-                      wazuh-reportd: stopped
-                      wazuh-syscheckd: running
-                      wazuh-apid: running
-                      wazuh-clusterd: running
-                      wazuh-db: running
-                      wazuh-modulesd: running
+                    - Vendetta-agentlessd: stopped
+                      Vendetta-analysisd: running
+                      Vendetta-authd: stopped
+                      Vendetta-csyslogd: stopped
+                      Vendetta-monitord: running
+                      Vendetta-execd: running
+                      Vendetta-integratord: stopped
+                      Vendetta-logcollector: running
+                      Vendetta-maild: stopped
+                      Vendetta-remoted: running
+                      Vendetta-reportd: stopped
+                      Vendetta-syscheckd: running
+                      Vendetta-apid: running
+                      Vendetta-clusterd: running
+                      Vendetta-db: running
+                      Vendetta-modulesd: running
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
@@ -10818,7 +10818,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhInfo'
+                        $ref: '#/components/schemas/VendettaInfo'
               example:
                 data:
                   affected_items:
@@ -10851,7 +10851,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node config"
-      description: "Return wazuh configuration used in node {node_id}. The 'section' and 'field' parameters will be
+      description: "Return Vendetta configuration used in node {node_id}. The 'section' and 'field' parameters will be
       ignored if 'raw' parameter is provided."
       operationId: api.controllers.cluster_controller.get_configuration_node
       x-rbac-actions:
@@ -10874,7 +10874,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhManagerConfiguration'
+                        $ref: '#/components/schemas/VendettaManagerConfiguration'
               example:
                 data:
                   affected_items:
@@ -10884,9 +10884,9 @@ paths:
                         logall: no
                         logall_json: no
                         email_notification: no
-                        smtp_server: smtp.example.wazuh.com
-                        email_from: wazuh@example.wazuh.com
-                        email_to: recipient@example.wazuh.com
+                        smtp_server: smtp.example.Vendetta.com
+                        email_from: Vendetta@example.Vendetta.com
+                        email_to: recipient@example.Vendetta.com
                         email_maxperhour: 12
                         email_log_source: alerts.log
                         agents_disconnection_time: "15m"
@@ -11016,8 +11016,8 @@ paths:
                         - name: disable-account
                           executable: disable-account
                           timeout_allowed: yes
-                        - name: restart-wazuh
-                          executable: restart-wazuh
+                        - name: restart-Vendetta
+                          executable: restart-Vendetta
                         - name: firewall-drop
                           executable: firewall-drop
                           timeout_allowed: yes
@@ -11079,14 +11079,14 @@ paths:
                         ssl_manager_key: "etc/sslmanager.key"
                         ssl_auto_negotiate: "no"
                       cluster:
-                        name: "wazuh"
+                        name: "Vendetta"
                         node_name: "master-node"
                         node_type: "master"
                         key: "9d273b53510fef702b54a92e9cffc82e"
                         port: "1516"
                         bind_addr: "0.0.0.0"
                         nodes:
-                          - "wazuh-master"
+                          - "Vendetta-master"
                         hidden: "no"
                         disabled: "no"
                   total_affected_items: 1
@@ -11108,7 +11108,7 @@ paths:
       tags:
         - Cluster
       summary: "Update node configuration"
-      description: "Replace wazuh configuration for the given node with the data contained in the API request"
+      description: "Replace Vendetta configuration for the given node with the data contained in the API request"
       operationId: api.controllers.cluster_controller.update_configuration
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:update_config'
@@ -11155,8 +11155,8 @@ paths:
     get:
       tags:
         - Cluster
-      summary: "Get Wazuh daemon stats from a cluster node"
-      description: "Return Wazuh statistical information from specified daemons in a specified cluster node"
+      summary: "Get Vendetta daemon stats from a cluster node"
+      description: "Return Vendetta statistical information from specified daemons in a specified cluster node"
       operationId: api.controllers.cluster_controller.get_daemon_stats_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11167,7 +11167,7 @@ paths:
         - $ref: '#/components/parameters/daemons_list'
       responses:
         '200':
-          description: "Wazuh daemon stats"
+          description: "Vendetta daemon stats"
           content:
             application/json:
               schema:
@@ -11176,13 +11176,13 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhDaemonStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaDaemonStats'
               example:
                 data:
                   affected_items:
                     - uptime: 2022-07-21T10:09:20+00:00
                       timestamp: 2022-07-21T10:48:32+00:00
-                      name: wazuh-remoted
+                      name: Vendetta-remoted
                       metrics:
                         bytes:
                           received: 0
@@ -11233,7 +11233,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node stats"
-      description: "Return Wazuh statistical information in node {node_id} for the current or specified date"
+      description: "Return Vendetta statistical information in node {node_id} for the current or specified date"
       operationId: api.controllers.cluster_controller.get_stats_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11244,7 +11244,7 @@ paths:
         - $ref: '#/components/parameters/date'
       responses:
         '200':
-          description: "Wazuh node stats"
+          description: "Vendetta node stats"
           content:
             application/json:
               schema:
@@ -11253,7 +11253,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -11317,7 +11317,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node stats hour"
-      description: "Return Wazuh statistical information in node {node_id} per hour. Each number in the averages field
+      description: "Return Vendetta statistical information in node {node_id} per hour. Each number in the averages field
       represents the average of alerts per hour"
       operationId: api.controllers.cluster_controller.get_stats_hourly_node
       x-rbac-actions:
@@ -11328,7 +11328,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Wazuh node hourly stats"
+          description: "Vendetta node hourly stats"
           content:
             application/json:
               schema:
@@ -11337,7 +11337,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -11388,7 +11388,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node stats week"
-      description: "Return Wazuh statistical information in node {node_id} per week. Each number in the averages field
+      description: "Return Vendetta statistical information in node {node_id} per week. Each number in the averages field
       represents the average of alerts per hour for that specific day"
       operationId: api.controllers.cluster_controller.get_stats_weekly_node
       x-rbac-actions:
@@ -11399,7 +11399,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Wazuh node weekly stats"
+          description: "Vendetta node weekly stats"
           content:
             application/json:
               schema:
@@ -11408,7 +11408,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -11623,7 +11623,7 @@ paths:
         - Cluster
       deprecated: true
       summary: "Get node stats analysisd"
-      description: "Return Wazuh analysisd statistical information in node {node_id}"
+      description: "Return Vendetta analysisd statistical information in node {node_id}"
       operationId: api.controllers.cluster_controller.get_stats_analysisd_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11633,7 +11633,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Wazuh node analysisd stats"
+          description: "Vendetta node analysisd stats"
           content:
             application/json:
               schema:
@@ -11642,7 +11642,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -11710,7 +11710,7 @@ paths:
         - Cluster
       deprecated: true
       summary: "Get node stats remoted"
-      description: "Return Wazuh remoted statistical information in node {node_id}"
+      description: "Return Vendetta remoted statistical information in node {node_id}"
       operationId: api.controllers.cluster_controller.get_stats_remoted_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11720,7 +11720,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Wazuh node remoted stats"
+          description: "Vendetta node remoted stats"
           content:
             application/json:
               schema:
@@ -11729,7 +11729,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -11763,7 +11763,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node logs"
-      description: "Return the last 2000 wazuh log entries in the specified node"
+      description: "Return the last 2000 Vendetta log entries in the specified node"
       operationId: api.controllers.cluster_controller.get_log_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11782,7 +11782,7 @@ paths:
         - $ref: '#/components/parameters/distinct'
       responses:
         '200':
-          description: "Wazuh node logs"
+          description: "Vendetta node logs"
           content:
             application/json:
               schema:
@@ -11791,20 +11791,20 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhLogs'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaLogs'
               example:
                 data:
                   affected_items:
                     - timestamp: '2021-05-27T12:18:08Z'
-                      tag: wazuh-remoted
+                      tag: Vendetta-remoted
                       level: debug
                       description: " TCP socket 20 already in keystore. Updating..."
                     - timestamp: '2021-05-27T12:18:08Z'
-                      tag: wazuh-remoted
+                      tag: Vendetta-remoted
                       level: debug
                       description: " Agent '003' group is 'default'"
                     - timestamp: '2021-05-27T12:18:08Z'
-                      tag: wazuh-remoted
+                      tag: Vendetta-remoted
                       level: debug
                       description: " Agent '003' with group 'default' file 'merged.mg' MD5
                         '9a016508cea1e997ab8569f5cfab30f5'"
@@ -11829,7 +11829,7 @@ paths:
       tags:
         - Cluster
       summary: "Get node logs summary"
-      description: "Return a summary of the last 2000 wazuh log entries in the specified node"
+      description: "Return a summary of the last 2000 Vendetta log entries in the specified node"
       operationId: api.controllers.cluster_controller.get_log_summary_node
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -11839,7 +11839,7 @@ paths:
         - $ref: '#/components/parameters/node_id'
       responses:
         '200':
-          description: "Wazuh node logs summary"
+          description: "Vendetta node logs summary"
           content:
             application/json:
               schema:
@@ -11848,7 +11848,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhLogsSummary'
+                        $ref: '#/components/schemas/VendettaLogsSummary'
               example:
                 data:
                   affected_items:
@@ -11859,28 +11859,28 @@ paths:
                         critical: 0
                         warning: 24
                         debug: 0
-                    - wazuh-db:
+                    - Vendetta-db:
                         info: 1
                         all: 4
                         critical: 0
                         debug: 0
                         error: 3
                         warning: 0
-                    - wazuh-modulesd:content_manager:
+                    - Vendetta-modulesd:content_manager:
                         info: 1
                         all: 1
                         critical: 0
                         debug: 0
                         error: 0
                         warning: 0
-                    - wazuh-modulesd:router:
+                    - Vendetta-modulesd:router:
                         info: 1
                         all: 1
                         critical: 0
                         debug: 0
                         error: 0
                         warning: 0
-                    - wazuh-remoted:
+                    - Vendetta-remoted:
                         info: 744
                         all: 0
                         critical: 0
@@ -12004,7 +12004,7 @@ paths:
       tags:
         - Cluster
       summary: "Check nodes config"
-      description: "Return whether the Wazuh configuration is correct or not in all cluster nodes or a list of them"
+      description: "Return whether the Vendetta configuration is correct or not in all cluster nodes or a list of them"
       operationId: api.controllers.cluster_controller.get_conf_validation
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/cluster:read'
@@ -12139,15 +12139,15 @@ paths:
                 data:
                   affected_items:
                     - items:
-                        - key: audit-wazuh-w
+                        - key: audit-Vendetta-w
                           value: write
-                        - key: audit-wazuh-r
+                        - key: audit-Vendetta-r
                           value: read
-                        - key: audit-wazuh-a
+                        - key: audit-Vendetta-a
                           value: attribute
-                        - key: audit-wazuh-x
+                        - key: audit-Vendetta-x
                           value: execute
-                        - key: audit-wazuh-c
+                        - key: audit-Vendetta-c
                           value: command
                       relative_dirname: etc/lists
                       filename: audit-keys
@@ -12197,11 +12197,11 @@ paths:
               example:
                 data:
                   affected_items:
-                    - audit-wazuh-w: write
-                      audit-wazuh-r: read
-                      audit-wazuh-a: attribute
-                      audit-wazuh-x: execute
-                      audit-wazuh-c: command
+                    - audit-Vendetta-w: write
+                      audit-Vendetta-r: read
+                      audit-Vendetta-a: attribute
+                      audit-Vendetta-x: execute
+                      audit-Vendetta-c: command
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
@@ -12211,11 +12211,11 @@ paths:
               schema:
                 type: string
               example: |
-                audit-wazuh-w:write
-                audit-wazuh-r:read
-                audit-wazuh-a:attribute
-                audit-wazuh-x:execute
-                audit-wazuh-c:command
+                audit-Vendetta-w:write
+                audit-Vendetta-r:read
+                audit-Vendetta-a:attribute
+                audit-Vendetta-x:execute
+                audit-Vendetta-c:command
         '400':
           $ref: '#/components/responses/ResponseError'
         '401':
@@ -12326,7 +12326,7 @@ paths:
         - Lists
       summary: "Get CDB lists files"
       description: "Return the path from all CDB lists. Use this method to know all the CDB lists and their location in
-      the filesystem relative to Wazuh installation folder"
+      the filesystem relative to Vendetta installation folder"
       operationId: api.controllers.cdb_list_controller.get_lists_files
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/lists:read'
@@ -12425,12 +12425,12 @@ paths:
                         - 4.3
                     agent:
                       id: "000"
-                      name: "wazuh-master"
+                      name: "Vendetta-master"
                     manager:
-                      name: "wazuh-master"
+                      name: "Vendetta-master"
                     id: "1622119563.2682664"
                     cluster:
-                      name: "wazuh"
+                      name: "Vendetta"
                       node: "master-node"
                     full_log: "ERROR"
                     decoder: None
@@ -12499,7 +12499,7 @@ paths:
       tags:
         - Manager
       summary: "Get status"
-      description: "Return the status of all Wazuh daemons"
+      description: "Return the status of all Vendetta daemons"
       operationId: api.controllers.manager_controller.get_status
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -12508,7 +12508,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh manager daemons statuses"
+          description: "Vendetta manager daemons statuses"
           content:
             application/json:
               schema:
@@ -12517,26 +12517,26 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhDaemonsStatus'
+                        $ref: '#/components/schemas/VendettaDaemonsStatus'
               example:
                 data:
                   affected_items:
-                    - wazuh-agentlessd: "stopped"
-                      wazuh-analysisd: "running"
-                      wazuh-authd: "running"
-                      wazuh-csyslogd: "stopped"
-                      wazuh-monitor": "running"
-                      wazuh-execd: "running"
-                      wazuh-integratord: "stopped"
-                      wazuh-logcollector: "running"
-                      wazuh-maild: "stopped"
-                      wazuh-remoted: "running"
-                      wazuh-reportd: "stopped"
-                      wazuh-syscheckd: "running"
-                      wazuh-clusterd: "running"
-                      wazuh-modulesd: "running"
-                      wazuh-db: "running"
-                      wazuh-apid: "running"
+                    - Vendetta-agentlessd: "stopped"
+                      Vendetta-analysisd: "running"
+                      Vendetta-authd: "running"
+                      Vendetta-csyslogd: "stopped"
+                      Vendetta-monitor": "running"
+                      Vendetta-execd: "running"
+                      Vendetta-integratord: "stopped"
+                      Vendetta-logcollector: "running"
+                      Vendetta-maild: "stopped"
+                      Vendetta-remoted: "running"
+                      Vendetta-reportd: "stopped"
+                      Vendetta-syscheckd: "running"
+                      Vendetta-clusterd: "running"
+                      Vendetta-modulesd: "running"
+                      Vendetta-db: "running"
+                      Vendetta-apid: "running"
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
@@ -12576,7 +12576,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhInfo'
+                        $ref: '#/components/schemas/VendettaInfo'
               example:
                 data:
                   affected_items:
@@ -12609,7 +12609,7 @@ paths:
       tags:
         - Manager
       summary: "Get configuration"
-      description: "Return wazuh configuration used. The 'section' and 'field' parameters will be ignored if 'raw' parameter is provided."
+      description: "Return Vendetta configuration used. The 'section' and 'field' parameters will be ignored if 'raw' parameter is provided."
       operationId: api.controllers.manager_controller.get_configuration
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -12622,7 +12622,7 @@ paths:
         - $ref: '#/components/parameters/distinct'
       responses:
         '200':
-          description: "Wazuh configuration"
+          description: "Vendetta configuration"
           content:
             application/json:
               schema:
@@ -12631,7 +12631,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhManagerConfiguration'
+                        $ref: '#/components/schemas/VendettaManagerConfiguration'
             application/xml:
               schema:
                 allOf:
@@ -12639,7 +12639,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhManagerConfiguration'
+                        $ref: '#/components/schemas/VendettaManagerConfiguration'
               example:
                 data:
                   affected_items:
@@ -12649,9 +12649,9 @@ paths:
                         logall: no
                         logall_json: no
                         email_notification: no
-                        smtp_server: smtp.example.wazuh.com
-                        email_from: wazuh@example.wazuh.com
-                        email_to: recipient@example.wazuh.com
+                        smtp_server: smtp.example.Vendetta.com
+                        email_from: Vendetta@example.Vendetta.com
+                        email_to: recipient@example.Vendetta.com
                         email_maxperhour: 12
                         email_log_source: alerts.log
                         queue_size: 131072
@@ -12695,8 +12695,8 @@ paths:
     put:
       tags:
         - Manager
-      summary: "Update Wazuh configuration"
-      description: "Replace Wazuh configuration with the data contained in the API request"
+      summary: "Update Vendetta configuration"
+      description: "Replace Vendetta configuration with the data contained in the API request"
       operationId: api.controllers.manager_controller.update_configuration
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:update_config'
@@ -12744,8 +12744,8 @@ paths:
     get:
       tags:
         - Manager
-      summary: "Get Wazuh daemon stats"
-      description: "Return Wazuh statistical information from specified daemons"
+      summary: "Get Vendetta daemon stats"
+      description: "Return Vendetta statistical information from specified daemons"
       operationId: api.controllers.manager_controller.get_daemon_stats
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -12755,7 +12755,7 @@ paths:
         - $ref: '#/components/parameters/daemons_list'
       responses:
         '200':
-          description: "Wazuh daemon stats"
+          description: "Vendetta daemon stats"
           content:
             application/json:
               schema:
@@ -12764,13 +12764,13 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhDaemonStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaDaemonStats'
               example:
                 data:
                   affected_items:
                     - uptime: 2022-07-21T10:09:20+00:00
                       timestamp: 2022-07-21T10:48:32+00:00
-                      name: wazuh-remoted
+                      name: Vendetta-remoted
                       metrics:
                         bytes:
                           received: 0
@@ -12820,7 +12820,7 @@ paths:
       tags:
         - Manager
       summary: "Get stats"
-      description: "Return Wazuh statistical information for the current or specified date"
+      description: "Return Vendetta statistical information for the current or specified date"
       operationId: api.controllers.manager_controller.get_stats
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -12830,7 +12830,7 @@ paths:
         - $ref: '#/components/parameters/date'
       responses:
         '200':
-          description: "Wazuh stats"
+          description: "Vendetta stats"
           content:
             application/json:
               schema:
@@ -12839,7 +12839,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -12888,7 +12888,7 @@ paths:
       tags:
         - Manager
       summary: "Get stats hour"
-      description: "Return Wazuh statistical information per hour. Each number in the averages field represents the
+      description: "Return Vendetta statistical information per hour. Each number in the averages field represents the
       average of alerts per hour"
       operationId: api.controllers.manager_controller.get_stats_hourly
       x-rbac-actions:
@@ -12898,7 +12898,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh hourly stats"
+          description: "Vendetta hourly stats"
           content:
             application/json:
               schema:
@@ -12907,7 +12907,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -12956,7 +12956,7 @@ paths:
       tags:
         - Manager
       summary: "Get stats week"
-      description: "Return Wazuh statistical information per week. Each number in the averages field represents the
+      description: "Return Vendetta statistical information per week. Each number in the averages field represents the
       average of alerts per hour for that specific day"
       operationId: api.controllers.manager_controller.get_stats_weekly
       x-rbac-actions:
@@ -12966,7 +12966,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh weekly stats"
+          description: "Vendetta weekly stats"
           content:
             application/json:
               schema:
@@ -12975,7 +12975,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -13188,7 +13188,7 @@ paths:
         - Manager
       deprecated: true
       summary: "Get stats analysisd"
-      description: "Return Wazuh analysisd statistical information"
+      description: "Return Vendetta analysisd statistical information"
       operationId: api.controllers.manager_controller.get_stats_analysisd
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13197,7 +13197,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh analysisd stats"
+          description: "Vendetta analysisd stats"
           content:
             application/json:
               schema:
@@ -13206,7 +13206,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -13272,7 +13272,7 @@ paths:
         - Manager
       deprecated: true
       summary: "Get stats remoted"
-      description: "Return Wazuh remoted statistical information"
+      description: "Return Vendetta remoted statistical information"
       operationId: api.controllers.manager_controller.get_stats_remoted
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13281,7 +13281,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh remoted stats"
+          description: "Vendetta remoted stats"
           content:
             application/json:
               schema:
@@ -13290,7 +13290,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhStats'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaStats'
               example:
                 data:
                   affected_items:
@@ -13322,7 +13322,7 @@ paths:
       tags:
         - Manager
       summary: "Get logs"
-      description: "Return the last 2000 wazuh log entries"
+      description: "Return the last 2000 Vendetta log entries"
       operationId: api.controllers.manager_controller.get_log
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13340,7 +13340,7 @@ paths:
         - $ref: '#/components/parameters/distinct'
       responses:
         '200':
-          description: "Wazuh logs"
+          description: "Vendetta logs"
           content:
             application/json:
               schema:
@@ -13349,20 +13349,20 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/AllItemsResponseWazuhLogs'
+                        $ref: '#/components/schemas/AllItemsResponseVendettaLogs'
               example:
                 data:
                   affected_items:
                     - timestamp: '2020-04-15T14:47:54Z'
-                      tag: wazuh-modulesd:syscollector
+                      tag: Vendetta-modulesd:syscollector
                       level: info
                       description: "Start syscheck scan"
                     - timestamp: '2020-04-15T14:47:51Z'
-                      tag: wazuh-modulesd:syscollector
+                      tag: Vendetta-modulesd:syscollector
                       level: info
                       description: "Starting evaluation"
                     - timestamp: '2020-04-15T13:50:24Z'
-                      tag: wazuh-maild
+                      tag: Vendetta-maild
                       level: error
                       description: " (1263): Error Sending email to 69.172.200.109 (smtp server)"
                   total_affected_items: 3
@@ -13386,7 +13386,7 @@ paths:
       tags:
         - Manager
       summary: "Get logs summary"
-      description: "Return a summary of the last 2000 wazuh log entries"
+      description: "Return a summary of the last 2000 Vendetta log entries"
       operationId: api.controllers.manager_controller.get_log_summary
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13395,7 +13395,7 @@ paths:
         - $ref: '#/components/parameters/wait_for_complete'
       responses:
         '200':
-          description: "Wazuh logs summary"
+          description: "Vendetta logs summary"
           content:
             application/json:
               schema:
@@ -13404,7 +13404,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/WazuhLogsSummary'
+                        $ref: '#/components/schemas/VendettaLogsSummary'
               example:
                 data:
                   affected_items:
@@ -13415,28 +13415,28 @@ paths:
                         critical: 0
                         warning: 24
                         debug: 0
-                    - wazuh-db:
+                    - Vendetta-db:
                         info: 1
                         all: 4
                         critical: 0
                         debug: 0
                         error: 3
                         warning: 0
-                    - wazuh-modulesd:content_manager:
+                    - Vendetta-modulesd:content_manager:
                         info: 1
                         all: 1
                         critical: 0
                         debug: 0
                         error: 0
                         warning: 0
-                    - wazuh-modulesd:router:
+                    - Vendetta-modulesd:router:
                         info: 1
                         all: 1
                         critical: 0
                         debug: 0
                         error: 0
                         warning: 0
-                    - wazuh-remoted:
+                    - Vendetta-remoted:
                         info: 744
                         all: 0
                         critical: 0
@@ -13598,7 +13598,7 @@ paths:
       tags:
         - Manager
       summary: "Restart manager"
-      description: "Restart the wazuh manager"
+      description: "Restart the Vendetta manager"
       operationId: api.controllers.manager_controller.put_restart
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13637,7 +13637,7 @@ paths:
       tags:
         - Manager
       summary: "Check config"
-      description: "Return whether the Wazuh configuration is correct"
+      description: "Return whether the Vendetta configuration is correct"
       operationId: api.controllers.manager_controller.get_conf_validation
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/manager:read'
@@ -13697,14 +13697,14 @@ paths:
               example:
                 data:
                   affected_items:
-                    - name: wazuh
+                    - name: Vendetta
                       node_name: master-node
                       node_type: master
                       key: 9d273b53510fef702b54a92e9cffc82e
                       port: 1516
                       bind_addr: "0.0.0.0"
                       nodes:
-                        - wazuh-master
+                        - Vendetta-master
                       hidden: no
                       disabled: false
                   total_affected_items: 1
@@ -13753,7 +13753,7 @@ paths:
                   last_available_major:
                     tag: v5.0.0
                     description: ""
-                    title: Wazuh 5.0.0
+                    title: Vendetta 5.0.0
                     published_date: '2023-10-05T12:48:00Z'
                     semver:
                       major: 5
@@ -13762,7 +13762,7 @@ paths:
                   last_available_minor:
                     tag: v4.9.1
                     description: ""
-                    title: Wazuh 4.9.1
+                    title: Vendetta 4.9.1
                     published_date: '2023-10-05T12:47:00Z'
                     semver:
                       major: 4
@@ -13771,7 +13771,7 @@ paths:
                   last_available_patch:
                     tag: v4.8.2
                     description: ""
-                    title: Wazuh 4.8.2
+                    title: Vendetta 4.8.2
                     published_date: '2023-10-05T12:46:00Z'
                     semver:
                       major: 4
@@ -14647,7 +14647,7 @@ paths:
       tags:
         - Rules
       summary: "Get requirements"
-      description: "Return all specified requirement names defined in the Wazuh ruleset"
+      description: "Return all specified requirement names defined in the Vendetta ruleset"
       operationId: api.controllers.rule_controller.get_rules_requirement
       x-rbac-actions:
         - $ref: '#/x-rbac-catalog/actions/rules:read'
@@ -14737,7 +14737,7 @@ paths:
                     - file: 0015-ossec_rules.xml
                       relative_dirname: ruleset/rules
                       status: enabled
-                    - file: 0016-wazuh_rules.xml
+                    - file: 0016-Vendetta_rules.xml
                       relative_dirname: ruleset/rules
                       status: enabled
                     - file: 0020-syslog_rules.xml
@@ -14838,7 +14838,7 @@ paths:
                           "@level": '0'
                           "@noalert": '1'
                           category: ossec
-                          description: "Generic template for all wazuh rules."
+                          description: "Generic template for all Vendetta rules."
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
@@ -14851,8 +14851,8 @@ paths:
                 <!--
                   -  Rules config
                   -  Author: Daniel Cid.
-                  -  Updated by Wazuh, Inc.
-                  -  Copyright (C) 2015, Wazuh Inc.
+                  -  Updated by Vendetta, Inc.
+                  -  Copyright (C) 2015, Vendetta Inc.
                   -  Copyright (C) 2009 Trend Micro Inc.
                   -  This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2.
                 -->
@@ -15443,23 +15443,23 @@ paths:
               example:
                 data:
                   affected_items:
-                    - filename: "0005-wazuh_decoders.xml"
+                    - filename: "0005-Vendetta_decoders.xml"
                       relative_dirname: "ruleset/decoders"
                       status: enabled
-                      name: wazuh
+                      name: Vendetta
                       position: 0
                       details:
                         prematch:
-                          pattern: "^wazuh: "
-                    - filename: "0005-wazuh_decoders.xml"
+                          pattern: "^Vendetta: "
+                    - filename: "0005-Vendetta_decoders.xml"
                       relative_dirname: "ruleset/decoders"
                       status: enabled
                       name: agent-buffer
                       position: 1
                       details:
-                        parent: wazuh
+                        parent: Vendetta
                         prematch:
-                          pattern: "^wazuh: "
+                          pattern: "^Vendetta: "
                           offset: after_parent
                         regex:
                           pattern: "^ '(\\S+)'."
@@ -15486,7 +15486,7 @@ paths:
       tags:
         - Decoders
       summary: "Get files"
-      description: "Return information about all decoders files used in Wazuh. This information include decoder's file,
+      description: "Return information about all decoders files used in Vendetta. This information include decoder's file,
       decoder's route and decoder's status among others"
       operationId: api.controllers.decoder_controller.get_decoders_files
       x-rbac-actions:
@@ -15519,7 +15519,7 @@ paths:
               example:
                 data:
                   affected_items:
-                    - filename: 0005-wazuh_decoders.xml
+                    - filename: 0005-Vendetta_decoders.xml
                       relative_dirname: ruleset/decoders
                       status: enabled
                     - filename: 0006-json_decoders.xml
@@ -15575,10 +15575,10 @@ paths:
                 data:
                   affected_items:
                     - decoder:
-                        - "@name": wazuh
-                          prematch: "^wazuh:"
+                        - "@name": Vendetta
+                          prematch: "^Vendetta:"
                         - "@name": agent-buffer
-                          parent: wazuh
+                          parent: Vendetta
                           prematch:
                             "@offset": after_parent
                             "#text": "^Agent buffer:"
@@ -15587,7 +15587,7 @@ paths:
                             "#text": "^ '(\\S+)'."
                           order: level
                         - "@name": agent-upgrade
-                          parent: wazuh
+                          parent: Vendetta
                           prematch:
                             "@offset": after_parent
                             "#text": "^Upgrade procedure |^Custom installation"
@@ -15596,19 +15596,19 @@ paths:
                             "#text": on agent (\d\d\d)\s\((\S+)\):\s(\w+)
                           order: agent.id, agent.name, status
                         - "@name": agent-upgrade
-                          parent: wazuh
+                          parent: Vendetta
                           regex: aborted:\s(\.+)$|failed:\s(\.+)$|lost:\s(\.+)$
                           order: error
                         - "@name": agent-upgrade
-                          parent: wazuh
-                          regex: started.\sCurrent\sversion:\sWazuh\s(\.+)$
+                          parent: Vendetta
+                          regex: started.\sCurrent\sversion:\sVendetta\s(\.+)$
                           order: agent.cur_version
                         - "@name": agent-upgrade
-                          parent: wazuh
-                          regex: succeeded.\sNew\sversion:\sWazuh\s(\.+)$
+                          parent: Vendetta
+                          regex: succeeded.\sNew\sversion:\sVendetta\s(\.+)$
                           order: agent.new_version
                         - "@name": agent-restart
-                          parent: wazuh
+                          parent: Vendetta
                           prematch:
                             "@offset": after_parent
                             "#text": "^Invalid remote configuration:"
@@ -15617,7 +15617,7 @@ paths:
                             "#text": "^ '(\\S+)'."
                           order: module
                         - "@name": fim-state
-                          parent: wazuh
+                          parent: Vendetta
                           prematch:
                             "@offset": after_parent
                             "#text": "^FIM DB:"
@@ -15634,49 +15634,49 @@ paths:
                 type: string
               example: |
                 <!--
-                  -  Wazuh decoders
-                  -  Created by Wazuh, Inc.
-                  -  Copyright (C) 2015, Wazuh Inc.
+                  -  Vendetta decoders
+                  -  Created by Vendetta, Inc.
+                  -  Copyright (C) 2015, Vendetta Inc.
                   -  This program is a free software; you can redistribute it and/or modify it under the terms of GPLv2.
                 -->
-                <decoder name="wazuh">
-                  <prematch>^wazuh: </prematch>
+                <decoder name="Vendetta">
+                  <prematch>^Vendetta: </prematch>
                 </decoder>
                 <decoder name="agent-buffer">
-                  <parent>wazuh</parent>
+                  <parent>Vendetta</parent>
                   <prematch offset="after_parent">^Agent buffer:</prematch>
                   <regex offset="after_prematch">^ '(\S+)'.</regex>
                   <order>level</order>
                 </decoder>
                 <decoder name="agent-upgrade">
-                  <parent>wazuh</parent>
+                  <parent>Vendetta</parent>
                   <prematch offset="after_parent">^Upgrade procedure |^Custom installation </prematch>
                   <regex offset="after_prematch">on agent (\d\d\d)\s\((\S+)\):\s(\w+)</regex>
                   <order>agent.id, agent.name, status</order>
                 </decoder>
                 <decoder name="agent-upgrade">
-                  <parent>wazuh</parent>
+                  <parent>Vendetta</parent>
                   <regex>aborted:\s(\.+)$|failed:\s(\.+)$|lost:\s(\.+)$</regex>
                   <order>error</order>
                 </decoder>
                 <decoder name="agent-upgrade">
-                  <parent>wazuh</parent>
-                  <regex>started.\sCurrent\sversion:\sWazuh\s(\.+)$</regex>
+                  <parent>Vendetta</parent>
+                  <regex>started.\sCurrent\sversion:\sVendetta\s(\.+)$</regex>
                   <order>agent.cur_version</order>
                 </decoder>
                 <decoder name="agent-upgrade">
-                  <parent>wazuh</parent>
-                  <regex>succeeded.\sNew\sversion:\sWazuh\s(\.+)$</regex>
+                  <parent>Vendetta</parent>
+                  <regex>succeeded.\sNew\sversion:\sVendetta\s(\.+)$</regex>
                   <order>agent.new_version</order>
                 </decoder>
                 <decoder name="agent-restart">
-                  <parent>wazuh</parent>
+                  <parent>Vendetta</parent>
                   <prematch offset="after_parent">^Invalid remote configuration:</prematch>
                   <regex offset="after_prematch">^ '(\S+)'.</regex>
                   <order>module</order>
                 </decoder>
                 <decoder name="fim-state">
-                  <parent>wazuh</parent>
+                  <parent>Vendetta</parent>
                   <prematch offset="after_parent">^FIM DB: </prematch>
                   <plugin_decoder offset="after_prematch">JSON_Decoder</plugin_decoder>
                 </decoder>
@@ -15826,14 +15826,14 @@ paths:
               example:
                 data:
                   affected_items:
-                    - filename: "0005-wazuh_decoders.xml"
+                    - filename: "0005-Vendetta_decoders.xml"
                       relative_dirname: "ruleset/decoders"
                       status: enabled
-                      name: wazuh
+                      name: Vendetta
                       position: 0
                       details:
                         prematch:
-                          pattern: "^wazuh: "
+                          pattern: "^Vendetta: "
                     - filename: "0006-json_decoders.xml"
                       relative_dirname: "ruleset/decoders"
                       status: enabled
@@ -16537,7 +16537,7 @@ paths:
                         id: 496386874
                         time: '2020-04-15T11:02:03Z'
                       sysname: Linux
-                      hostname: wazuh-master
+                      hostname: Vendetta-master
                       version: "#34~1584408018~19.10~21df4b1-Ubuntu SMP Tue Mar 17 13:38:51 UTC "
                       release: 5.3.0-7642-generic
                       architecture: x86_64
@@ -16553,7 +16553,7 @@ paths:
                         id: 196194860
                         time: '2020-04-15T11:02:23Z'
                       sysname: Linux
-                      hostname: wazuh-agent1
+                      hostname: Vendetta-agent1
                       version: "#34~1584408018~19.10~21df4b1-Ubuntu SMP Tue Mar 17 13:38:51 UTC "
                       release: 5.3.0-7642-generic
                       architecture: x86_64
@@ -16568,7 +16568,7 @@ paths:
                       scan:
                         id: 763390318
                         time: '2020-04-15T11:02:52Z'
-                      hostname: wazuh-agent2
+                      hostname: Vendetta-agent2
                       release: 5.3.0-7642-generic
                       version: "#34~1584408018~19.10~21df4b1-Ubuntu SMP Tue Mar 17 13:38:51 UTC "
                       architecture: x86_64
@@ -16852,7 +16852,7 @@ paths:
                       utime: 23
                       egroup: root
                       ruser: root
-                      argvs: "/scripts/entrypoint.sh,wazuh-master,master-node,master"
+                      argvs: "/scripts/entrypoint.sh,Vendetta-master,master-node,master"
                       size: 4593
                       euser: root
                       processor: 3
@@ -16875,7 +16875,7 @@ paths:
                     - scan:
                         id: 28643647
                         time: '2020-04-15T11:02:07Z'
-                      name: wazuh-control
+                      name: Vendetta-control
                       suser: root
                       nlwp: 1
                       pgrp: 1
@@ -16884,7 +16884,7 @@ paths:
                       utime: 0
                       egroup: root
                       ruser: root
-                      argvs: "/var/ossec/bin/wazuh-control,restart"
+                      argvs: "/var/ossec/bin/Vendetta-control,restart"
                       size: 1156
                       euser: root
                       processor: 6
@@ -17347,7 +17347,7 @@ paths:
                       release: 5.8.0-45-generic
                       version: "#51~20.04.1-Ubuntu SMP Tue Feb 23 13:46:31 UTC 2021"
                       architecture: x86_64
-                      hostname: wazuh-master
+                      hostname: Vendetta-master
                       agent_id: '001'
                   total_affected_items: 1
                   total_failed_items: 0
@@ -18094,7 +18094,7 @@ paths:
                 $ref: '#/components/schemas/ApiResponse'
               example:
                 data:
-                  message: "User wazuh was successfully logged out"
+                  message: "User Vendetta was successfully logged out"
                   error: 0
         '400':
           $ref: '#/components/responses/ResponseError'
@@ -18128,7 +18128,7 @@ paths:
             example:
               name: "Initial_auth"
               auth:
-                name: "Wazuh"
+                name: "Vendetta"
                 office:
                   - "20"
                   - "21"
@@ -18186,7 +18186,7 @@ paths:
                   data:
                     affected_items:
                       - id: 1
-                        username: wazuh
+                        username: Vendetta
                         allow_run_as: true
                         roles:
                           - id: 1
@@ -18329,7 +18329,7 @@ paths:
                   data:
                     affected_items:
                       - id: 1
-                        username: wazuh
+                        username: Vendetta
                         allow_run_as: true
                         roles:
                           - 1
@@ -18439,7 +18439,7 @@ paths:
                   "node:id":
                     description: "Reference cluster nodes via node ID (i.e. node:id:worker1)"
                   "decoder:file":
-                    description: "Reference decoder files via its path (i.e. decoder:file:0005-wazuh_decoders.xml)"
+                    description: "Reference decoder files via its path (i.e. decoder:file:0005-Vendetta_decoders.xml)"
                   "list:file":
                     description: "Reference list files via its filename (i.e. list:file:audit-keys)"
                   "rule:file":
@@ -18532,12 +18532,12 @@ paths:
                           - 4
                           - 5
                       - id: 1
-                        username: wazuh
+                        username: Vendetta
                         allow_run_as: true
                         roles:
                           - 1
                       - id: 2
-                        username: wazuh-wui
+                        username: Vendetta-wui
                         allow_run_as: true
                         roles: []
                     total_affected_items: 8
@@ -18600,7 +18600,7 @@ paths:
                   data:
                     affected_items:
                       - id: 100
-                        username: TestWazuh
+                        username: TestVendetta
                         allow_run_as: false
                         roles: []
                     total_affected_items: 1
@@ -18711,7 +18711,7 @@ paths:
                   data:
                     affected_items:
                       - id: 100
-                        username: wazuh-test
+                        username: Vendetta-test
                         allow_run_as: false
                         roles:
                           - 2
@@ -18867,7 +18867,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhRole
+                      name: TestVendettaRole
                       policies: []
                       users: []
                       rules: []
@@ -19112,7 +19112,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: "TestWazuhRule"
+                      name: "TestVendettaRule"
                       rule:
                         MATCH:
                           definition: "test_rule"
@@ -19166,7 +19166,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: "TestWazuhRule"
+                      name: "TestVendettaRule"
                       rule:
                         MATCH:
                           definition: "test_rule"
@@ -19226,7 +19226,7 @@ paths:
                   data:
                     affected_items:
                       - id: 100
-                        name: "TestWazuhRule"
+                        name: "TestVendettaRule"
                         rule:
                           MATCH:
                             definition: "test_rule_updated"
@@ -19371,7 +19371,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: "TestWazuhPolicy"
+                      name: "TestVendettaPolicy"
                       policy:
                         actions:
                           - "security:delete"
@@ -19428,7 +19428,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: "TestWazuhPolicy"
+                      name: "TestVendettaPolicy"
                       policy:
                         actions:
                           - "security:delete"
@@ -19471,7 +19471,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PoliciesRequest_no_required'
             example:
-              name: 'wazuhPolicy'
+              name: 'VendettaPolicy'
               policy:
                 actions:
                   - "agent:delete"
@@ -19496,7 +19496,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhPolicy
+                      name: TestVendettaPolicy
                       policy:
                         actions:
                           - "security:delete"
@@ -19556,14 +19556,14 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      username: TestWazuhUsername
+                      username: TestVendettaUsername
                       allow_run_as: false
                       roles:
                         - 1
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
-                message: "All roles were linked to TestWazuhUsername"
+                message: "All roles were linked to TestVendettaUsername"
                 error: 0
         '400':
           $ref: '#/components/responses/ResponseError'
@@ -19605,13 +19605,13 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      username: TestWazuhUsername
+                      username: TestVendettaUsername
                       allow_run_as: false
                       roles: []
                   total_affected_items: 1
                   total_failed_items: 0
                   failed_items: []
-                message: "All roles were unlinked from user TestWazuhUsername"
+                message: "All roles were unlinked from user TestVendettaUsername"
                 error: 0
         '400':
           $ref: '#/components/responses/ResponseError'
@@ -19651,7 +19651,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhRole
+                      name: TestVendettaRole
                       policies:
                         - 100
                       users: []
@@ -19698,7 +19698,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhRole
+                      name: TestVendettaRole
                       policies: []
                       users: []
                       rules: []
@@ -19744,7 +19744,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhRole
+                      name: TestVendettaRole
                       policies: []
                       users: []
                       rules:
@@ -19791,7 +19791,7 @@ paths:
                 data:
                   affected_items:
                     - id: 100
-                      name: TestWazuhRole
+                      name: TestVendettaRole
                       policies: []
                       users: []
                       rules: []
@@ -19863,7 +19863,7 @@ paths:
                     pending: 0
                     total: 6
                   agent_version:
-                    - version: "Wazuh v4.3.0"
+                    - version: "Vendetta v4.3.0"
                       count: 6
                   last_registered_agent:
                     - os:
@@ -19886,10 +19886,10 @@ paths:
                       name: "77000bae7bd0"
                       registerIP: "any"
                       dateAdd: "2021-05-31T09:49:28Z"
-                      manager: "wazuh-worker1"
+                      manager: "Vendetta-worker1"
                       id: "004"
                       mergedSum: "9a016508cea1e997ab8569f5cfab30f5"
-                      version: "Wazuh v4.3.0"
+                      version: "Vendetta v4.3.0"
                       status_code: 0
                       group_config_status: active
                 error: 0
@@ -20058,5 +20058,5 @@ paths:
                 error: 0
 
 externalDocs:
-  description: "Learn more about the Wazuh API"
-  url: 'https://documentation.wazuh.com/4.14/user-manual/api/index.html'
+  description: "Learn more about the Vendetta API"
+  url: 'https://documentation.Vendetta.com/4.14/user-manual/api/index.html'
